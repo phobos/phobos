@@ -5,9 +5,8 @@ Dir.entries('./spec/support').select { |f| f =~ /\.rb$/ }.each do |f|
   load "./spec/support/#{f}"
 end
 
-Phobos.silence_log = true
-
 RSpec.configure do |config|
+  include KafkaHelpers
   include PhobosHelpers
 
   # rspec-expectations config goes here. You can use an alternate
@@ -61,6 +60,11 @@ RSpec.configure do |config|
     # unless a formatter has already been configured
     # (e.g. via a command-line flag).
     config.default_formatter = 'doc'
+  end
+
+  config.before(:each) do
+    Phobos.silence_log = true
+    Phobos.configure_logger
   end
 
   # Print the 10 slowest examples and example groups at the

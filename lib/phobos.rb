@@ -1,10 +1,20 @@
 require 'yaml'
 
 require 'phobos/version'
+require 'concurrent'
 require 'kafka'
 require 'hashie'
 require 'logging'
+require 'exponential_backoff'
+require 'active_support/notifications'
+require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/hash/keys'
+
+require 'phobos/instrumentation'
+require 'phobos/listener'
+require 'phobos/producer'
+require 'phobos/handler'
+require 'phobos/echo_handler'
 
 module Phobos
   class << self

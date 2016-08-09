@@ -20,3 +20,12 @@ kafka:
   # list of brokers used to initialize the client ("port:protocol")
   seed_brokers:
     - localhost:9092
+
+backoff:
+  min_ms: 1000
+  max_ms: 60000
+
+consumers:
+  - handler: Phobos::EchoHandler
+    topic: test
+    group_id: test-1
