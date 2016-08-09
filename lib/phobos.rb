@@ -12,6 +12,7 @@ require 'active_support/core_ext/hash/keys'
 
 require 'phobos/version'
 require 'phobos/instrumentation'
+require 'phobos/errors'
 require 'phobos/listener'
 require 'phobos/producer'
 require 'phobos/handler'

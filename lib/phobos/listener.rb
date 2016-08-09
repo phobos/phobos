@@ -13,6 +13,7 @@ module Phobos
     end
 
     def start
+      @signal_to_stop = false
       instrument('listener.start', listener_metadata) do
         @handler = @handler_class.new
         @consumer = @kafka_client.consumer(group_id: group_id)
@@ -27,24 +28,23 @@ module Phobos
           highwater_mark_offset: batch.highwater_mark_offset
         }.merge(listener_metadata)
 
-        begin
-          instrument('listener.process_batch', batch_metadata) { process_batch(batch) }
-        rescue => e
-          Phobos.logger.error do
-            {
-              message: "Error processing batch: #{e.message}",
-              backtrace: e.backtrace
-            }.merge(batch_metadata)
-          end
+        instrument('listener.process_batch', batch_metadata) { process_batch(batch) }
+      end
+
+    rescue Phobos::AbortError
+      instrument('listener.retry_aborted', listener_metadata) do
+        Phobos.logger.info do
+          {message: 'Retry loop aborted, listener is shutting down'}.merge(listener_metadata)
         end
       end
     end
 
     def stop
-      Thread.current.wakeup
       instrument('listener.stop') do
+        Phobos.logger.info { Hash(message: 'Listener stopping').merge(listener_metadata) }
         @consumer.stop
         @kafka_client.close
+        @signal_to_stop = true
       end
     end
 
@@ -88,6 +88,8 @@ module Phobos
             sleep interval
             metadata.merge!(retry_count: retry_count + 1)
           end
+
+          raise Phobos::AbortError if @signal_to_stop
           retry
         end
       end
