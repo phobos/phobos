@@ -22,4 +22,10 @@ RSpec.describe Phobos do
       expect(Phobos.create_kafka_client).to eql :kafka_client
     end
   end
+
+  describe '.create_exponential_backoff' do
+    it 'creates a configured ExponentialBackoff' do
+      expect(Phobos.create_exponential_backoff).to be_a(ExponentialBackoff)
+    end
+  end
 end

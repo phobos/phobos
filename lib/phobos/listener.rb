@@ -56,7 +56,7 @@ module Phobos
 
     def process_batch(batch)
       batch.messages.each do |message|
-        backoff = create_exponential_backoff
+        backoff = Phobos.create_exponential_backoff
         partition = batch.partition
         metadata = {
           key: message.key,
@@ -95,12 +95,6 @@ module Phobos
 
     def process_message(message, metadata)
       @handler.consume(message.value, metadata)
-    end
-
-    def create_exponential_backoff
-      min = Phobos.config.backoff.min_ms / 1000.0
-      max = Phobos.config.backoff.max_ms / 1000.0
-      ExponentialBackoff.new(min, max).tap { |backoff| backoff.randomize_factor = rand }
     end
 
   end
