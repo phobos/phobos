@@ -10,5 +10,7 @@ require "phobos"
 # require "pry"
 # Pry.start
 
+Phobos.configure(ENV['CONFIG_PATH'] || 'config/phobos.yml.example')
+
 require "irb"
 IRB.start
