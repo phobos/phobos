@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'ruby-kafka', '>= 0.3.12'
   spec.add_dependency 'concurrent-ruby', '>= 1.0.2'
+  spec.add_dependency 'concurrent-ruby-ext', '>= 1.0.2'
   spec.add_dependency 'activesupport', '>= 4.0.0'
   spec.add_dependency 'hashie'
   spec.add_dependency 'logging'
