@@ -64,7 +64,7 @@ RSpec.configure do |config|
 
   config.before(:each) do
     Phobos.silence_log = true
-    Phobos.configure_logger
+    Phobos.configure('config/phobos.yml.example')
   end
 
   # Print the 10 slowest examples and example groups at the

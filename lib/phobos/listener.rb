@@ -64,30 +64,29 @@ module Phobos
           retry_count: 0
         }.merge(listener_metadata)
 
-        loop do
-          begin
-            instrument('listener.process_message', metadata) { process_message(message, metadata) }
-            break
-          rescue Exception => e
-            retry_count = metadata[:retry_count]
-            interval = backoff.interval_at(retry_count).round(2)
+        begin
+          instrument('listener.process_message', metadata) { process_message(message, metadata) }
+          break
+        rescue Exception => e
+          retry_count = metadata[:retry_count]
+          interval = backoff.interval_at(retry_count).round(2)
 
-            error = {
-              exception_class: e.class.name,
-              exception_message: e.message,
-              backtrace: e.backtrace,
-              waiting_time: interval
-            }
+          error = {
+            exception_class: e.class.name,
+            exception_message: e.message,
+            backtrace: e.backtrace,
+            waiting_time: interval
+          }
 
-            instrument('listener.retry_handler_error', error.merge(metadata)) do
-              Phobos.logger.error do
-                {message: "error processing message, waiting #{interval}s"}.merge(error).merge(metadata)
-              end
-
-              sleep interval
-              metadata.merge!(retry_count: retry_count + 1)
+          instrument('listener.retry_handler_error', error.merge(metadata)) do
+            Phobos.logger.error do
+              {message: "error processing message, waiting #{interval}s"}.merge(error).merge(metadata)
             end
+
+            sleep interval
+            metadata.merge!(retry_count: retry_count + 1)
           end
+          retry
         end
       end
     end
