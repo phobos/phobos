@@ -7,9 +7,10 @@ RSpec.describe Phobos::Listener do
   let!(:topic) { random_topic }
   let!(:group_id) { random_group_id }
 
-  let(:handler_class) { Phobos::EchoHandler }
   let(:handler) { handler_class.new }
-  let(:listener) { Phobos::Listener.new(handler_class, topic: topic, group_id: group_id) }
+  let(:handler_class) { Phobos::EchoHandler }
+  let(:hander_config) { Hash(handler: handler_class, topic: topic, group_id: group_id, start_from_beginning: true) }
+  let(:listener) { Phobos::Listener.new(hander_config) }
   let(:thread) { Thread.new { listener.start } }
 
   before do

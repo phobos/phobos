@@ -4,11 +4,12 @@ module Phobos
 
     attr_reader :group_id, :topic, :id
 
-    def initialize(handler_class, group_id:, topic:)
+    def initialize(handler:, group_id:, topic:, start_from_beginning:)
       @id = SecureRandom.hex[0...6]
-      @handler_class = handler_class
+      @handler_class = handler
       @group_id = group_id
       @topic = topic
+      @start_from_beginning = start_from_beginning
       @kafka_client = Phobos.create_kafka_client
     end
 
@@ -17,7 +18,7 @@ module Phobos
       instrument('listener.start', listener_metadata) do
         @handler = @handler_class.new
         @consumer = create_kafka_consumer
-        @consumer.subscribe(topic)
+        @consumer.subscribe(topic, start_from_beginning: @start_from_beginning)
       end
 
       @consumer.each_batch do |batch|
