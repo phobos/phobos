@@ -2,9 +2,10 @@ module Phobos
   class Listener
     include Phobos::Instrumentation
 
-    attr_reader :group_id, :topic
+    attr_reader :group_id, :topic, :id
 
     def initialize(handler_class, group_id:, topic:)
+      @id = SecureRandom.hex[0...6]
       @handler_class = handler_class
       @group_id = group_id
       @topic = topic
@@ -50,7 +51,7 @@ module Phobos
     private
 
     def listener_metadata
-      { group_id: group_id, topic: topic }
+      { listener_id: id, group_id: group_id, topic: topic }
     end
 
     def process_batch(batch)
@@ -75,7 +76,8 @@ module Phobos
             exception_class: e.class.name,
             exception_message: e.message,
             backtrace: e.backtrace,
-            waiting_time: interval
+            waiting_time: interval,
+            listener_id: id
           }
 
           instrument('listener.retry_handler_error', error.merge(metadata)) do

@@ -1,6 +1,6 @@
 require 'yaml'
+require 'securerandom'
 
-require 'phobos/version'
 require 'concurrent'
 require 'kafka'
 require 'hashie'
@@ -10,6 +10,7 @@ require 'active_support/notifications'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/hash/keys'
 
+require 'phobos/version'
 require 'phobos/instrumentation'
 require 'phobos/listener'
 require 'phobos/producer'
