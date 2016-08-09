@@ -1,0 +1,18 @@
+kafka:
+  # identifier for this application
+  client_id: phobos
+  # timeout setting for connecting to brokers
+  connect_timeout:
+  # timeout setting for socket connections
+  socket_timeout:
+  # PEM encoded CA cert to use with an SSL connection (string)
+  ssl_ca_cert:
+  # PEM encoded client cert to use with an SSL connection (string)
+  # Must be used in combination with ssl_client_cert_key
+  ssl_client_cert:
+  # PEM encoded client cert key to use with an SSL connection (string)
+  # Must be used in combination with ssl_client_cert
+  ssl_client_cert_key:
+  # list of brokers used to initialize the client ("port:protocol")
+  seed_brokers:
+    - localhost:9092
