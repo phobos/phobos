@@ -16,7 +16,7 @@ module Phobos
       @signal_to_stop = false
       instrument('listener.start', listener_metadata) do
         @handler = @handler_class.new
-        @consumer = @kafka_client.consumer(group_id: group_id)
+        @consumer = create_kafka_consumer
         @consumer.subscribe(topic)
       end
 
@@ -97,6 +97,11 @@ module Phobos
 
     def process_message(message, metadata)
       @handler.consume(message.value, metadata)
+    end
+
+    def create_kafka_consumer
+      consumer_configs = Phobos.config.consumer.to_hash.symbolize_keys
+      @kafka_client.consumer({group_id: group_id}.merge(consumer_configs))
     end
 
   end

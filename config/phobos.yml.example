@@ -21,11 +21,23 @@ kafka:
   seed_brokers:
     - localhost:9092
 
+consumer:
+  # number of seconds after which, if a client hasn't contacted the Kafka cluster,
+  # it will be kicked out of the group
+  session_timeout: 30
+  # interval between offset commits, in seconds
+  offset_commit_interval: 10
+  # number of messages that can be processed before their offsets are committed.
+  # If zero, offset commits are not triggered by message processing
+  offset_commit_threshold: 0
+  # interval between heartbeats; must be less than the session window
+  heartbeat_interval: 10
+
 backoff:
   min_ms: 1000
   max_ms: 60000
 
-consumers:
+listeners:
   - handler: Phobos::EchoHandler
     topic: test
     group_id: test-1
