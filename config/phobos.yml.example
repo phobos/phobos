@@ -1,3 +1,7 @@
+logger:
+  file: log/phobos.log
+  level: info
+
 kafka:
   # identifier for this application
   client_id: phobos

@@ -5,6 +5,8 @@ Dir.entries('./spec/support').select { |f| f =~ /\.rb$/ }.each do |f|
   load "./spec/support/#{f}"
 end
 
+Phobos.silence_log = true
+
 RSpec.configure do |config|
   include PhobosHelpers
 

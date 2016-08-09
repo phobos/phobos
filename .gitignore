@@ -10,3 +10,4 @@ spec/examples.txt
 /tmp/
 .DS_Store
 config/phobos.yml
+log/*.log
