@@ -2,7 +2,8 @@ require 'securerandom'
 require 'timeout'
 
 module KafkaHelpers
-  DEFAULT_TIMEOUT = 3
+  DEFAULT_TIMEOUT = 5
+
   @@subscriptions = Concurrent::Hash.new
   @@subscription_events = Concurrent::Hash.new
 
@@ -22,9 +23,14 @@ module KafkaHelpers
     `TOPIC=#{name} PARTITIONS=#{partitions} sh utils/create-topic.sh`
   end
 
-  def events_for(name)
-    @@subscription_events[name].tap do |events|
-      raise "Not subscribed to event '#{name}'" if events.nil?
+  def events_for(name, ignore_errors: true)
+    events = @@subscription_events[name]
+    raise "Not subscribed to event '#{name}'" if events.nil?
+    # removing events with errors inside
+    if ignore_errors
+      events.reject { |event| event.payload[:exception] }
+    else
+      events
     end
   end
 
@@ -47,14 +53,19 @@ module KafkaHelpers
     @@subscriptions.each { |name| unsubscribe(name) }
   end
 
-  def wait_for_event(name, amount: 1, timeout: DEFAULT_TIMEOUT)
-    wait(timeout) { events_for(name).size == amount }
+  def wait_for_event(name, amount: 1, amount_gte: nil, ignore_errors: true, show_events_on_error: false, timeout: DEFAULT_TIMEOUT)
+    operation = amount_gte ? :>= : :==
+    amount = amount_gte ? amount_gte : amount
+
+    wait(timeout) do
+      events_for(name, ignore_errors: ignore_errors).size.public_send(operation, amount)
+    end
 
   rescue Timeout::Error
     label = amount > 1 ? 'events' : 'event'
-    raise "Expected #{amount} #{label} '#{name}' in #{timeout}s but received #{@@subscription_events[name].size}"
-  ensure
-    unsubscribe(name)
+    total = events_for(name, ignore_errors: ignore_errors).size
+    puts events_for(name, ignore_errors: false).map { |e| Hash[name, e.payload] } if show_events_on_error
+    raise "Expected #{amount} #{label} '#{name}' in #{timeout}s but received #{total}"
   end
 
   def wait(timeout)

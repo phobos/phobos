@@ -17,6 +17,7 @@ require 'phobos/listener'
 require 'phobos/producer'
 require 'phobos/handler'
 require 'phobos/echo_handler'
+require 'phobos/executor'
 
 module Phobos
   class << self

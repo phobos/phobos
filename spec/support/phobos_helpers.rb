@@ -9,6 +9,11 @@ module PhobosHelpers
     listener.start
   )
 
+  EXECUTOR_EVENTS = %w(
+    executor.retry_listener_error
+    executor.stop
+  )
+
   def phobos_config_path
     File.expand_path(File.join(File.dirname(__FILE__), '../../config/phobos.yml.example'))
   end
