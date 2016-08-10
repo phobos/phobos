@@ -59,26 +59,27 @@ module Phobos
       batch.messages.each do |message|
         backoff = Phobos.create_exponential_backoff
         partition = batch.partition
-        metadata = {
+        metadata = listener_metadata.merge(
           key: message.key,
           partition: partition,
           offset: message.offset,
           retry_count: 0
-        }.merge(listener_metadata)
+        )
 
         begin
-          instrument('listener.process_message', metadata) { process_message(message, metadata) }
+          instrument('listener.process_message', metadata) do
+            process_message(message, metadata)
+          end
           break
         rescue => e
           retry_count = metadata[:retry_count]
           interval = backoff.interval_at(retry_count).round(2)
 
           error = {
+            waiting_time: interval,
             exception_class: e.class.name,
             exception_message: e.message,
-            backtrace: e.backtrace,
-            waiting_time: interval,
-            listener_id: id
+            backtrace: e.backtrace
           }
 
           instrument('listener.retry_handler_error', error.merge(metadata)) do

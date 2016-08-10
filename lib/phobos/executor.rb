@@ -55,7 +55,7 @@ module Phobos
           waiting_time: interval,
           exception_class: e.class.name,
           exception_message: e.message,
-          # backtrace: e.backtrace
+          backtrace: e.backtrace
         }
 
         instrument('executor.retry_listener_error', metadata) do
