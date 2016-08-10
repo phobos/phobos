@@ -17,14 +17,7 @@ RSpec.describe Phobos::Listener do
     create_topic(topic)
     allow(handler_class).to receive(:new).and_return(handler)
 
-    subscribe_to(
-      'listener.retry_aborted',
-      'listener.retry_handler_error',
-      'listener.process_message',
-      'listener.process_batch',
-      'listener.stop',
-      'listener.start'
-    ) { thread }
+    subscribe_to(*LISTENER_EVENTS) { thread }
     wait_for_event('listener.start')
   end
 
