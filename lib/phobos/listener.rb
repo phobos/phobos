@@ -16,6 +16,7 @@ module Phobos
     def start
       @signal_to_stop = false
       instrument('listener.start', listener_metadata) do
+        Phobos.logger.info { Hash(message: 'Listener starting').merge(listener_metadata) }
         @consumer = create_kafka_consumer
         @consumer.subscribe(topic, start_from_beginning: @start_from_beginning)
       end
@@ -42,7 +43,7 @@ module Phobos
     def stop
       instrument('listener.stop') do
         Phobos.logger.info { Hash(message: 'Listener stopping').merge(listener_metadata) }
-        @consumer.stop
+        @consumer&.stop
         @kafka_client.close
         @signal_to_stop = true
       end
