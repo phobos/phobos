@@ -68,7 +68,7 @@ module Phobos
         begin
           instrument('listener.process_message', metadata) { process_message(message, metadata) }
           break
-        rescue Exception => e
+        rescue => e
           retry_count = metadata[:retry_count]
           interval = backoff.interval_at(retry_count).round(2)
 
