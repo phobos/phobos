@@ -1,3 +1,5 @@
+#!/bin/bash -eux
+
 DOCKER_HOSTNAME='localhost'
 FORCE_PULL=${FORCE_PULL:='false'}
 APPS=(zk kafka)
