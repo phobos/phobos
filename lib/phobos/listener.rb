@@ -16,7 +16,6 @@ module Phobos
     def start
       @signal_to_stop = false
       instrument('listener.start', listener_metadata) do
-        @handler = @handler_class.new
         @consumer = create_kafka_consumer
         @consumer.subscribe(topic, start_from_beginning: @start_from_beginning)
       end
@@ -97,7 +96,7 @@ module Phobos
     end
 
     def process_message(message, metadata)
-      @handler.consume(message.value, metadata)
+      @handler_class.new.consume(message.value, metadata)
     end
 
     def create_kafka_consumer
