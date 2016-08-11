@@ -1,5 +1,4 @@
 require 'spec_helper'
-Thread.abort_on_exception = true
 
 RSpec.describe Phobos::Executor do
   include Phobos::Producer
