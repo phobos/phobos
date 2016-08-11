@@ -24,6 +24,11 @@ module Phobos
       def start
         Phobos::CLI::Start.new(options).execute
       end
+
+      desc 'init', 'Initialize your project with Phobos'
+      def init
+        Phobos::CLI::Init.new.execute
+      end
     end
   end
 end
