@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift File.dirname(__FILE__) + '/../lib'
+
+require 'phobos'
+require 'phobos/cli'
+
+STDOUT.sync = true
+Phobos::CLI::Commands.start(ARGV)

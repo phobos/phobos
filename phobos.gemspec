@@ -38,4 +38,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'hashie'
   spec.add_dependency 'logging'
   spec.add_dependency 'exponential-backoff'
+  spec.add_dependency 'thor'
 end

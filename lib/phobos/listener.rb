@@ -16,9 +16,9 @@ module Phobos
     def start
       @signal_to_stop = false
       instrument('listener.start', listener_metadata) do
-        Phobos.logger.info { Hash(message: 'Listener starting').merge(listener_metadata) }
         @consumer = create_kafka_consumer
         @consumer.subscribe(topic, start_from_beginning: @start_from_beginning)
+        Phobos.logger.info { Hash(message: 'Listener started').merge(listener_metadata) }
       end
 
       @consumer.each_batch do |batch|
@@ -32,6 +32,9 @@ module Phobos
         instrument('listener.process_batch', batch_metadata) { process_batch(batch) }
       end
 
+      if @signal_to_stop
+        Phobos.logger.info { Hash(message: 'Listener stopped').merge(listener_metadata) }
+      end
     rescue Phobos::AbortError
       instrument('listener.retry_aborted', listener_metadata) do
         Phobos.logger.info do

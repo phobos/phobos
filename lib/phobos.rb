@@ -45,14 +45,14 @@ module Phobos
       date_pattern = '%Y-%m-%dT%H:%M:%S:%L%zZ'
       FileUtils.mkdir_p(File.dirname(config.logger.file))
 
-      Logging.logger.root.appenders = [
+      Logging.backtrace true
+      Logging.logger.root.level = silence_log ? :fatal : config.logger.level
+
+      @logger = Logging.logger[self]
+      @logger.appenders = [
         Logging.appenders.stdout(layout: Logging.layouts.pattern(date_pattern: date_pattern)),
         Logging.appenders.file(config.logger.file, layout: Logging.layouts.json(date_pattern: date_pattern))
       ]
-
-      Logging.backtrace true
-      Logging.logger.root.level = silence_log ? :fatal : config.logger.level
-      @logger = Logging.logger[self]
     end
   end
 end

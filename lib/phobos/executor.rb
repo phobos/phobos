@@ -9,8 +9,6 @@ module Phobos
         listener_configs= config.to_hash.symbolize_keys
         Phobos::Listener.new(listener_configs.merge(handler: handler_class))
       end
-
-      trap('QUIT') { self.stop }
     end
 
     def start
