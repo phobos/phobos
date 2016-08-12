@@ -11,3 +11,4 @@ spec/examples.txt
 .DS_Store
 config/phobos.yml
 log/*.log
+.byebug_history

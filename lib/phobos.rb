@@ -19,6 +19,8 @@ require 'phobos/handler'
 require 'phobos/echo_handler'
 require 'phobos/executor'
 
+Thread.abort_on_exception = true
+
 module Phobos
   class << self
     attr_reader :config, :logger
@@ -27,6 +29,8 @@ module Phobos
     def configure(yml_path)
       ENV['RAILS_ENV'] = ENV['RACK_ENV'] ||= 'development'
       @config = Hashie::Mash.new(YAML.load_file(File.expand_path(yml_path)))
+      @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash&.symbolize_keys }
+      @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash&.symbolize_keys }
       configure_logger
       logger.info { Hash(message: 'Phobos configured', env: ENV['RACK_ENV']) }
     end

@@ -1,6 +1,7 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 Thread.abort_on_exception = true
 require 'phobos'
+require 'pry-byebug'
 
 Dir.entries('./spec/support').select { |f| f =~ /\.rb$/ }.each do |f|
   load "./spec/support/#{f}"

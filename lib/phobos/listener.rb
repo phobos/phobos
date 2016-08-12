@@ -105,9 +105,7 @@ module Phobos
     end
 
     def create_kafka_consumer
-      consumer_configs = Phobos.config.consumer.to_hash.symbolize_keys
-      @kafka_client.consumer({group_id: group_id}.merge(consumer_configs))
+      @kafka_client.consumer({group_id: group_id}.merge(Phobos.config.consumer_hash))
     end
-
   end
 end

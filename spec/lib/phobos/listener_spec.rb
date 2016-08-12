@@ -29,7 +29,7 @@ RSpec.describe Phobos::Listener do
       .to receive(:consume)
       .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
 
-    publish(topic, 'message-1')
+    producer.publish(topic, 'message-1')
     wait_for_event('listener.process_batch')
 
     listener.stop
@@ -46,7 +46,7 @@ RSpec.describe Phobos::Listener do
       .to receive(:consume)
       .with('message-1', hash_including(retry_count: kind_of(Numeric)))
 
-    publish(topic, 'message-1')
+    producer.publish(topic, 'message-1')
     wait_for_event('listener.process_batch')
 
     listener.stop
@@ -63,7 +63,7 @@ RSpec.describe Phobos::Listener do
       .to receive(:consume)
       .and_raise('handler exception')
 
-    publish(topic, 'message-1')
+    producer.publish(topic, 'message-1')
     wait_for_event('listener.retry_handler_error', amount: 1, ignore_errors: false)
 
     listener.stop

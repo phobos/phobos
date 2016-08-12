@@ -50,8 +50,8 @@ RSpec.describe Phobos::Executor do
       .and_raise(Exception, 'not retryable error')
 
     # publish event to both consumers
-    publish(topics.first, 'message-1')
-    publish(topics.last, 'message-1')
+    producer.publish(topics.first, 'message-1')
+    producer.publish(topics.last, 'message-1')
 
     wait_for_event('executor.retry_listener_error', amount_gte: 1)
 

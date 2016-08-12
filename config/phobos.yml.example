@@ -21,6 +21,31 @@ kafka:
   seed_brokers:
     - localhost:9092
 
+producer:
+  # number of seconds a broker can wait for replicas to acknowledge
+  # a write before responding with a timeout
+  ack_timeout: 5
+  # number of replicas that must acknowledge a write, or `:all`
+  # if all in-sync replicas must acknowledge
+  required_acks: :all
+  # number of retries that should be attempted before giving up sending
+  # messages to the cluster. Does not include the original attempt
+  max_retries: 2
+  # number of seconds to wait between retries
+  retry_backoff: 1
+  # number of messages allowed in the buffer before new writes will
+  # raise {BufferOverflow} exceptions
+  max_buffer_size: 1000
+  # maximum size of the buffer in bytes. Attempting to produce messages
+  # when the buffer reaches this size will result in {BufferOverflow} being raised
+  max_buffer_bytesize: 10000000
+  # name of the compression codec to use, or nil if no compression should be performed.
+  # Valid codecs: `:snappy` and `:gzip`
+  compression_codec:
+  # number of messages that needs to be in a message set before it should be compressed.
+  # Note that message sets are per-partition rather than per-topic or per-producer
+  compression_threshold: 1
+
 consumer:
   # number of seconds after which, if a client hasn't contacted the Kafka cluster,
   # it will be kicked out of the group
