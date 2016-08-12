@@ -32,6 +32,7 @@ module Phobos
         producer = client.producer(Phobos.config.producer_hash)
         produce_messages(producer, messages)
       ensure
+        producer&.shutdown
         client&.close unless kafka_client
       end
 

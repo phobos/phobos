@@ -38,14 +38,14 @@ RSpec.describe Phobos::Producer do
   describe '#publish_list' do
     describe 'with a configured client' do
       let(:kafka_client) { double('Kafka::Client', producer: true, close: true) }
-      let(:producer) { double('Kafka::NormalProducer', produce: true, deliver_messages: true) }
+      let(:producer) { double('Kafka::NormalProducer', produce: true, deliver_messages: true, shutdown: true) }
 
       before do
         TestProducer1.producer.configure_kafka_client(kafka_client)
         expect(Phobos).to_not receive(:create_kafka_client)
       end
 
-      it 'publishes and deliver a list of messages but it does not close connection' do
+      it 'publishes and deliver a list of messages but it does not the close connection' do
         expect(kafka_client)
           .to receive(:producer)
           .with(Phobos.config.producer_hash)
@@ -60,7 +60,8 @@ RSpec.describe Phobos::Producer do
           .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2')
 
         expect(producer).to receive(:deliver_messages)
-        expect(producer).to_not receive(:close)
+        expect(producer).to receive(:shutdown)
+        expect(kafka_client).to_not receive(:close)
 
         subject.producer.publish_list([
           { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
@@ -90,6 +91,7 @@ RSpec.describe Phobos::Producer do
           .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2')
 
         expect(producer).to receive(:deliver_messages)
+        expect(producer).to receive(:shutdown)
         expect(kafka_client).to receive(:close)
 
         subject.producer.publish_list([
