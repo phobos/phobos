@@ -15,9 +15,6 @@ RSpec.describe Phobos::Listener do
   before do
     create_topic(topic)
     allow(handler_class).to receive(:new).and_return(handler)
-
-    subscribe_to(*LISTENER_EVENTS) { thread }
-    wait_for_event('listener.start')
   end
 
   after do
@@ -25,6 +22,9 @@ RSpec.describe Phobos::Listener do
   end
 
   it 'calls handler with message payload, group_id and topic' do
+    subscribe_to(*LISTENER_EVENTS) { thread }
+    wait_for_event('listener.start')
+
     expect(handler)
       .to receive(:consume)
       .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
@@ -37,6 +37,9 @@ RSpec.describe Phobos::Listener do
   end
 
   it 'retries failed messages' do
+    subscribe_to(*LISTENER_EVENTS) { thread }
+    wait_for_event('listener.start')
+
     expect(handler)
       .to receive(:consume)
       .with('message-1', hash_including(retry_count: kind_of(Numeric)))
@@ -54,6 +57,9 @@ RSpec.describe Phobos::Listener do
   end
 
   it 'abort retry when handler is shutting down' do
+    subscribe_to(*LISTENER_EVENTS) { thread }
+    wait_for_event('listener.start')
+
     # Ensuring the listener will have a high wait
     backoff = Phobos.create_exponential_backoff
     backoff.multiplier = 10
@@ -74,5 +80,48 @@ RSpec.describe Phobos::Listener do
     thread.wakeup
     wait_for_event('listener.retry_aborted')
     expect(events_for('listener.retry_aborted').size).to eql 1
+  end
+
+  it 'calls handler ".start" with kafka_client' do
+    expect(handler_class)
+      .to receive(:start)
+      .once
+      .with(an_instance_of(Kafka::Client))
+
+    subscribe_to(*LISTENER_EVENTS) { thread }
+    wait_for_event('listener.start_handler')
+    wait_for_event('listener.start')
+
+    listener.stop
+    wait_for_event('listener.stop')
+  end
+
+  it 'calls handler ".stop" when stopping' do
+    expect(handler_class)
+      .to receive(:stop)
+      .once
+
+    subscribe_to(*LISTENER_EVENTS) { thread }
+    wait_for_event('listener.start')
+
+    listener.stop
+    wait_for_event('listener.stop_handler')
+    wait_for_event('listener.stop')
+  end
+
+  it 'calls handler ".around_consume" with message payload, group_id and topic' do
+    subscribe_to(*LISTENER_EVENTS) { thread }
+    wait_for_event('listener.start')
+
+    expect(handler_class)
+      .to receive(:around_consume)
+      .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
+      .and_call_original
+
+    producer.publish(topic, 'message-1')
+    wait_for_event('listener.process_batch')
+
+    listener.stop
+    wait_for_event('listener.stop')
   end
 end

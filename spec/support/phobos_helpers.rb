@@ -6,7 +6,9 @@ module PhobosHelpers
     listener.process_message
     listener.process_batch
     listener.stop
+    listener.stop_handler
     listener.start
+    listener.start_handler
   )
 
   EXECUTOR_EVENTS = %w(
