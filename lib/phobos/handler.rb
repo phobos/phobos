@@ -9,13 +9,13 @@ module Phobos
     end
 
     module ClassMethods
-      def self.start(kafka_client)
+      def start(kafka_client)
       end
 
-      def self.stop
+      def stop
       end
 
-      def self.around_consume(payload, metadata)
+      def around_consume(payload, metadata)
         yield
       end
     end
