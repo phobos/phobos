@@ -24,7 +24,7 @@ module Phobos
       # @param messages [Array(Hash(:topic, :payload, :key))]
       #        e.g.: [
       #          { topic: 'A', payload: 'message-1', key: '1' },
-      #          { topic: 'B', payload: 'message-2', key: '2' },
+      #          { topic: 'B', payload: 'message-2', key: '2' }
       #        ]
       #
       def publish_list(messages)

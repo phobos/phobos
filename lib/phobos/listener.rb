@@ -4,7 +4,7 @@ module Phobos
 
     attr_reader :group_id, :topic, :id
 
-    def initialize(handler:, group_id:, topic:, start_from_beginning:)
+    def initialize(handler:, group_id:, topic:, start_from_beginning: true)
       @id = SecureRandom.hex[0...6]
       @handler_class = handler
       @group_id = group_id
@@ -45,7 +45,7 @@ module Phobos
     end
 
     def stop
-      instrument('listener.stop') do
+      instrument('listener.stop', listener_metadata) do
         Phobos.logger.info { Hash(message: 'Listener stopping').merge(listener_metadata) }
         instrument('listener.stop_handler', listener_metadata) { @consumer&.stop }
         @handler_class.stop

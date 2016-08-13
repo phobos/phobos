@@ -32,14 +32,4 @@ RSpec.describe Phobos::CLI do
     end
   end
 
-  describe '$ phobos init' do
-    it 'calls init command' do
-      expect(Phobos::CLI::Init)
-        .to receive(:new)
-        .and_return(double('Phobos::CLI::Init', execute: true))
-
-      Phobos::CLI::Commands.start(['init'])
-    end
-  end
-
 end
