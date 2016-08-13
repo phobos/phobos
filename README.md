@@ -1,3 +1,5 @@
+![Circle CI](https://circleci.com/gh/klarna/phobos.svg?style=shield&circle-token=2289e0fe5bd934074597b32e7f8f0bc98ea0e3c7)]
+
 # Phobos
 
 Simplifying Kafka for ruby apps.
@@ -149,7 +151,7 @@ executor.stop
 
 ### <a name="usage-configuration-file"></a> Configuration file
 
-The configuration file is organized in 6 sections. Take a look at the example file, `config/phobos.yml.example`.
+The configuration file is organized in 6 sections. Take a look at the example file, [config/phobos.yml.example](https://github.com/klarna/phobos/blob/master/config/phobos.yml.example).
 
 __logger__ configures the logger for all Phobos components, it automatically outputs to `STDOUT` and it saves the log in the configured file
 
