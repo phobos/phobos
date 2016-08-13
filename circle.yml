@@ -1,0 +1,22 @@
+machine:
+  pre:
+    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+  services:
+    - docker
+  environment:
+    LOG_LEVEL: DEBUG
+
+dependencies:
+  pre:
+    - docker -v
+    - docker pull ches/kafka:0.9.0.1
+    - docker pull jplock/zookeeper:3.4.6
+    - sh utils/start-all.sh
+    - gem install bundler -v 1.9.5
+
+test:
+  override:
+    - bundle exec rspec -r rspec_junit_formatter --format RspecJunitFormatter -o $CIRCLE_TEST_REPORTS/rspec/unit.xml
+  post:
+    - sh utils/stop-all.sh
+    - cp *.log $CIRCLE_ARTIFACTS/ || true
