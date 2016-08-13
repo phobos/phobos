@@ -28,7 +28,7 @@ module KafkaHelpers
         --topic #{name} \
         --replication-factor 1 \
         --partitions #{partitions} \
-        --zookeeper localhost:2181`
+        --zookeeper localhost:2003`
     end
   end
 
