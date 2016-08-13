@@ -14,11 +14,11 @@ module Phobos
       end
 
       def publish(topic, payload, key = nil)
-        publish_list([{ topic: topic, payload: payload, key: key }])
+        class_producer.publish(topic, payload, key)
       end
 
       def async_publish(topic, payload, key = nil)
-        async_publish_list([{ topic: topic, payload: payload, key: key }])
+        class_producer.async_publish(topic, payload, key)
       end
 
       # @param messages [Array(Hash(:topic, :payload, :key))]
@@ -28,49 +28,17 @@ module Phobos
       #        ]
       #
       def publish_list(messages)
-        client = kafka_client || Phobos.create_kafka_client
-        producer = client.producer(Phobos.config.producer_hash)
-        produce_messages(producer, messages)
-      ensure
-        producer&.shutdown
-        client&.close unless kafka_client
+        class_producer.publish_list(messages)
       end
 
       def async_publish_list(messages)
-        producer = async_producer
-        unless producer
-          raise(
-            Phobos::AsyncProducerNotConfiguredError,
-            <<-MESSAGE
-              async_producer is not configured, you must call the class method `producer.create_async_producer`
-              to create it first
-            MESSAGE
-            .gsub(/\s+/, ' ')
-          )
-        end
-        produce_messages(producer, messages)
+        class_producer.async_publish_list(messages)
       end
 
       private
 
-      def produce_messages(producer, messages)
-        messages.each do |message|
-          producer.produce(
-            message[:payload],
-            topic: message[:topic],
-            key: message[:key],
-            partition_key: message[:key]
-          )
-        end
-        producer.deliver_messages
-      end
-
-      def kafka_client
-        @host_obj.class.producer.kafka_client
-      end
-
-      def async_producer
-        @host_obj.class.producer.async_producer
+      def class_producer
+        @host_obj.class.producer
       end
     end
 
@@ -83,8 +51,8 @@ module Phobos
         NAMESPACE = :phobos_producer_store
 
         # This method configures the kafka client used with publish operations
-        # performed by the host class. Configure a client to avoid opening/closing
-        # connections for every sync messages
+        # performed by the host class
+        #
         # @param kafka_client [Kafka::Client]
         #
         def configure_kafka_client(kafka_client)
@@ -94,6 +62,18 @@ module Phobos
 
         def kafka_client
           producer_store[:kafka_client]
+        end
+
+        def publish(topic, payload, key = nil)
+          publish_list([{ topic: topic, payload: payload, key: key }])
+        end
+
+        def publish_list(messages)
+          client = kafka_client || configure_kafka_client(Phobos.create_kafka_client)
+          producer = client.producer(Phobos.config.producer_hash)
+          produce_messages(producer, messages)
+        ensure
+          producer&.shutdown
         end
 
         def create_async_producer
@@ -106,6 +86,15 @@ module Phobos
           producer_store[:async_producer]
         end
 
+        def async_publish(topic, payload, key = nil)
+          async_publish_list([{ topic: topic, payload: payload, key: key }])
+        end
+
+        def async_publish_list(messages)
+          producer = async_producer || create_async_producer
+          produce_messages(producer, messages)
+        end
+
         def async_producer_shutdown
           async_producer&.deliver_messages
           async_producer&.shutdown
@@ -113,6 +102,16 @@ module Phobos
         end
 
         private
+
+        def produce_messages(producer, messages)
+          messages.each do |message|
+            producer.produce(message[:payload], topic: message[:topic],
+                                                key: message[:key],
+                                                partition_key: message[:key]
+            )
+          end
+          producer.deliver_messages
+        end
 
         def producer_store
           Thread.current[NAMESPACE] ||= {}

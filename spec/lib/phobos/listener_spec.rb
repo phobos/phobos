@@ -36,6 +36,23 @@ RSpec.describe Phobos::Listener do
     wait_for_event('listener.stop')
   end
 
+  it 'calls handler with message payload, group_id and topic using async producer' do
+    subscribe_to(*LISTENER_EVENTS) { thread }
+    wait_for_event('listener.start')
+
+    expect(handler)
+      .to receive(:consume)
+      .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
+
+    producer.async_publish(topic, 'message-1')
+    wait_for_event('listener.process_batch')
+
+    listener.stop
+    wait_for_event('listener.stop')
+
+    self.class.producer.async_producer_shutdown
+  end
+
   it 'retries failed messages' do
     subscribe_to(*LISTENER_EVENTS) { thread }
     wait_for_event('listener.start')

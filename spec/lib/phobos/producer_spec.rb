@@ -10,10 +10,10 @@ RSpec.describe Phobos::Producer do
 
   describe '#publish' do
     it 'publishes a single message using "publish_list"' do
-      public_api = Phobos::Producer::PublicAPI.new(subject)
-      allow(Phobos::Producer::PublicAPI).to receive(:new).and_return(public_api)
+      public_api = Phobos::Producer::ClassMethods::PublicAPI.new
+      allow(Phobos::Producer::ClassMethods::PublicAPI).to receive(:new).and_return(public_api)
 
-      expect(subject.producer)
+      expect(TestProducer1.producer)
         .to receive(:publish_list)
         .with([{ topic: 'topic', payload: 'message', key: 'key' }])
 
@@ -23,10 +23,10 @@ RSpec.describe Phobos::Producer do
 
   describe '#async_publish' do
     it 'publishes a single message using "async_publish"' do
-      public_api = Phobos::Producer::PublicAPI.new(subject)
-      allow(Phobos::Producer::PublicAPI).to receive(:new).and_return(public_api)
+      public_api = Phobos::Producer::ClassMethods::PublicAPI.new
+      allow(Phobos::Producer::ClassMethods::PublicAPI).to receive(:new).and_return(public_api)
 
-      expect(subject.producer)
+      expect(TestProducer1.producer)
         .to receive(:async_publish_list)
         .with([{ topic: 'topic', payload: 'message', key: 'key' }])
 
@@ -45,7 +45,7 @@ RSpec.describe Phobos::Producer do
         expect(Phobos).to_not receive(:create_kafka_client)
       end
 
-      it 'publishes and deliver a list of messages but it does not the close connection' do
+      it 'publishes and deliver a list of messages' do
         expect(kafka_client)
           .to receive(:producer)
           .with(Phobos.config.producer_hash)
@@ -74,7 +74,7 @@ RSpec.describe Phobos::Producer do
       let(:kafka_client) { double('Kafka::Client', producer: true, close: true) }
       let(:producer) { double('Kafka::NormalProducer', produce: true, deliver_messages: true) }
 
-      it 'publishes a list of messages, deliver and closes the connection right away' do
+      it 'publishes and deliver a list of messages' do
         expect(Phobos).to receive(:create_kafka_client).and_return(kafka_client)
 
         expect(kafka_client)
@@ -92,7 +92,7 @@ RSpec.describe Phobos::Producer do
 
         expect(producer).to receive(:deliver_messages)
         expect(producer).to receive(:shutdown)
-        expect(kafka_client).to receive(:close)
+        expect(kafka_client).to_not receive(:close)
 
         subject.producer.publish_list([
           { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
@@ -132,14 +132,6 @@ RSpec.describe Phobos::Producer do
             { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
           ])
         end.join
-      end
-    end
-
-    describe 'without a configured async_producer' do
-      it 'raises Phobos::AsyncProducerNotConfiguredError' do
-        expect do
-          subject.producer.async_publish_list([])
-        end.to raise_error(Phobos::AsyncProducerNotConfiguredError)
       end
     end
   end
