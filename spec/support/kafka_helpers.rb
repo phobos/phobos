@@ -20,16 +20,8 @@ module KafkaHelpers
   end
 
   def create_topic(name, partitions: 2)
-    unless ENV['CI']
-      `TOPIC=#{name} PARTITIONS=#{partitions} sh utils/create-topic.sh`
-    else
-      `docker run --rm ches/kafka:0.9.0.1 kafka-topics.sh \
-        --create \
-        --topic #{name} \
-        --replication-factor 1 \
-        --partitions #{partitions} \
-        --zookeeper localhost:2003`
-    end
+    script = ENV['CI'] ? 'utils/ci-create-topic.sh' : 'utils/create-topic.sh'
+    `TOPIC=#{name} PARTITIONS=#{partitions} sh #{script}`
   end
 
   def events_for(name, ignore_errors: true)
