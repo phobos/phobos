@@ -1,6 +1,5 @@
 require 'thor'
 require 'phobos/cli/start'
-require 'phobos/cli/init'
 
 module Phobos
   module CLI
@@ -12,6 +11,35 @@ module Phobos
     end
 
     class Commands < Thor
+      include Thor::Actions
+
+      map '-v' => :version
+      map '--version' => :version
+
+      desc 'version', 'Outputs the version number. Can be used with: phobos -v or phobos --version'
+      def version
+        puts Phobos::VERSION
+      end
+
+      desc 'init', 'Initialize your project with Phobos'
+      def init
+        copy_file 'config/phobos.yml.example', 'config/phobos.yml'
+        create_file 'phobos_boot.rb' do
+          <<~EXAMPLE
+            # Use this file to load your code
+            puts <<~ART
+              ______ _           _
+              | ___ \\\\ |         | |
+              | |_/ / |__   ___ | |__   ___  ___
+              |  __/| '_ \\\\ / _ \\\\| '_ \\\\ / _ \\\\/ __|
+              | |   | | | | (_) | |_) | (_) \\\\__ \\\\
+              \\\\_|   |_| |_|\\\\___/|_.__/ \\\\___/|___/
+            ART
+            puts "\nphobos_boot.rb - find this file at \#{File.expand_path(__FILE__)}\n\n"
+          EXAMPLE
+        end
+      end
+
       desc 'start', 'Starts Phobos'
       option :config,
              aliases: ['-c'],
@@ -25,9 +53,8 @@ module Phobos
         Phobos::CLI::Start.new(options).execute
       end
 
-      desc 'init', 'Initialize your project with Phobos'
-      def init
-        Phobos::CLI::Init.new.execute
+      def self.source_root
+        File.expand_path(File.join(File.dirname(__FILE__), '../..'))
       end
     end
   end
