@@ -6,7 +6,7 @@ echo "creating topic ${TOPIC}, partitions ${PARTITIONS}"
 
 docker run ches/kafka:0.9.0.1 kafka-topics.sh \
   --create \
-  --topic test \
+  --topic $TOPIC \
   --replication-factor 1 \
-  --partitions 2 \
+  --partitions $PARTITIONS \
   --zookeeper $ZK_IP:2181
