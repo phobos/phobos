@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'pry-byebug', '~> 3.4.0'
+  spec.add_development_dependency 'rspec_junit_formatter', '0.2.2'
 
   spec.add_dependency 'ruby-kafka', '>= 0.3.12'
   spec.add_dependency 'concurrent-ruby', '>= 1.0.2'
