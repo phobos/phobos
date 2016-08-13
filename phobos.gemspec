@@ -7,12 +7,12 @@ Gem::Specification.new do |spec|
   spec.name          = "phobos"
   spec.version       = Phobos::VERSION
   spec.authors       = ["Túlio Ornelas"]
-  spec.email         = ["tulio.ornelas@klarna.com"]
+  spec.email         = ["ornelas.tulio@gmail.com"]
 
-  spec.summary       = %q{Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{Write a longer description or delete this line.}
-  # spec.homepage      = "Put your gem's website or public repo URL here."
-  spec.license       = "MIT"
+  spec.summary       = %q{Simplifying Kafka for ruby apps}
+  spec.description   = %q{Phobos is a microframework and library for kafka based applications, it wraps commons behaviors needed by consumers/producers in an easy an convenient API. It uses ruby-kafka as it's kafka client and core component.}
+  spec.homepage      = "https://github.com/klarna/phobos"
+  spec.license       = "Apache License Version 2.0"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
