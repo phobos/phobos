@@ -6,6 +6,7 @@ machine:
   environment:
     LOG_LEVEL: DEBUG
     CI: true
+    DEFAULT_TIMEOUT: 20
   ruby:
     version: 2.3.1
 

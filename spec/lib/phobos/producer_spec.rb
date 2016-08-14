@@ -6,6 +6,7 @@ RSpec.describe Phobos::Producer do
   end
 
   before { TestProducer1.producer.configure_kafka_client(nil) }
+  after { TestProducer1.producer.configure_kafka_client(nil) }
   subject { TestProducer1.new }
 
   describe '#publish' do
