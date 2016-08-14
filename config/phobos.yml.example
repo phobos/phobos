@@ -65,8 +65,12 @@ backoff:
 listeners:
   - handler: Phobos::EchoHandler
     topic: test
+    # id of the group that the consumer should join
+    group_id: test-1
     # Once the consumer group has checkpointed its progress in the topic's partitions,
     # the consumers will always start from the checkpointed offsets, regardless of config
     # As such, this setting only applies when the consumer initially starts consuming from a topic
     start_from_beginning: true
-    group_id: test-1
+    # Number of threads created for this listener, each thread will behave as an independent consumer.
+    # They don't share any state
+    max_concurrency: 1

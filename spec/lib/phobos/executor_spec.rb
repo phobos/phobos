@@ -64,4 +64,15 @@ RSpec.describe Phobos::Executor do
     wait_for_event('executor.stop')
   end
 
+  it 'creates the amount of listeners configured in max_concurrency' do
+    Phobos.config.listeners.first.max_concurrency = 2
+    subscribe_to(*EXECUTOR_EVENTS)
+    subscribe_to(*LISTENER_EVENTS) { executor.start }
+    wait_for_event('listener.start', amount: 3)
+
+    executor.stop
+    wait_for_event('listener.stop', amount: 3)
+    wait_for_event('executor.stop')
+  end
+
 end

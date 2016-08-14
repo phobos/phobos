@@ -1,24 +1,31 @@
 module Phobos
   class Executor
     include Phobos::Instrumentation
+    LISTENER_OPTS = %i(handler group_id topic start_from_beginning).freeze
 
     def initialize
       @threads = Concurrent::Array.new
-      @listeners = Phobos.config.listeners.map do |config|
+      @listeners = Phobos.config.listeners.flat_map do |config|
         handler_class = config.handler.constantize
-        listener_configs= config.to_hash.symbolize_keys
-        Phobos::Listener.new(listener_configs.merge(handler: handler_class))
+        listener_configs = config.to_hash.symbolize_keys
+        max_concurrency = listener_configs[:max_concurrency] || 1
+        max_concurrency.times.map do
+          configs = listener_configs.select {|k| LISTENER_OPTS.include?(k)}
+          Phobos::Listener.new(configs.merge(handler: handler_class))
+        end
       end
     end
 
     def start
       @signal_to_stop = false
       @threads.clear
-      @thread_pool = Concurrent::FixedThreadPool.new(Phobos.config.listeners.size)
+      @thread_pool = Concurrent::FixedThreadPool.new(@listeners.size)
 
       @listeners.each do |listener|
         @thread_pool.post do
-          @threads << Thread.current
+          thread = Thread.current
+          thread.abort_on_exception = true
+          @threads << thread
           run_listener(listener)
         end
       end
