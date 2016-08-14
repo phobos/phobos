@@ -71,6 +71,8 @@ listeners:
     # the consumers will always start from the checkpointed offsets, regardless of config
     # As such, this setting only applies when the consumer initially starts consuming from a topic
     start_from_beginning: true
+    # maximum amount of data fetched from a single partition at a time
+    max_bytes_per_partition: 524288 # 512 KB
     # Number of threads created for this listener, each thread will behave as an independent consumer.
     # They don't share any state
     max_concurrency: 1

@@ -2,14 +2,20 @@ module Phobos
   class Listener
     include Phobos::Instrumentation
 
+    KAFKA_CONSUMER_OPTS = %i(session_timeout offset_commit_interval offset_commit_threshold heartbeat_interval).freeze
+    DEFAULT_MAX_BYTES_PER_PARTITION = 524288 # 512 KB
+
     attr_reader :group_id, :topic, :id
 
-    def initialize(handler:, group_id:, topic:, start_from_beginning: true)
+    def initialize(handler:, group_id:, topic:, start_from_beginning: true, max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION)
       @id = SecureRandom.hex[0...6]
       @handler_class = handler
       @group_id = group_id
       @topic = topic
-      @start_from_beginning = start_from_beginning
+      @subscribe_opts = {
+        start_from_beginning: start_from_beginning,
+        max_bytes_per_partition: max_bytes_per_partition
+      }
       @kafka_client = Phobos.create_kafka_client
     end
 
@@ -17,7 +23,7 @@ module Phobos
       @signal_to_stop = false
       instrument('listener.start', listener_metadata) do
         @consumer = create_kafka_consumer
-        @consumer.subscribe(topic, start_from_beginning: @start_from_beginning)
+        @consumer.subscribe(topic, @subscribe_opts)
         instrument('listener.start_handler', listener_metadata) { @handler_class.start(@kafka_client) }
         Phobos.logger.info { Hash(message: 'Listener started').merge(listener_metadata) }
       end
@@ -110,7 +116,8 @@ module Phobos
     end
 
     def create_kafka_consumer
-      @kafka_client.consumer({group_id: group_id}.merge(Phobos.config.consumer_hash))
+      configs = Phobos.config.consumer_hash.select { |k| KAFKA_CONSUMER_OPTS.include?(k) }
+      @kafka_client.consumer({group_id: group_id}.merge(configs))
     end
   end
 end
