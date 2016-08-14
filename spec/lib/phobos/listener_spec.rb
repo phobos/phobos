@@ -8,7 +8,16 @@ RSpec.describe Phobos::Listener do
 
   let(:handler) { handler_class.new }
   let(:handler_class) { Phobos::EchoHandler }
-  let(:hander_config) { Hash(handler: handler_class, topic: topic, group_id: group_id, start_from_beginning: true) }
+  let(:max_bytes) { 8192 } # 8 KB
+  let :hander_config do
+    {
+      handler: handler_class,
+      topic: topic,
+      group_id: group_id,
+      max_bytes_per_partition: max_bytes,
+      start_from_beginning: true
+    }
+  end
   let(:listener) { Phobos::Listener.new(hander_config) }
   let(:thread) { Thread.new { listener.start } }
 
@@ -90,12 +99,13 @@ RSpec.describe Phobos::Listener do
     wait_for_event('listener.retry_handler_error', amount: 1, ignore_errors: false)
 
     listener.stop
-    wait_for_event('listener.stop')
+    wait_for_event('listener.stopping')
 
     # Something external will manage the listener thread,
     # calling wakeup manually to simulate this entity stop call
     thread.wakeup
     wait_for_event('listener.retry_aborted')
+    wait_for_event('listener.stop')
     expect(events_for('listener.retry_aborted').size).to eql 1
   end
 
@@ -137,6 +147,27 @@ RSpec.describe Phobos::Listener do
 
     producer.publish(topic, 'message-1')
     wait_for_event('listener.process_batch')
+
+    listener.stop
+    wait_for_event('listener.stop')
+  end
+
+  it 'consumes several messages' do
+    producer_batch_size = 500
+    total_to_publish = 2_000
+
+    (total_to_publish / producer_batch_size).times do
+      messages = producer_batch_size.times.map do |i|
+        padded_number = i.to_s.rjust(total_to_publish.to_s.length, '0')
+        { topic: topic, payload: "message-#{padded_number}", key: i.to_s }
+      end
+
+      producer.publish_list(messages)
+    end
+
+    subscribe_to(*LISTENER_EVENTS) { thread }
+    wait_for_event('listener.start')
+    wait_for_event('listener.process_message', amount: total_to_publish)
 
     listener.stop
     wait_for_event('listener.stop')

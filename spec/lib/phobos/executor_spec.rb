@@ -40,7 +40,7 @@ RSpec.describe Phobos::Executor do
     wait_for_event('executor.stop')
   end
 
-  it 'disconnects and reconnects crashed listeners' do
+  it 'reconnects crashed listeners' do
     subscribe_to(*EXECUTOR_EVENTS)
     subscribe_to(*LISTENER_EVENTS) { executor.start }
     wait_for_event('listener.start', amount: 2)
@@ -56,8 +56,7 @@ RSpec.describe Phobos::Executor do
     wait_for_event('executor.retry_listener_error', amount_gte: 1)
 
     wait_for_event('listener.process_message')
-    wait_for_event('listener.stop', amount_gte: 2)
-    wait_for_event('listener.start', amount_gte: 2)
+    wait_for_event('listener.start', amount_gte: 3)
 
     executor.stop
     wait_for_event('listener.stop', amount_gte: 2)

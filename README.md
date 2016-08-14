@@ -1,4 +1,4 @@
-![Circle CI](https://circleci.com/gh/klarna/phobos.svg?style=shield&circle-token=2289e0fe5bd934074597b32e7f8f0bc98ea0e3c7)]
+![Circle CI](https://circleci.com/gh/klarna/phobos.svg?style=shield&circle-token=2289e0fe5bd934074597b32e7f8f0bc98ea0e3c7)
 
 # Phobos
 
@@ -359,6 +359,10 @@ end
     * exception_message
     * backtrace
   * `listener.retry_aborted` is sent after waiting for a retry but the listener was stopped before the retry happened. It includes the following payload:
+    * listener_id
+    * group_id
+    * topic
+  * `listener.stopping` is sent when the listener receives signal to stop
     * listener_id
     * group_id
     * topic

@@ -28,34 +28,55 @@ module Phobos
         Phobos.logger.info { Hash(message: 'Listener started').merge(listener_metadata) }
       end
 
-      @consumer.each_batch do |batch|
-        batch_metadata = {
-          batch_size: batch.messages.count,
-          partition: batch.partition,
-          offset_lag: batch.offset_lag,
-          highwater_mark_offset: batch.highwater_mark_offset
-        }.merge(listener_metadata)
+      begin
+        @consumer.each_batch do |batch|
+          batch_metadata = {
+            batch_size: batch.messages.count,
+            partition: batch.partition,
+            offset_lag: batch.offset_lag,
+            # the offset of the most recent message in the partition
+            highwater_mark_offset: batch.highwater_mark_offset
+          }.merge(listener_metadata)
 
-        instrument('listener.process_batch', batch_metadata) { process_batch(batch) }
+          instrument('listener.process_batch', batch_metadata) do
+            process_batch(batch)
+            Phobos.logger.info { Hash(message: 'Committed offset').merge(batch_metadata) }
+          end
+
+          return if @signal_to_stop
+        end
+
+      # Abort is an exception to prevent the consumer to commit the offset.
+      # Since "listener" had a message being retried while "stop" was called
+      # it's wise to not commit the batch offset to avoid data loss. This will
+      # cause some messages to be reprocessed
+      #
+      rescue Phobos::AbortError
+        instrument('listener.retry_aborted', listener_metadata) do
+          Phobos.logger.info do
+            {message: 'Retry loop aborted, listener is shutting down'}.merge(listener_metadata)
+          end
+        end
       end
 
-      if @signal_to_stop
-        Phobos.logger.info { Hash(message: 'Listener stopped').merge(listener_metadata) }
-      end
-    rescue Phobos::AbortError
-      instrument('listener.retry_aborted', listener_metadata) do
-        Phobos.logger.info do
-          {message: 'Retry loop aborted, listener is shutting down'}.merge(listener_metadata)
+    ensure
+      instrument('listener.stop', listener_metadata) do
+        instrument('listener.stop_handler', listener_metadata) { @handler_class.stop }
+
+        @consumer&.stop
+        @kafka_client.close
+
+        if @signal_to_stop
+          Phobos.logger.info { Hash(message: 'Listener stopped').merge(listener_metadata) }
         end
       end
     end
 
     def stop
-      instrument('listener.stop', listener_metadata) do
+      return if @signal_to_stop
+      instrument('listener.stopping', listener_metadata) do
         Phobos.logger.info { Hash(message: 'Listener stopping').merge(listener_metadata) }
-        instrument('listener.stop_handler', listener_metadata) { @consumer&.stop }
-        @handler_class.stop
-        @kafka_client.close
+        @consumer&.stop
         @signal_to_stop = true
       end
     end
@@ -69,10 +90,9 @@ module Phobos
     def process_batch(batch)
       batch.messages.each do |message|
         backoff = Phobos.create_exponential_backoff
-        partition = batch.partition
         metadata = listener_metadata.merge(
           key: message.key,
-          partition: partition,
+          partition: message.partition,
           offset: message.offset,
           retry_count: 0
         )
@@ -81,7 +101,6 @@ module Phobos
           instrument('listener.process_message', metadata) do
             process_message(message, metadata)
           end
-          break
         rescue => e
           retry_count = metadata[:retry_count]
           interval = backoff.interval_at(retry_count).round(2)

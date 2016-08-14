@@ -34,6 +34,7 @@ module Phobos
     end
 
     def stop
+      return if @signal_to_stop
       instrument('executor.stop') do
         @signal_to_stop = true
         @listeners.map(&:stop)
@@ -53,6 +54,11 @@ module Phobos
       begin
         listener.start
       rescue Exception => e
+        #
+        # When "listener#start" is interrupted it's safe to assume that the consumer
+        # and the kafka client were properly stopped, it's safe to call start
+        # again
+        #
         interval = backoff.interval_at(retry_count).round(2)
         metadata = {
           listener_id: listener.id,
@@ -65,7 +71,6 @@ module Phobos
 
         instrument('executor.retry_listener_error', metadata) do
           Phobos.logger.error { Hash(message: "Listener crashed, waiting #{interval}s (#{e.message})").merge(metadata)}
-          listener.stop
           sleep interval
         end
 

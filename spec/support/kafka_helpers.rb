@@ -2,7 +2,7 @@ require 'securerandom'
 require 'timeout'
 
 module KafkaHelpers
-  DEFAULT_TIMEOUT = 5
+  DEFAULT_TIMEOUT = 6
 
   @@subscriptions = Concurrent::Hash.new
   @@subscription_events = Concurrent::Hash.new
@@ -71,7 +71,7 @@ module KafkaHelpers
 
   def wait(timeout)
     Timeout.timeout(timeout) do
-      loop { yield ? break : sleep(0.1) }
+      loop { yield ? break : sleep(0.01) }
     end
   end
 end

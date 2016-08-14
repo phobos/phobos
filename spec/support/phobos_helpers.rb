@@ -5,6 +5,7 @@ module PhobosHelpers
     listener.retry_handler_error
     listener.process_message
     listener.process_batch
+    listener.stopping
     listener.stop
     listener.stop_handler
     listener.start
