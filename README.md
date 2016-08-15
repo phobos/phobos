@@ -109,7 +109,7 @@ By default, the __start__ command will look for the configuration file at `confi
 $ phobos start -c /var/configs/my.yml -b /opt/apps/boot.rb
 ```
 
-### <a name="#usage-consuming-messages-from-kafka"></a> Consuming messages from Kafka
+### <a name="usage-consuming-messages-from-kafka"></a> Consuming messages from Kafka
 
 Messages from Kafka are consumed using __handlers__. You can use Phobos __executors__ or use it programmatically, but __handlers__ will always be used. To create a handler class, include the module `Phobos::Handler`. This module allows Phobos to manage the life cycle of your handler.
 
@@ -165,7 +165,7 @@ or
 
   `.start` -> `.around_consume` [ `#consume` ] -> `.stop`
 
-### <a name="#usage-producing-messages-to-kafka"></a> Producing messages to Kafka
+### <a name="usage-producing-messages-to-kafka"></a> Producing messages to Kafka
 
 `ruby-kafka` provides several options for publishing messages, Phobos offers them through the module `Phobos::Producer`. It is possible to turn any ruby class into a producer (including your handlers), just include the producer module, example:
 
@@ -311,7 +311,7 @@ __backoff__ Phobos provides automatic retries for your handlers, if an exception
 
 __listeners__ is the list of listeners configured, each listener represents a consumers group
 
-### <a name="#usage-instrumentation"></a> Instrumentation
+### <a name="usage-instrumentation"></a> Instrumentation
 
 Some operations are instrumented using [Active Support Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html).
 
@@ -389,7 +389,7 @@ end
     * group_id
     * topic
 
-## <a name="#development"></a> Development
+## <a name="development"></a> Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
