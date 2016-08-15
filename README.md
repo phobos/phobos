@@ -208,8 +208,6 @@ Normal producers will deliver the messages synchronously and disconnect, it does
 
 Async producers will accept your messages without blocking, use the methods `async_publish` and `async_publish_list` to use async producers.
 
-__Important__: When using async producers you need to shutdown them manually before you close the application. Use the class method `async_producer_shutdown` to safely shutdown the producer.
-
 An example of using handlers to publish messages:
 
 ```ruby
@@ -219,11 +217,6 @@ class MyHandler
 
   PUBLISH_TO = 'topic2'
 
-  def self.stop
-    producer.async_producer_shutdown
-    producer.kafka_client.close
-  end
-
   def consume(payload, metadata)
     producer.async_publish(PUBLISH_TO, {key: 'value'}.to_json)
   end
@@ -232,30 +225,21 @@ end
 
 #### Note about configuring producers
 
-Without configuring the Kafka client, the producers will create a new one when needed (once per thread).
+Since the handler life cycle is managed by the Listener, it will make sure the producer is properly closed before it stops. When calling the producer outside a handler remember, you need to shutdown them manually before you close the application. Use the class method `async_producer_shutdown` to safely shutdown the producer.
 
-If you want to use the same kafka client as the listeners, use the class method `configure_kafka_client`, example:
+Without configuring the Kafka client, the producers will create a new one when needed (once per thread). To disconnect from kafka call `kafka_client.close`.
 
 ```ruby
-class MyHandler
-  include Phobos::Handler
-  include Phobos::Producer
+# This method will block until everything is safely closed
+MyProducer
+  .producer
+  .async_producer_shutdown
 
-  def self.start(kafka_client)
-    producer.configure_kafka_client(kafka_client)
-  end
-
-  def self.stop
-    producer.async_producer_shutdown
-  end
-
-  def consume(payload, metadata)
-    producer.async_publish(PUBLISH_TO, {key: 'value'}.to_json)
-  end
-end
+MyProducer
+  .producer
+  .kafka_client
+  .close
 ```
-
-Using the same client as the listener is a good idea because it will be managed by Phobos and properly closed when needed.
 
 ### <a name="usage-programmatically"></a> Programmatically
 

@@ -3,11 +3,19 @@ require 'spec_helper'
 RSpec.describe Phobos::Listener do
   include Phobos::Producer
 
+  class TestListenerHandler < Phobos::EchoHandler
+    include Phobos::Handler
+  end
+
+  class TestListenerHandlerWithProducer < TestListenerHandler
+    include Phobos::Producer
+  end
+
   let!(:topic) { random_topic }
   let!(:group_id) { random_group_id }
 
   let(:handler) { handler_class.new }
-  let(:handler_class) { Phobos::EchoHandler }
+  let(:handler_class) { TestListenerHandler }
   let(:max_bytes) { 8192 } # 8 KB
   let :hander_config do
     {
@@ -19,7 +27,9 @@ RSpec.describe Phobos::Listener do
     }
   end
   let(:listener) { Phobos::Listener.new(hander_config) }
-  let(:thread) { Thread.new { listener.start } }
+  let(:thread) do
+    Thread.new { listener.start }.tap { |t| t.abort_on_exception = true }
+  end
 
   before do
     create_topic(topic)
@@ -171,5 +181,53 @@ RSpec.describe Phobos::Listener do
 
     listener.stop
     wait_for_event('listener.stop')
+  end
+
+  describe 'when the handler includes the producer module' do
+    let(:handler_class) { TestListenerHandlerWithProducer }
+    let(:producer_api) { Phobos::Producer::ClassMethods::PublicAPI.new }
+
+    before do
+      allow(TestListenerHandlerWithProducer)
+        .to receive(:producer)
+        .and_return(producer_api)
+    end
+
+    it 'automatically configures producer with the listener client' do
+      expect(Phobos)
+        .to receive(:create_kafka_client)
+        .once
+        .and_call_original
+
+      expect(producer_api)
+        .to receive(:configure_kafka_client)
+        .with(an_instance_of(Kafka::Client))
+        .and_call_original
+
+      # Called with nil when is shutting down
+      expect(producer_api)
+        .to receive(:configure_kafka_client)
+        .with(nil)
+        .and_call_original
+
+      subscribe_to(*LISTENER_EVENTS) { thread }
+      wait_for_event('listener.start')
+
+      listener.stop
+      wait_for_event('listener.stop')
+    end
+
+    it 'calls async producer shutdown' do
+      expect(producer_api)
+        .to receive(:async_producer_shutdown)
+        .at_least(:once)
+        .and_call_original
+
+      subscribe_to(*LISTENER_EVENTS) { thread }
+      wait_for_event('listener.start')
+
+      listener.stop
+      wait_for_event('listener.stop')
+    end
   end
 end

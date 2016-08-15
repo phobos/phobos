@@ -17,6 +17,7 @@ module Phobos
         max_bytes_per_partition: max_bytes_per_partition
       }
       @kafka_client = Phobos.create_kafka_client
+      @producer_enabled = @handler_class.ancestors.include?(Phobos::Producer)
     end
 
     def start
@@ -24,6 +25,11 @@ module Phobos
       instrument('listener.start', listener_metadata) do
         @consumer = create_kafka_consumer
         @consumer.subscribe(topic, @subscribe_opts)
+
+        # This is done here because the producer client is bound to the current thread and
+        # since "start" blocks a thread might be used to call it
+        @handler_class.producer.configure_kafka_client(@kafka_client) if @producer_enabled
+
         instrument('listener.start_handler', listener_metadata) { @handler_class.start(@kafka_client) }
         Phobos.logger.info { Hash(message: 'Listener started').merge(listener_metadata) }
       end
@@ -64,8 +70,13 @@ module Phobos
         instrument('listener.stop_handler', listener_metadata) { @handler_class.stop }
 
         @consumer&.stop
-        @kafka_client.close
 
+        if @producer_enabled
+          @handler_class.producer.async_producer_shutdown
+          @handler_class.producer.configure_kafka_client(nil)
+        end
+
+        @kafka_client.close
         if @signal_to_stop
           Phobos.logger.info { Hash(message: 'Listener stopped').merge(listener_metadata) }
         end
