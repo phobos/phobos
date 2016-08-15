@@ -12,6 +12,8 @@ Phobos is a micro framework and library for applications dealing with [Apache Ka
 
 Why Phobos? Why not `ruby-kafka` directly? Well, `ruby-kafka` is just a client. You still need to write a lot of code to manage proper consuming and producing of messages. You need to do proper error handling, retrying, backing off and maybe logging/instrumenting the message management process. You also need to worry about setting up a platform independent test environment that works on CI as well as any local machine, and even on your deployment pipeline. Finally, you also need to consider how to deploy your app and how to start it.
 
+With Phobos by your side, all this becomes smooth sailing.
+
 ## Table of Contents
 
 1. [Installation](#installation)
