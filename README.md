@@ -5,12 +5,12 @@
 Simplifying Kafka for Ruby apps!
 
 Phobos is a micro framework and library for applications dealing with [Apache Kafka](http://kafka.apache.org/).
-- It wraps common behaviors needed by consumers and producers in an easy and convenient API.
-- It uses [ruby-kafka](https://github.com/zendesk/ruby-kafka) as it's Kafka client and core component.
-- It provides a CLI for starting and stopping the Kafka backend, using official docker images for Kafka and Zookeeper
 
-Why Phobos? Why not `ruby-kafka` directly? Well, `ruby-kafka` is just a client. You still need to write a lot of code to manage proper consuming and producing of messages. You need to do proper error handling, retrying, backing off and maybe logging/instrumenting the message management process. You also need to worry about setting up a platform independent test environment that works on CI as well as any local machine, and even on your deployment pipeline.
+- It wraps common behaviors needed by consumers and producers in an easy and convenient API
+- It uses [ruby-kafka](https://github.com/zendesk/ruby-kafka) as it's Kafka client and core component
+- It provides a CLI for starting and stopping a standalone application ready to be used for production purposes
 
+Why Phobos? Why not `ruby-kafka` directly? Well, `ruby-kafka` is just a client. You still need to write a lot of code to manage proper consuming and producing of messages. You need to do proper error handling, retrying, backing off and maybe logging/instrumenting the message management process. You also need to worry about setting up a platform independent test environment that works on CI as well as any local machine, and even on your deployment pipeline. Finally, you also need to consider how to deploy your app and how to start it.
 
 ## Table of Contents
 
