@@ -46,7 +46,7 @@ Phobos can be used to power standalone ruby applications by bringing Kafka featu
 
 ### <a name="usage-standalone-apps"></a> Standalone apps
 
-Standalone apps have some benefits, such as individual deploys & simple and smaller code bases. If consuming from Kafka is your version of microservices, Phobos can be of great help.
+Standalone apps have benefits such as individual deploys and smaller code bases. If consuming from Kafka is your version of micro services, Phobos can be of great help.
 
 ### Setup
 
@@ -82,11 +82,9 @@ class MyHandler
 end
 ```
 
-You can read more about the handlers in a [section below](#usage-consuming-messages-from-kafka).
+Writing a handler is all you need to allow Phobos to work - it will take care of execution, retries and concurrency.
 
-Writing your handler is all you need to allow Phobos to work - it will take care of execution, retries and concurrency for you.
-
-To start your application you can use the __start__ command, example:
+To start Phobos the __start__ command is used, example:
 
 ```sh
 $ phobos start
@@ -111,11 +109,11 @@ $ phobos start -c /var/configs/my.yml -b /opt/apps/boot.rb
 
 ### <a name="usage-consuming-messages-from-kafka"></a> Consuming messages from Kafka
 
-Messages from Kafka are consumed using __handlers__. You can use Phobos __executors__ or use it programmatically, but __handlers__ will always be used. To create a handler class, include the module `Phobos::Handler`. This module allows Phobos to manage the life cycle of your handler.
+Messages from Kafka are consumed using __handlers__. You can use Phobos __executors__ or use it [programmatically](#usage-programmatically), but __handlers__ will always be used. To create a handler class, simply include the module `Phobos::Handler`. This module allows Phobos to manage the life cycle of your handler.
 
 A handler must implement the method `#consume(payload, metadata)`.
 
-Instances of your handler will be created for every message, so keep a constructor without arguments. If `consume` raises an exception, Phobos will retry the message indefinitely, applying the back off configuration presented in the configuration file. Metadata will contain a key called `retry_count` with the current number of retries for this message. To skip a message, simply return from `#consume`.
+Instances of your handler will be created for every message, so keep a constructor without arguments. If `consume` raises an exception, Phobos will retry the message indefinitely, applying the back off configuration presented in the configuration file. The `metadata` hash will contain a key called `retry_count` with the current number of retries for this message. To skip a message, simply return from `#consume`.
 
 When the listener starts, the class method `.start` will be called with the `kafka_client` used by the listener. Use this hook as a chance to setup necessary code for your handler. The class method `.stop` will be called during listener shutdown.
 
@@ -137,7 +135,7 @@ class MyHandler
 end
 ```
 
-It is also possible to control the execution of `#consume` with the class method `.around_consume(payload, metadata)`. This method receives the payload & metadata, and invokes `#consume` method by means of a block; example:
+It is also possible to control the execution of `#consume` with the class method `.around_consume(payload, metadata)`. This method receives the payload and metadata, and then invokes `#consume` method by means of a block; example:
 
 ```ruby
 class MyHandler
@@ -161,7 +159,7 @@ The hander life cycle can be illustrated as:
 
   `.start` -> `#consume` -> `.stop`
 
-or
+or optionally,
 
   `.start` -> `.around_consume` [ `#consume` ] -> `.stop`
 
@@ -175,7 +173,7 @@ class MyProducer
 end
 ```
 
-Phobos is designed for multithreading, thus the producer is always bound to the current thread. It is possible to publish messages from objects and classes, pick the option that suits your code better.
+Phobos is designed for multi threading, thus the producer is always bound to the current thread. It is possible to publish messages from objects and classes, pick the option that suits your code better.
 The producer module doesn't pollute your classes with a thousand methods, it includes a single method the class and in the instance level: `producer`.
 
 ```ruby
@@ -226,7 +224,7 @@ class MyHandler
 end
 ```
 
-#### Note about producers configuration
+#### Note about configuring producers
 
 Without configuring the Kafka client, the producers will create a new one when needed (once per thread).
 
@@ -301,7 +299,7 @@ The configuration file is organized in 6 sections. Take a look at the example fi
 
 __logger__ configures the logger for all Phobos components, it automatically outputs to `STDOUT` and it saves the log in the configured file
 
-__Kafka__ provides configurations for all `Kafka::Client` created over the application. All options presented are from `ruby-kafka`
+__kafka__ provides configurations for all `Kafka::Client` created over the application. All options presented are from `ruby-kafka`
 
 __producer__ provides configurations for all producers created over the application, the options are the same for normal and async producers. All options presented are from `ruby-kafka`
 
