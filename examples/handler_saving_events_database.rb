@@ -17,7 +17,7 @@ class HandlerSavingEventsDatabase
     event = Model::Event.from_message(payload)
 
     #
-    # If event already exists in the database skip this message
+    # If event already exists in the database, skip this message
     #
     return if event.exists?
 
@@ -28,12 +28,12 @@ class HandlerSavingEventsDatabase
       new_values = yield
 
       #
-      # `#consume` method can return adicional data (up to your code)
+      # `#consume` method can return additional data (up to your code)
       #
       event.update_with_new_attributes(new_values)
 
       #
-      # Let's assume the event is just initialized and now is time to save it
+      # Let's assume the event is just initialized and now is the time to save it
       #
       event.save!
     end

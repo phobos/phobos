@@ -392,7 +392,8 @@ end
 After checking out the repo:
 * make sure docker is installed and running
 * run `bin/setup` to install dependencies
-* run `rake spec` to run the tests
+* run `sh utils/start-all.sh` to start the required kafka containers in the background
+* run `rspec` to run the tests
 
 You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
