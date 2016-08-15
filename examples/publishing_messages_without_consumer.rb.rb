@@ -22,30 +22,34 @@ end
 
 Thread.new do
   begin
-    loop do
-      begin
-        break if @stop
-        key = SecureRandom.uuid
+    total = 1
 
-        #
+    loop do
+      break if @stop
+      key = SecureRandom.uuid
+      payload = Time.now.utc.to_json
+
+      begin
         # Producer will use phobos configuration to create a kafka client and
         # a producer and it will bind both to the current thread, so it's safe
         # to call class methods here
         #
         MyProducer
           .producer
-          .async_publish(TOPIC, Time.now.utc.to_json, key)
+          .async_publish(TOPIC, payload, key)
 
-        puts "produced #{key}"
+        puts "produced #{key}, total: #{total}"
 
-      #
       # Since this is a simplistic code we are going to generate more messages than
       # the producer can write to Kafka, so eventually we'll get some buffer overflows
       #
       rescue Kafka::BufferOverflow => e
         puts "| waiting"
         sleep(1)
+        retry
       end
+
+      total += 1
     end
   ensure
     #
