@@ -13,7 +13,6 @@ start() {
     $ZK_IMAGE:$ZK_IMAGE_VERSION
 
   sleep 3
-  wait_for "http://${DOCKER_HOSTNAME}:2181" "zookeeper"
 }
 
 stop() {
