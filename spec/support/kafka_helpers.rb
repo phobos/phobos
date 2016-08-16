@@ -20,8 +20,7 @@ module KafkaHelpers
   end
 
   def create_topic(name, partitions: 2)
-    script = ENV['CI'] ? 'utils/ci-create-topic.sh' : 'utils/create-topic.sh'
-    `TOPIC=#{name} PARTITIONS=#{partitions} sh #{script}`
+    `TOPIC=#{name} PARTITIONS=#{partitions} ./utils/create-topic.sh`
   end
 
   def events_for(name, ignore_errors: true)
