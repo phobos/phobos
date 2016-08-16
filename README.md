@@ -7,10 +7,10 @@ Simplifying Kafka for Ruby apps!
 Phobos is a micro framework and library for applications dealing with [Apache Kafka](http://kafka.apache.org/).
 
 - It wraps common behaviors needed by consumers and producers in an easy and convenient API
-- It uses [ruby-kafka](https://github.com/zendesk/ruby-kafka) as it's Kafka client and core component
+- It uses [ruby-kafka](https://github.com/zendesk/ruby-kafka) as its Kafka client and core component
 - It provides a CLI for starting and stopping a standalone application ready to be used for production purposes
 
-Why Phobos? Why not `ruby-kafka` directly? Well, `ruby-kafka` is just a client. You still need to write a lot of code to manage proper consuming and producing of messages. You need to do proper error handling, retrying, backing off and maybe logging/instrumenting the message management process. You also need to worry about setting up a platform independent test environment that works on CI as well as any local machine, and even on your deployment pipeline. Finally, you also need to consider how to deploy your app and how to start it.
+Why Phobos? Why not `ruby-kafka` directly? Well, `ruby-kafka` is just a client. You still need to write a lot of code to manage proper consuming and producing of messages. You need to do proper message routing, error handling, retrying, backing off and maybe logging/instrumenting the message management process. You also need to worry about setting up a platform independent test environment that works on CI as well as any local machine, and even on your deployment pipeline. Finally, you also need to consider how to deploy your app and how to start it.
 
 With Phobos by your side, all this becomes smooth sailing.
 
@@ -49,10 +49,10 @@ $ gem install phobos
 ## <a name="usage"></a> Usage
 
 Phobos can be used to power standalone ruby applications by bringing Kafka features to your project - including Rails apps. It also comes with a CLI to help loading your code and running it as a daemon or service.
-
+<!--- It wasn't really clear to me what you are trying to say. Do you mean that it can be used to create standalone Ruby applications or bring Kafka features to your existing project? --->
 ### <a name="usage-standalone-apps"></a> Standalone apps
 
-Standalone apps have benefits such as individual deploys and smaller code bases. If consuming from Kafka is your version of micro services, Phobos can be of great help.
+Standalone apps have benefits such as individual deploys and smaller code bases. If consuming from Kafka is your version of microservices, Phobos can be of great help.
 
 ### Setup
 
@@ -60,7 +60,7 @@ To create an application with Phobos you need two things:
   * A configuration file (more details in the [Configuration file](#usage-configuration-file) section)
   * A `phobos_boot.rb` (or the name of your choice) to properly load your code into Phobos executor
 
-Use the Phobos CLI commands __init__ and __start__ to bootstrap your application. Example:
+Use the Phobos CLI command __init__ to bootstrap your application. Example:
 
 ```sh
 # call this command inside your app folder
@@ -88,6 +88,7 @@ class MyHandler
 end
 ```
 
+<!--- what are the method names for event key and partition number? --->
 Writing a handler is all you need to allow Phobos to work - it will take care of execution, retries and concurrency.
 
 To start Phobos the __start__ command is used, example:
@@ -112,7 +113,7 @@ By default, the __start__ command will look for the configuration file at `confi
 ```sh
 $ phobos start -c /var/configs/my.yml -b /opt/apps/boot.rb
 ```
-
+<!--- The first time I read this I assumed that phobos_boot.rb included code to start the executor. It wasn't clear to me that it wass there for other things. --->
 ### <a name="usage-consuming-messages-from-kafka"></a> Consuming messages from Kafka
 
 Messages from Kafka are consumed using __handlers__. You can use Phobos __executors__ or use it [programmatically](#usage-programmatically), but __handlers__ will always be used. To create a handler class, simply include the module `Phobos::Handler`. This module allows Phobos to manage the life cycle of your handler.
@@ -122,6 +123,7 @@ A handler must implement the method `#consume(payload, metadata)`.
 Instances of your handler will be created for every message, so keep a constructor without arguments. If `consume` raises an exception, Phobos will retry the message indefinitely, applying the back off configuration presented in the configuration file. The `metadata` hash will contain a key called `retry_count` with the current number of retries for this message. To skip a message, simply return from `#consume`.
 
 When the listener starts, the class method `.start` will be called with the `kafka_client` used by the listener. Use this hook as a chance to setup necessary code for your handler. The class method `.stop` will be called during listener shutdown.
+<!--- is it OK not to implement these methods? --->
 
 ```ruby
 class MyHandler
@@ -241,7 +243,7 @@ MyProducer
   .close
 ```
 
-### <a name="usage-programmatically"></a> Programmatically
+### <a name="usage-programmatically"></a> Programmatically <!--- I'm a bit confused by this header - does this mean start Phobos within another process? --->
 
 Besides the handler and the producer, you can use `Listener` and `Executor`.
 
@@ -284,22 +286,23 @@ executor.stop
 When using Phobos __executors__ you don't care about how listeners are created, just provide the configuration under the `listeners` section in the configuration file and you are good to go.
 
 ### <a name="usage-configuration-file"></a> Configuration file
-
+<!--- I think that this would benefit from inline examples --->
 The configuration file is organized in 6 sections. Take a look at the example file, [config/phobos.yml.example](https://github.com/klarna/phobos/blob/master/config/phobos.yml.example).
 
 __logger__ configures the logger for all Phobos components, it automatically outputs to `STDOUT` and it saves the log in the configured file
 
-__kafka__ provides configurations for all `Kafka::Client` created over the application. All options presented are from `ruby-kafka`
+__kafka__ provides configurations for every `Kafka::Client` created over the application. All options supported by  `ruby-kafka` cabn be provided.<!--- link to where these are described? --->
+<!--- TODO find better wording --->
+__producer__ provides configurations for all producers created over the application, the options are the same for normal and async producers. All options supported by  `ruby-kafka` cabn be provided.
 
-__producer__ provides configurations for all producers created over the application, the options are the same for normal and async producers. All options presented are from `ruby-kafka`
-
-__consumer__ provides configurations for all consumer groups created over the application. All options presented are from `ruby-kafka`
+__consumer__ provides configurations for all consumer groups created over the application. All options supported by  `ruby-kafka` cabn be provided.
 
 __backoff__ Phobos provides automatic retries for your handlers, if an exception is raised the listener will retry following the back off configured here
 
 __listeners__ is the list of listeners configured, each listener represents a consumers group
 
 ### <a name="usage-instrumentation"></a> Instrumentation
+<!--- I'd put this all in a separate file --->
 
 Some operations are instrumented using [Active Support Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html).
 
