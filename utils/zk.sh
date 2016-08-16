@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -eu
 
-source ./utils/env.sh
+UTILS_DIR=$(dirname $0)
+source ${UTILS_DIR}/env.sh
 
 start() {
   [ $FORCE_PULL = 'true' ] && docker pull $ZK_IMAGE:$ZK_IMAGE_VERSION

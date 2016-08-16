@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -eu
 
-source ./utils/env.sh
+UTILS_DIR=$(dirname $0)
+source ${UTILS_DIR})/env.sh
 
 ZK_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' zookeeper)
 TOPIC=${TOPIC:='test'}

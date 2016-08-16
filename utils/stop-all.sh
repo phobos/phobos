@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -eu
 
-source ./utils/env.sh
+UTILS_DIR=$(dirname $0)
+source ${UTILS_DIR}/env.sh
 
 for (( i=${#APPS[@]}-1 ; i>=0 ; i-- )) ; do
-  sh "./utils/${APPS[i]}.sh" stop
+  ${UTILS_DIR}/${APPS[i]}.sh stop
 done

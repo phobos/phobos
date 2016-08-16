@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-source ./utils/env.sh
+source $(dirname $0)/env.sh
 
 start() {
   [ $FORCE_PULL = 'true' ] && docker pull $KAFKA_IMAGE:$KAFKA_IMAGE_VERSION
