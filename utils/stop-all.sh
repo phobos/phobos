@@ -1,4 +1,6 @@
-#!/bin/bash -eux
+#!/usr/bin/env bash
+set -eux
+
 source ./utils/env.sh
 
 for (( i=${#APPS[@]}-1 ; i>=0 ; i-- )) ; do
