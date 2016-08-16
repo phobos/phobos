@@ -292,7 +292,7 @@ The configuration file is organized in 6 sections. Take a look at the example fi
 __logger__ configures the logger for all Phobos components, it automatically outputs to `STDOUT` and it saves the log in the configured file
 
 __kafka__ provides configurations for every `Kafka::Client` created over the application. All options supported by  `ruby-kafka` cabn be provided.<!--- link to where these are described? --->
-<!--- TODO find better wording --->
+
 __producer__ provides configurations for all producers created over the application, the options are the same for normal and async producers. All options supported by  `ruby-kafka` cabn be provided.
 
 __consumer__ provides configurations for all consumer groups created over the application. All options supported by  `ruby-kafka` cabn be provided.
