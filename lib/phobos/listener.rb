@@ -52,7 +52,7 @@ module Phobos
           return if @signal_to_stop
         end
 
-      # Abort is an exception to prevent the consumer to commit the offset.
+      # Abort is an exception to prevent the consumer from committing the offset.
       # Since "listener" had a message being retried while "stop" was called
       # it's wise to not commit the batch offset to avoid data loss. This will
       # cause some messages to be reprocessed
