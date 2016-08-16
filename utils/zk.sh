@@ -1,4 +1,6 @@
-#!/bin/bash -eux
+#!/usr/bin/env bash
+set -eux
+
 source ./utils/env.sh
 
 start() {

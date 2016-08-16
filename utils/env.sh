@@ -1,4 +1,5 @@
-#!/bin/bash -eux
+#!/usr/bin/env bash
+set -eux
 
 DOCKER_HOSTNAME='localhost'
 FORCE_PULL=${FORCE_PULL:='false'}

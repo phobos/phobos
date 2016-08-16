@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -eux
+
 TOPIC=${TOPIC:='test'}
 PARTITIONS=${PARTITIONS:=2}
 ZK_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' zookeeper)
