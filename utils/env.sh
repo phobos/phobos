@@ -32,3 +32,7 @@ wait_for () {
     exit 1
   fi
 }
+
+get () {
+  curl -s -o /dev/null -w "%{http_code}" $1
+}
