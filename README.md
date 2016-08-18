@@ -291,15 +291,19 @@ The configuration file is organized in 6 sections. Take a look at the example fi
 
 __logger__ configures the logger for all Phobos components, it automatically outputs to `STDOUT` and it saves the log in the configured file
 
-__kafka__ provides configurations for every `Kafka::Client` created over the application. All options supported by  `ruby-kafka` can be provided.<!--- link to where these are described? --->
+__kafka__ provides configurations for every `Kafka::Client` created over the application. All [options supported by  `ruby-kafka`][ruby-kafka-client] can be provided.
 
-__producer__ provides configurations for all producers created over the application, the options are the same for normal and async producers. All options supported by  `ruby-kafka` can be provided.
+__producer__ provides configurations for all producers created over the application, the options are the same for normal and async producers. All [options supported by  `ruby-kafka`][ruby-kafka-producer] can be provided.
 
-__consumer__ provides configurations for all consumer groups created over the application. All options supported by  `ruby-kafka` can be provided.
+__consumer__ provides configurations for all consumer groups created over the application. All [options supported by  `ruby-kafka`][ruby-kafka-consumer] can be provided.
 
 __backoff__ Phobos provides automatic retries for your handlers, if an exception is raised the listener will retry following the back off configured here
 
 __listeners__ is the list of listeners configured, each listener represents a consumers group
+
+[ruby-kafka-client]: http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FClient%3Ainitialize
+[ruby-kafka-consumer]: http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FClient%3Aconsumer
+[ruby-kafka-producer]: http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FClient%3Aproducer
 
 ### <a name="usage-instrumentation"></a> Instrumentation
 <!--- I'd put this all in a separate file --->
