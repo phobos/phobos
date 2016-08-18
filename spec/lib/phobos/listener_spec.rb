@@ -92,7 +92,7 @@ RSpec.describe Phobos::Listener do
     wait_for_event('listener.stop')
   end
 
-  it 'abort retry when handler is shutting down' do
+  it 'aborts retry when handler is shutting down' do
     subscribe_to(*LISTENER_EVENTS) { thread }
     wait_for_event('listener.start')
 

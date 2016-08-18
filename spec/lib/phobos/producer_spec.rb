@@ -46,7 +46,7 @@ RSpec.describe Phobos::Producer do
         expect(Phobos).to_not receive(:create_kafka_client)
       end
 
-      it 'publishes and deliver a list of messages' do
+      it 'publishes and delivers a list of messages' do
         expect(kafka_client)
           .to receive(:producer)
           .with(Phobos.config.producer_hash)
@@ -75,7 +75,7 @@ RSpec.describe Phobos::Producer do
       let(:kafka_client) { double('Kafka::Client', producer: true, close: true) }
       let(:producer) { double('Kafka::NormalProducer', produce: true, deliver_messages: true) }
 
-      it 'publishes and deliver a list of messages' do
+      it 'publishes and delivers a list of messages' do
         expect(Phobos).to receive(:create_kafka_client).and_return(kafka_client)
 
         expect(kafka_client)
@@ -112,7 +112,7 @@ RSpec.describe Phobos::Producer do
         allow(kafka_client).to receive(:async_producer).and_return(producer)
       end
 
-      it 'publishes and deliver a list of messages without closing the connection' do
+      it 'publishes and delivers a list of messages without closing the connection' do
         expect(producer)
           .to receive(:produce)
           .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'key-1')
