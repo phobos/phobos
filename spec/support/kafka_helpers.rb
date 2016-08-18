@@ -2,7 +2,7 @@ require 'securerandom'
 require 'timeout'
 
 module KafkaHelpers
-  DEFAULT_TIMEOUT = ENV['DEFAULT_TIMEOUT'] ? ENV['DEFAULT_TIMEOUT'].to_i : 6
+  DEFAULT_TIMEOUT = ENV['DEFAULT_TIMEOUT'] ? ENV['DEFAULT_TIMEOUT'].to_i : 10
 
   @@subscriptions = Concurrent::Hash.new
   @@subscription_events = Concurrent::Hash.new
