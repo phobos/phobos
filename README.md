@@ -88,7 +88,6 @@ class MyHandler
 end
 ```
 
-<!--- what are the method names for event key and partition number? --->
 Writing a handler is all you need to allow Phobos to work - it will take care of execution, retries and concurrency.
 
 To start Phobos the __start__ command is used, example:
@@ -113,7 +112,6 @@ By default, the __start__ command will look for the configuration file at `confi
 ```sh
 $ phobos start -c /var/configs/my.yml -b /opt/apps/boot.rb
 ```
-<!--- The first time I read this I assumed that phobos_boot.rb included code to start the executor. It wasn't clear to me that it wass there for other things. --->
 ### <a name="usage-consuming-messages-from-kafka"></a> Consuming messages from Kafka
 
 Messages from Kafka are consumed using __handlers__. You can use Phobos __executors__ or include it in your own projet [as a library](#usage-as-library), but __handlers__ will always be used. To create a handler class, simply include the module `Phobos::Handler`. This module allows Phobos to manage the life cycle of your handler.
@@ -123,7 +121,6 @@ A handler must implement the method `#consume(payload, metadata)`.
 Instances of your handler will be created for every message, so keep a constructor without arguments. If `consume` raises an exception, Phobos will retry the message indefinitely, applying the back off configuration presented in the configuration file. The `metadata` hash will contain a key called `retry_count` with the current number of retries for this message. To skip a message, simply return from `#consume`.
 
 When the listener starts, the class method `.start` will be called with the `kafka_client` used by the listener. Use this hook as a chance to setup necessary code for your handler. The class method `.stop` will be called during listener shutdown.
-<!--- is it OK not to implement these methods? --->
 
 ```ruby
 class MyHandler
@@ -286,7 +283,6 @@ executor.stop
 When using Phobos __executors__ you don't care about how listeners are created, just provide the configuration under the `listeners` section in the configuration file and you are good to go.
 
 ### <a name="usage-configuration-file"></a> Configuration file
-<!--- I think that this would benefit from inline examples --->
 The configuration file is organized in 6 sections. Take a look at the example file, [config/phobos.yml.example](https://github.com/klarna/phobos/blob/master/config/phobos.yml.example).
 
 __logger__ configures the logger for all Phobos components, it automatically outputs to `STDOUT` and it saves the log in the configured file
@@ -306,7 +302,6 @@ __listeners__ is the list of listeners configured, each listener represents a co
 [ruby-kafka-producer]: http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FClient%3Aproducer
 
 ### <a name="usage-instrumentation"></a> Instrumentation
-<!--- I'd put this all in a separate file --->
 
 Some operations are instrumented using [Active Support Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html).
 
