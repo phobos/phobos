@@ -21,7 +21,7 @@ With Phobos by your side, all this becomes smooth sailing.
   1. [Standalone apps](#usage-standalone-apps)
   1. [Consuming messages from Kafka](#usage-consuming-messages-from-kafka)
   1. [Producing messages to Kafka](#usage-producing-messages-to-kafka)
-  1. [Programmatically](#usage-programmatically)
+  1. [As library in another app](#usage-as-library)
   1. [Configuration file](#usage-configuration-file)
   1. [Instrumentation](#usage-instrumentation)
 1. [Development](#development)
@@ -48,8 +48,8 @@ $ gem install phobos
 
 ## <a name="usage"></a> Usage
 
-Phobos can be used to power standalone ruby applications by bringing Kafka features to your project - including Rails apps. It also comes with a CLI to help loading your code and running it as a daemon or service.
-<!--- It wasn't really clear to me what you are trying to say. Do you mean that it can be used to create standalone Ruby applications or bring Kafka features to your existing project? --->
+Phobos can be used in two ways: as a standalone application or to support Kafka features in your existing project - including Rails apps. It provides a CLI tool to run it.
+
 ### <a name="usage-standalone-apps"></a> Standalone apps
 
 Standalone apps have benefits such as individual deploys and smaller code bases. If consuming from Kafka is your version of microservices, Phobos can be of great help.
@@ -116,7 +116,7 @@ $ phobos start -c /var/configs/my.yml -b /opt/apps/boot.rb
 <!--- The first time I read this I assumed that phobos_boot.rb included code to start the executor. It wasn't clear to me that it wass there for other things. --->
 ### <a name="usage-consuming-messages-from-kafka"></a> Consuming messages from Kafka
 
-Messages from Kafka are consumed using __handlers__. You can use Phobos __executors__ or use it [programmatically](#usage-programmatically), but __handlers__ will always be used. To create a handler class, simply include the module `Phobos::Handler`. This module allows Phobos to manage the life cycle of your handler.
+Messages from Kafka are consumed using __handlers__. You can use Phobos __executors__ or include it in your own projet [as a library](#usage-as-library), but __handlers__ will always be used. To create a handler class, simply include the module `Phobos::Handler`. This module allows Phobos to manage the life cycle of your handler.
 
 A handler must implement the method `#consume(payload, metadata)`.
 
@@ -243,9 +243,9 @@ MyProducer
   .close
 ```
 
-### <a name="usage-programmatically"></a> Programmatically <!--- I'm a bit confused by this header - does this mean start Phobos within another process? --->
+### <a name="usage-as-library"></a> Phobos as a library in an existing project
 
-Besides the handler and the producer, you can use `Listener` and `Executor`.
+When running as a standalone service, Phobos sets up a `Listener` and `Executor` for you. When you use Phobos as a library in your own project, you need to set these components up yourself.
 
 First, call the method `configure` with the path of your configuration file
 
