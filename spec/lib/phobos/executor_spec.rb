@@ -1,21 +1,23 @@
 require 'spec_helper'
+require 'ostruct'
 
 RSpec.describe Phobos::Executor do
   include Phobos::Producer
 
   class TestHandler1 < Phobos::EchoHandler; end
   class TestHandler2 < Phobos::EchoHandler; end
-  HANDLER_STRUCT = Struct.new(:handler, :topic, :group_id, :start_from_beginning, :max_bytes_per_partition, :max_concurrency)
 
   let(:executor) { Phobos::Executor.new }
   let(:topics) { [random_topic, random_topic] }
 
   let(:handler1) { Phobos::EchoHandler.new }
   let(:handler2) { Phobos::EchoHandler.new }
-  let(:listener1) { HANDLER_STRUCT.new(TestHandler1.to_s, topics.first, random_group_id, true, 524288, 1) }
-  let(:listener2) { HANDLER_STRUCT.new(TestHandler1.to_s, topics.first, random_group_id, true, 524288, 1) }
-
-  let(:listeners) { [listener1, listener2] }
+  let(:listeners) do
+    [
+      OpenStruct.new(handler: TestHandler1.to_s, topic: topics.first, group_id: random_group_id, start_from_beginning: true),
+      OpenStruct.new(handler: TestHandler2.to_s, topic: topics.last, group_id: random_group_id, start_from_beginning: true)
+    ]
+  end
 
   before do
     topics.each { |topic| create_topic(topic) }
