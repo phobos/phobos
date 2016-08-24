@@ -9,6 +9,7 @@ require 'active_support/notifications'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/hash/keys'
 
+require 'phobos/deep_struct'
 require 'phobos/version'
 require 'phobos/instrumentation'
 require 'phobos/errors'
@@ -21,29 +22,13 @@ require 'phobos/executor'
 Thread.abort_on_exception = true
 
 module Phobos
-  module ConfigAttributes
-    def self.extract(attrs)
-      keys = attrs.keys
-      Struct.new(*keys).new(*keys.map do |k|
-        if attrs[k].is_a? Hash
-          extract(attrs[k])
-        elsif attrs[k].is_a?(Array) && attrs[k].all? { |el| el.is_a?(Hash) }
-          attrs[k].map { |el| extract(el) }
-        else
-          attrs[k]
-        end
-      end)
-    end
-  end
-
   class << self
     attr_reader :config, :logger
     attr_accessor :silence_log
 
     def configure(yml_path)
       ENV['RAILS_ENV'] = ENV['RACK_ENV'] ||= 'development'
-      attrs = YAML.load_file(File.expand_path(yml_path)).deep_symbolize_keys
-      @config = ConfigAttributes.extract(attrs)
+      @config = DeepStruct.extract(YAML.load_file(File.expand_path(yml_path)).deep_symbolize_keys)
       @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_h }
       @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_h }
       configure_logger
