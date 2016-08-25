@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'ostruct'
 
 RSpec.describe Phobos::Executor do
   include Phobos::Producer
@@ -14,8 +13,8 @@ RSpec.describe Phobos::Executor do
   let(:handler2) { Phobos::EchoHandler.new }
   let(:listeners) do
     [
-      OpenStruct.new(handler: TestHandler1.to_s, topic: topics.first, group_id: random_group_id, start_from_beginning: true),
-      OpenStruct.new(handler: TestHandler2.to_s, topic: topics.last, group_id: random_group_id, start_from_beginning: true)
+      Phobos::DeepStruct.new(handler: TestHandler1.to_s, topic: topics.first, group_id: random_group_id, start_from_beginning: true),
+      Phobos::DeepStruct.new(handler: TestHandler2.to_s, topic: topics.last, group_id: random_group_id, start_from_beginning: true)
     ]
   end
 

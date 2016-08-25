@@ -25,5 +25,18 @@ RSpec.describe Phobos::DeepStruct do
     it 'renders itself as a hash' do
       expect(subject.to_h).to eq(example)
     end
+
+    it 'returns a copy to avoid side effects' do
+      copy = subject.to_h
+      copy[:new_key] = 'b'
+      expect(subject.new_key).to be_nil
+      expect(subject.to_h[:new_key]).to be_nil
+    end
+  end
+
+  context '#to_hash' do
+    it 'renders itself as a hash' do
+      expect(subject.to_hash).to eq(example)
+    end
   end
 end
