@@ -1,7 +1,16 @@
 require 'spec_helper'
 
 RSpec.describe Phobos::DeepStruct do
-  let(:example) { {a: 1, b: [2, 3], c: {x: 4, y: 5}, d: [{j: 6}, {j: 7}]} }
+  let(:example) do
+    {
+      a: 1,
+      b: [2, 3],
+      c: {x: 4, y: 5},
+      d: [{j: 6}, {j: 7}],
+      e: [8, {x: 9}]
+    }
+  end
+
   let(:subject) { described_class.new(example) }
 
   context '.new' do
@@ -18,6 +27,11 @@ RSpec.describe Phobos::DeepStruct do
     it 'handles array of hashes' do
       expect(subject.d[0].j).to eq(6)
       expect(subject.d[1].j).to eq(7)
+    end
+
+    it 'handles array of mixed types' do
+      expect(subject.e[0]).to eq(8)
+      expect(subject.e[1].x).to eq(9)
     end
   end
 
