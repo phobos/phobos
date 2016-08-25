@@ -16,9 +16,10 @@ module Phobos
     end
 
     def to_deep_struct(v)
-      if v.is_a?(Hash)
+      case v
+      when Hash
         self.class.new(v)
-      elsif v.is_a?(Array)
+      when Enumerable
         v.map { |el| to_deep_struct(el) }
       else
         v
