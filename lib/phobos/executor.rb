@@ -7,7 +7,7 @@ module Phobos
       @threads = Concurrent::Array.new
       @listeners = Phobos.config.listeners.flat_map do |config|
         handler_class = config.handler.constantize
-        listener_configs = config.to_h
+        listener_configs = config.to_hash
         max_concurrency = listener_configs[:max_concurrency] || 1
         max_concurrency.times.map do
           configs = listener_configs.select { |k| LISTENER_OPTS.include?(k) }
