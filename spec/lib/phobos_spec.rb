@@ -16,7 +16,7 @@ RSpec.describe Phobos do
 
       expect(Kafka)
         .to receive(:new)
-        .with(hash_including(Phobos.config.kafka.to_h))
+        .with(hash_including(Phobos.config.kafka.to_hash))
         .and_return(:kafka_client)
 
       expect(Phobos.create_kafka_client).to eql :kafka_client

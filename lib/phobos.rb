@@ -30,14 +30,14 @@ module Phobos
     def configure(yml_path)
       ENV['RAILS_ENV'] = ENV['RACK_ENV'] ||= 'development'
       @config = DeepStruct.new(YAML.load_file(File.expand_path(yml_path)))
-      @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_h }
-      @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_h }
+      @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash }
+      @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
       configure_logger
       logger.info { Hash(message: 'Phobos configured', env: ENV['RACK_ENV']) }
     end
 
     def create_kafka_client
-      Kafka.new(config.kafka.to_h)
+      Kafka.new(config.kafka.to_hash)
     end
 
     def create_exponential_backoff
