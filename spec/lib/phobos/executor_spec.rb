@@ -11,11 +11,10 @@ RSpec.describe Phobos::Executor do
 
   let(:handler1) { Phobos::EchoHandler.new }
   let(:handler2) { Phobos::EchoHandler.new }
-
-  let :listeners do
+  let(:listeners) do
     [
-      Hashie::Mash.new(handler: TestHandler1.to_s, topic: topics.first, group_id: random_group_id, start_from_beginning: true),
-      Hashie::Mash.new(handler: TestHandler2.to_s, topic: topics.last, group_id: random_group_id, start_from_beginning: true)
+      Phobos::DeepStruct.new(handler: TestHandler1.to_s, topic: topics.first, group_id: random_group_id, start_from_beginning: true),
+      Phobos::DeepStruct.new(handler: TestHandler2.to_s, topic: topics.last, group_id: random_group_id, start_from_beginning: true)
     ]
   end
 
@@ -63,15 +62,22 @@ RSpec.describe Phobos::Executor do
     wait_for_event('executor.stop')
   end
 
-  it 'creates the amount of listeners configured in max_concurrency' do
-    Phobos.config.listeners.first.max_concurrency = 2
-    subscribe_to(*EXECUTOR_EVENTS)
-    subscribe_to(*LISTENER_EVENTS) { executor.start }
-    wait_for_event('listener.start', amount: 3)
+  context 'with max concurrency > 1' do
+    let(:listeners) do
+      [
+        Phobos::DeepStruct.new(handler: TestHandler1.to_s, topic: topics.first, group_id: random_group_id, start_from_beginning: true, max_concurrency: 2),
+        Phobos::DeepStruct.new(handler: TestHandler2.to_s, topic: topics.last, group_id: random_group_id, start_from_beginning: true)
+      ]
+    end
 
-    executor.stop
-    wait_for_event('listener.stop', amount: 3)
-    wait_for_event('executor.stop')
+    it 'creates the amount of listeners configured in max_concurrency' do
+      subscribe_to(*EXECUTOR_EVENTS)
+      subscribe_to(*LISTENER_EVENTS) { executor.start }
+      wait_for_event('listener.start', amount: 3, show_events_on_error: true)
+
+      executor.stop
+      wait_for_event('listener.stop', amount: 3)
+      wait_for_event('executor.stop')
+    end
   end
-
 end

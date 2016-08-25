@@ -1,15 +1,16 @@
-require 'yaml'
+require 'ostruct'
 require 'securerandom'
+require 'yaml'
 
-require 'concurrent'
-require 'kafka'
-require 'hashie'
-require 'logging'
-require 'exponential_backoff'
-require 'active_support/notifications'
-require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/hash/keys'
+require 'active_support/core_ext/string/inflections'
+require 'active_support/notifications'
+require 'concurrent'
+require 'exponential_backoff'
+require 'kafka'
+require 'logging'
 
+require 'phobos/deep_struct'
 require 'phobos/version'
 require 'phobos/instrumentation'
 require 'phobos/errors'
@@ -28,15 +29,15 @@ module Phobos
 
     def configure(yml_path)
       ENV['RAILS_ENV'] = ENV['RACK_ENV'] ||= 'development'
-      @config = Hashie::Mash.new(YAML.load_file(File.expand_path(yml_path)))
-      @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash&.symbolize_keys }
-      @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash&.symbolize_keys }
+      @config = DeepStruct.new(YAML.load_file(File.expand_path(yml_path)))
+      @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash }
+      @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
       configure_logger
       logger.info { Hash(message: 'Phobos configured', env: ENV['RACK_ENV']) }
     end
 
     def create_kafka_client
-      Kafka.new(config.kafka.to_hash.symbolize_keys)
+      Kafka.new(config.kafka.to_hash)
     end
 
     def create_exponential_backoff
