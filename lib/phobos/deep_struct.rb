@@ -9,11 +9,18 @@ module Phobos
       if hash
         hash.each_pair do |k, v|
           k = k.to_sym
-          @hash_table[k] = v
           @table[k] = to_deep_struct(v)
+          @hash_table[k] = v
         end
       end
     end
+
+    def to_h
+      @hash_table.dup
+    end
+    alias_method :to_hash, :to_h
+
+    private
 
     def to_deep_struct(v)
       case v
@@ -25,10 +32,6 @@ module Phobos
         v
       end
     end
-
-    def to_h
-      @hash_table.dup
-    end
-    alias_method :to_hash, :to_h
+    protected :to_deep_struct
   end
 end
