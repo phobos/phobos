@@ -1,3 +1,4 @@
+![Phobos](https://raw.githubusercontent.com/klarna/phobos/master/logo.png)
 ![Circle CI](https://circleci.com/gh/klarna/phobos.svg?style=shield&circle-token=2289e0fe5bd934074597b32e7f8f0bc98ea0e3c7)
 
 # Phobos
@@ -401,6 +402,10 @@ sh utils/stop-all.sh
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/klarna/phobos.
+
+## Acknowledgements
+
+Thanks to Sebastian Norde for the awesome logo!
 
 ## License
 
