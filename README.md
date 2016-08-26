@@ -1,6 +1,7 @@
 ![Phobos](https://raw.githubusercontent.com/klarna/phobos/master/logo.png)
 
 ![Circle CI](https://circleci.com/gh/klarna/phobos.svg?style=shield&circle-token=2289e0fe5bd934074597b32e7f8f0bc98ea0e3c7)
+[![Coverage Status](https://coveralls.io/repos/github/klarna/phobos/badge.svg?branch=master)](https://coveralls.io/github/klarna/phobos?branch=master)
 
 # Phobos
 
