@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   ]
 
   spec.summary       = %q{Simplifying Kafka for ruby apps}
-  spec.description   = %q{Phobos is a microframework and library for kafka based applications, it wraps commons behaviors needed by consumers/producers in an easy an convenient API. It uses ruby-kafka as it's kafka client and core component.}
+  spec.description   = %q{Phobos is a microframework and library for kafka based applications, it wraps common behaviors needed by consumers/producers in an easy an convenient API. It uses ruby-kafka as its kafka client and core component.}
   spec.homepage      = 'https://github.com/klarna/phobos'
   spec.license       = 'Apache License Version 2.0'
 
