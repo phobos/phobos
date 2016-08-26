@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   ]
 
   spec.summary       = %q{Simplifying Kafka for ruby apps}
-  spec.description   = %q{Phobos is a microframework and library for kafka based applications, it wraps commons behaviors needed by consumers/producers in an easy an convenient API. It uses ruby-kafka as it's kafka client and core component.}
+  spec.description   = %q{Phobos is a microframework and library for kafka based applications, it wraps common behaviors needed by consumers/producers in an easy an convenient API. It uses ruby-kafka as its kafka client and core component.}
   spec.homepage      = 'https://github.com/klarna/phobos'
   spec.license       = 'Apache License Version 2.0'
 
@@ -47,6 +47,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'pry-byebug', '~> 3.4.0'
   spec.add_development_dependency 'rspec_junit_formatter', '0.2.2'
+  spec.add_development_dependency 'simplecov', '~> 0.12.0'
+  spec.add_development_dependency 'coveralls', '~> 0.8.15'
 
   spec.add_dependency 'ruby-kafka', '>= 0.3.13.beta4'
   spec.add_dependency 'concurrent-ruby', '>= 1.0.2'

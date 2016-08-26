@@ -1,5 +1,23 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 Thread.abort_on_exception = true
+
+# Set up coverage report
+require 'simplecov'
+# save to CircleCI's artifacts directory if we're on CircleCI
+if ENV['CIRCLE_ARTIFACTS']
+  dir = File.join(ENV['CIRCLE_ARTIFACTS'], "coverage")
+  SimpleCov.coverage_dir(dir)
+end
+
+require 'coveralls'
+Coveralls::Output.silent = true
+
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+])
+SimpleCov.start
+
 require 'phobos'
 require 'pry-byebug'
 
