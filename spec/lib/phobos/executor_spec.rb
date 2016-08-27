@@ -2,6 +2,7 @@ require 'spec_helper'
 
 RSpec.describe Phobos::Executor do
   include Phobos::Producer
+  MAX_WAIT_TIME = 0.1 # no need to wait for 5 seconds in tests
 
   class TestHandler1 < Phobos::EchoHandler; end
   class TestHandler2 < Phobos::EchoHandler; end
@@ -13,8 +14,8 @@ RSpec.describe Phobos::Executor do
   let(:handler2) { Phobos::EchoHandler.new }
   let(:listeners) do
     [
-      Phobos::DeepStruct.new(handler: TestHandler1.to_s, topic: topics.first, group_id: random_group_id, start_from_beginning: true),
-      Phobos::DeepStruct.new(handler: TestHandler2.to_s, topic: topics.last, group_id: random_group_id, start_from_beginning: true)
+      Phobos::DeepStruct.new(handler: TestHandler1.to_s, topic: topics.first, group_id: random_group_id, start_from_beginning: true, max_wait_time: MAX_WAIT_TIME),
+      Phobos::DeepStruct.new(handler: TestHandler2.to_s, topic: topics.last, group_id: random_group_id, start_from_beginning: true, max_wait_time: MAX_WAIT_TIME)
     ]
   end
 
@@ -65,8 +66,8 @@ RSpec.describe Phobos::Executor do
   context 'with max concurrency > 1' do
     let(:listeners) do
       [
-        Phobos::DeepStruct.new(handler: TestHandler1.to_s, topic: topics.first, group_id: random_group_id, start_from_beginning: true, max_concurrency: 2),
-        Phobos::DeepStruct.new(handler: TestHandler2.to_s, topic: topics.last, group_id: random_group_id, start_from_beginning: true)
+        Phobos::DeepStruct.new(handler: TestHandler1.to_s, topic: topics.first, group_id: random_group_id, start_from_beginning: true, max_concurrency: 2, max_wait_time: MAX_WAIT_TIME),
+        Phobos::DeepStruct.new(handler: TestHandler2.to_s, topic: topics.last, group_id: random_group_id, start_from_beginning: true, max_wait_time: MAX_WAIT_TIME)
       ]
     end
 
