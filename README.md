@@ -27,6 +27,7 @@ With Phobos by your side, all this becomes smooth sailing.
   1. [As library in another app](#usage-as-library)
   1. [Configuration file](#usage-configuration-file)
   1. [Instrumentation](#usage-instrumentation)
+1. [Plugins](#plugins)
 1. [Development](#development)
 
 ## <a name="installation"></a> Installation
@@ -381,6 +382,15 @@ end
     * listener_id
     * group_id
     * topic
+
+## <a name="plugins"></a> Plugins
+
+List of gems that enhance Phobos:
+
+* [Phobos DB Checkpoint](https://github.com/klarna/phobos_db_checkpoint) is drop in replacement to Phobos::Handler, extending it with the following features:
+  * Persists your Kafka events to an active record compatible database
+  * Ensures that your handler will consume messages only once
+  * Allows your system to quickly reprocess events in case of failures
 
 ## <a name="development"></a> Development
 
