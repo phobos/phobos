@@ -50,7 +50,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'simplecov', '~> 0.12.0'
   spec.add_development_dependency 'coveralls', '~> 0.8.15'
 
-  spec.add_dependency 'ruby-kafka', '>= 0.3.13.beta4'
+  spec.add_dependency 'ruby-kafka', '>= 0.3.14'
   spec.add_dependency 'concurrent-ruby', '>= 1.0.2'
   spec.add_dependency 'concurrent-ruby-ext', '>= 1.0.2'
   spec.add_dependency 'activesupport', '>= 4.0.0'
