@@ -39,7 +39,7 @@ RSpec.describe Phobos::Producer do
   describe '#publish_list' do
     describe 'with a configured client' do
       let(:kafka_client) { double('Kafka::Client', producer: true, close: true) }
-      let(:producer) { double('Kafka::NormalProducer', produce: true, deliver_messages: true, shutdown: true) }
+      let(:producer) { double('Kafka::RegularProducer', produce: true, deliver_messages: true, shutdown: true) }
 
       before do
         TestProducer1.producer.configure_kafka_client(kafka_client)
@@ -49,7 +49,7 @@ RSpec.describe Phobos::Producer do
       it 'publishes and delivers a list of messages' do
         expect(kafka_client)
           .to receive(:producer)
-          .with(Phobos.config.producer_hash)
+          .with(TestProducer1.producer.regular_configs)
           .and_return(producer)
 
         expect(producer)
@@ -73,14 +73,14 @@ RSpec.describe Phobos::Producer do
 
     describe 'without a configured client' do
       let(:kafka_client) { double('Kafka::Client', producer: true, close: true) }
-      let(:producer) { double('Kafka::NormalProducer', produce: true, deliver_messages: true) }
+      let(:producer) { double('Kafka::RegularProducer', produce: true, deliver_messages: true) }
 
       it 'publishes and delivers a list of messages' do
         expect(Phobos).to receive(:create_kafka_client).and_return(kafka_client)
 
         expect(kafka_client)
           .to receive(:producer)
-          .with(Phobos.config.producer_hash)
+          .with(TestProducer1.producer.regular_configs)
           .and_return(producer)
 
         expect(producer)
@@ -108,11 +108,12 @@ RSpec.describe Phobos::Producer do
       let(:kafka_client) { double('Kafka::Client', producer: true, close: true) }
       let(:producer) { double('Kafka::AsyncProducer', produce: true, deliver_messages: true) }
 
-      before do
-        allow(kafka_client).to receive(:async_producer).and_return(producer)
-      end
-
       it 'publishes and delivers a list of messages without closing the connection' do
+        expect(kafka_client)
+          .to receive(:async_producer)
+          .with(TestProducer1.producer.async_configs)
+          .and_return(producer)
+
         expect(producer)
           .to receive(:produce)
           .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'key-1')
