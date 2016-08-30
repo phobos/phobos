@@ -16,10 +16,7 @@ module Phobos
         start_from_beginning: start_from_beginning,
         max_bytes_per_partition: max_bytes_per_partition
       }
-      @consumer_opts = compact({
-        min_bytes: min_bytes,
-        max_wait_time: max_wait_time
-      })
+      @consumer_opts = compact(min_bytes: min_bytes, max_wait_time: max_wait_time)
       @kafka_client = Phobos.create_kafka_client
       @producer_enabled = @handler_class.ancestors.include?(Phobos::Producer)
     end
@@ -39,7 +36,7 @@ module Phobos
       end
 
       begin
-        @consumer.each_batch(**@consumer_opts) do |batch|
+        @consumer.each_batch(@consumer_opts) do |batch|
           batch_metadata = {
             batch_size: batch.messages.count,
             partition: batch.partition,
@@ -155,7 +152,7 @@ module Phobos
     end
 
     def compact(hash)
-      hash.delete_if { |k, v| v.nil? }
+      hash.delete_if { |_, v| v.nil? }
     end
   end
 end
