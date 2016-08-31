@@ -19,6 +19,7 @@ RSpec.describe Phobos::Listener do
   let(:max_bytes) { 8192 } # 8 KB
   let(:max_wait_time) { 0.1 }
   let(:min_bytes) { 2 }
+  let(:force_encoding) { nil }
   let :hander_config do
     {
       handler: handler_class,
@@ -27,7 +28,8 @@ RSpec.describe Phobos::Listener do
       max_bytes_per_partition: max_bytes,
       start_from_beginning: true,
       max_wait_time: max_wait_time,
-      min_bytes: min_bytes
+      min_bytes: min_bytes,
+      force_encoding: force_encoding
     }
   end
   let(:listener) { Phobos::Listener.new(hander_config) }
@@ -263,6 +265,30 @@ RSpec.describe Phobos::Listener do
 
       subscribe_to(*LISTENER_EVENTS) { thread }
       wait_for_event('listener.start')
+
+      listener.stop
+      wait_for_event('listener.stop')
+    end
+  end
+
+  describe 'when force_encoding is configured' do
+    let(:payload) { 'C3A9'.lines.to_a.pack('H*') }
+    let(:encoded_payload) { payload.force_encoding(Encoding::UTF_8) }
+    let(:force_encoding) { 'UTF_8' }
+
+    it 'encodes to the defined format' do
+      expect(payload.encoding).to eql Encoding::ASCII_8BIT
+      expect(encoded_payload.encoding).to eql Encoding::UTF_8
+
+      subscribe_to(*LISTENER_EVENTS) { thread }
+      wait_for_event('listener.start')
+
+      expect(handler)
+        .to receive(:consume)
+        .with(encoded_payload, anything)
+
+      producer.publish(topic, payload)
+      wait_for_event('listener.process_batch', show_events_on_error: true)
 
       listener.stop
       wait_for_event('listener.stop')
