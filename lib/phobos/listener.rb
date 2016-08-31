@@ -7,7 +7,7 @@ module Phobos
 
     attr_reader :group_id, :topic, :id
 
-    def initialize(handler:, group_id:, topic:, start_from_beginning: true, max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION)
+    def initialize(handler:, group_id:, topic:, min_bytes: nil, max_wait_time: nil, start_from_beginning: true, max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION)
       @id = SecureRandom.hex[0...6]
       @handler_class = handler
       @group_id = group_id
@@ -16,6 +16,7 @@ module Phobos
         start_from_beginning: start_from_beginning,
         max_bytes_per_partition: max_bytes_per_partition
       }
+      @consumer_opts = compact(min_bytes: min_bytes, max_wait_time: max_wait_time)
       @kafka_client = Phobos.create_kafka_client
       @producer_enabled = @handler_class.ancestors.include?(Phobos::Producer)
     end
@@ -35,7 +36,7 @@ module Phobos
       end
 
       begin
-        @consumer.each_batch do |batch|
+        @consumer.each_batch(@consumer_opts) do |batch|
           batch_metadata = {
             batch_size: batch.messages.count,
             partition: batch.partition,
@@ -148,6 +149,10 @@ module Phobos
     def create_kafka_consumer
       configs = Phobos.config.consumer_hash.select { |k| KAFKA_CONSUMER_OPTS.include?(k) }
       @kafka_client.consumer({group_id: group_id}.merge(configs))
+    end
+
+    def compact(hash)
+      hash.delete_if { |_, v| v.nil? }
     end
   end
 end

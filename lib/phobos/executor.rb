@@ -1,7 +1,7 @@
 module Phobos
   class Executor
     include Phobos::Instrumentation
-    LISTENER_OPTS = %i(handler group_id topic start_from_beginning max_bytes_per_partition).freeze
+    LISTENER_OPTS = %i(handler group_id topic min_bytes max_wait_time start_from_beginning max_bytes_per_partition).freeze
 
     def initialize
       @threads = Concurrent::Array.new

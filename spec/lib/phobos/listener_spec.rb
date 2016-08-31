@@ -17,13 +17,17 @@ RSpec.describe Phobos::Listener do
   let(:handler) { handler_class.new }
   let(:handler_class) { TestListenerHandler }
   let(:max_bytes) { 8192 } # 8 KB
+  let(:max_wait_time) { 0.1 }
+  let(:min_bytes) { 2 }
   let :hander_config do
     {
       handler: handler_class,
       topic: topic,
       group_id: group_id,
       max_bytes_per_partition: max_bytes,
-      start_from_beginning: true
+      start_from_beginning: true,
+      max_wait_time: max_wait_time,
+      min_bytes: min_bytes
     }
   end
   let(:listener) { Phobos::Listener.new(hander_config) }
@@ -53,6 +57,40 @@ RSpec.describe Phobos::Listener do
 
     listener.stop
     wait_for_event('listener.stop')
+  end
+
+  it 'calls consumer with max_wait_time and min_bytes' do
+    consumer = listener.send(:create_kafka_consumer)
+    expect(listener).to receive(:create_kafka_consumer).and_return(consumer)
+    expect(consumer).to receive(:each_batch).with(
+      hash_including(max_wait_time: max_wait_time, min_bytes: min_bytes)
+    ).and_call_original
+
+    consume_and_stop
+  end
+
+  context 'when min_bytes is not set' do
+    let(:min_bytes) { nil }
+
+    it 'does not pass min_bytes to consumer' do
+      consumer = listener.send(:create_kafka_consumer)
+      expect(listener).to receive(:create_kafka_consumer).and_return(consumer)
+      expect(consumer).to receive(:each_batch).with(hash_excluding(:min_bytes)).and_call_original
+
+      consume_and_stop
+    end
+  end
+
+  context 'when max_wait_time is not set' do
+    let(:max_wait_time) { nil }
+
+    it 'does not pass max_wait_time to consumer' do
+      consumer = listener.send(:create_kafka_consumer)
+      expect(listener).to receive(:create_kafka_consumer).and_return(consumer)
+      expect(consumer).to receive(:each_batch).with(hash_excluding(:max_wait_time)).and_call_original
+
+      consume_and_stop
+    end
   end
 
   it 'calls handler with message payload, group_id and topic using async producer' do
@@ -167,7 +205,7 @@ RSpec.describe Phobos::Listener do
     total_to_publish = 2_000
 
     (total_to_publish / producer_batch_size).times do
-      messages = producer_batch_size.times.map do |i|
+      messages = Array.new(producer_batch_size) do |i|
         padded_number = i.to_s.rjust(total_to_publish.to_s.length, '0')
         { topic: topic, payload: "message-#{padded_number}", key: i.to_s }
       end
@@ -229,5 +267,16 @@ RSpec.describe Phobos::Listener do
       listener.stop
       wait_for_event('listener.stop')
     end
+  end
+
+  def consume_and_stop
+    subscribe_to(*LISTENER_EVENTS) { thread }
+    wait_for_event('listener.start')
+
+    producer.publish(topic, 'message-1')
+    wait_for_event('listener.process_batch')
+
+    listener.stop
+    wait_for_event('listener.stop')
   end
 end
