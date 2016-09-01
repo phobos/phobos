@@ -205,9 +205,9 @@ MyProducer
   ])
 ```
 
-There are two flavors of producers: __normal__ producers and __async__ producers.
+There are two flavors of producers: __regular__ producers and __async__ producers.
 
-Normal producers will deliver the messages synchronously and disconnect, it doesn't matter if you use `publish` or `publish_list` after the messages get delivered the producer will disconnect.
+Regular producers will deliver the messages synchronously and disconnect, it doesn't matter if you use `publish` or `publish_list` after the messages get delivered the producer will disconnect.
 
 Async producers will accept your messages without blocking, use the methods `async_publish` and `async_publish_list` to use async producers.
 
@@ -293,7 +293,7 @@ __logger__ configures the logger for all Phobos components, it automatically out
 
 __kafka__ provides configurations for every `Kafka::Client` created over the application. All [options supported by  `ruby-kafka`][ruby-kafka-client] can be provided.
 
-__producer__ provides configurations for all producers created over the application, the options are the same for normal and async producers. All [options supported by  `ruby-kafka`][ruby-kafka-producer] can be provided.
+__producer__ provides configurations for all producers created over the application, the options are the same for regular and async producers. All [options supported by  `ruby-kafka`][ruby-kafka-producer] can be provided.
 
 __consumer__ provides configurations for all consumer groups created over the application. All [options supported by  `ruby-kafka`][ruby-kafka-consumer] can be provided.
 

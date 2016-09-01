@@ -45,6 +45,14 @@ producer:
   # number of messages that needs to be in a message set before it should be compressed.
   # Note that message sets are per-partition rather than per-topic or per-producer
   compression_threshold: 1
+  # maximum number of messages allowed in the queue. Only used for async_producer
+  max_queue_size: 1000
+  # if greater than zero, the number of buffered messages that will automatically
+  # trigger a delivery. Only used for async_producer
+  delivery_threshold: 0
+  # if greater than zero, the number of seconds between automatic message
+  # deliveries. Only used for async_producer
+  delivery_interval: 0
 
 consumer:
   # number of seconds after which, if a client hasn't contacted the Kafka cluster,
