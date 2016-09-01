@@ -7,7 +7,7 @@ module Phobos
 
     attr_reader :group_id, :topic, :id
 
-    def initialize(handler:, group_id:, topic:, min_bytes: nil, max_wait_time: nil, start_from_beginning: true, max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION)
+    def initialize(handler:, group_id:, topic:, min_bytes: nil, max_wait_time: nil, force_encoding: nil, start_from_beginning: true, max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION)
       @id = SecureRandom.hex[0...6]
       @handler_class = handler
       @group_id = group_id
@@ -16,6 +16,7 @@ module Phobos
         start_from_beginning: start_from_beginning,
         max_bytes_per_partition: max_bytes_per_partition
       }
+      @encoding = Encoding.const_get(force_encoding.to_sym) if force_encoding
       @consumer_opts = compact(min_bytes: min_bytes, max_wait_time: max_wait_time)
       @kafka_client = Phobos.create_kafka_client
       @producer_enabled = @handler_class.ancestors.include?(Phobos::Producer)
@@ -140,7 +141,7 @@ module Phobos
     end
 
     def process_message(message, metadata)
-      payload = message.value
+      payload = force_encoding(message.value)
       @handler_class.around_consume(payload, metadata) do
         @handler_class.new.consume(payload, metadata)
       end
@@ -149,6 +150,10 @@ module Phobos
     def create_kafka_consumer
       configs = Phobos.config.consumer_hash.select { |k| KAFKA_CONSUMER_OPTS.include?(k) }
       @kafka_client.consumer({group_id: group_id}.merge(configs))
+    end
+
+    def force_encoding(value)
+      @encoding ? value.force_encoding(@encoding) : value
     end
 
     def compact(hash)
