@@ -1,3 +1,6 @@
+# Please use this with at least the same consideration as you would when using OpenStruct.
+# Right now we only use this to parse our internal configuration files. It is not meant to
+# be used on incoming data.
 module Phobos
   class DeepStruct < OpenStruct
     # Based on
