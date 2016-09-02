@@ -1,5 +1,10 @@
-require "bundler/setup"
-require "phobos"
+#
+# This example assumes you want to create a threaded kafka generator which
+# publish a stream of kafka messages without consuming them. It also shows
+# what happens when you produce more messages than the producer can handle.
+#
+require 'bundler/setup'
+require 'phobos'
 
 TOPIC = 'test-partitions'
 
@@ -40,8 +45,8 @@ Thread.new do
 
         puts "produced #{key}, total: #{total}"
 
-      # Since this is a simplistic code we are going to generate more messages than
-      # the producer can write to Kafka, so eventually we'll get some buffer overflows
+      # Since this is very simplistic code, we are going to generate more messages than
+      # the producer can write to Kafka. Eventually we'll get some buffer overflows
       #
       rescue Kafka::BufferOverflow => e
         puts "| waiting"
