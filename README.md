@@ -77,7 +77,7 @@ $ phobos init
 
 ### Consumers (listeners and handlers)
 
-In Phobos apps __listeners__ are configured against Kafka - they are our consumers. A listener requires a __handler__ (a ruby class where you should process incoming messages), a __topic__, and a __group_id__. Consumer groups are used to coordinate the listeners across machines. We write the __handlers__ and Phobos makes sure to run them for us. An example of a handler is:
+In Phobos apps __listeners__ are configured against Kafka - they are our consumers. A listener requires a __handler__ (a ruby class where you should process incoming messages), a Kafka __topic__, and a Kafka __group_id__. Consumer groups are used to coordinate the listeners across machines. We write the __handlers__ and Phobos makes sure to run them for us. An example of a handler is:
 
 ```ruby
 class MyHandler
