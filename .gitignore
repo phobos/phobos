@@ -9,6 +9,6 @@
 spec/examples.txt
 /tmp/
 .DS_Store
-config/phobos.yml
+config/*.yml
 log/*.log
 .byebug_history

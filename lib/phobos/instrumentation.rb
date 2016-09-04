@@ -3,8 +3,8 @@ module Phobos
     NAMESPACE = 'phobos'
 
     def instrument(event, extra = {})
-      ActiveSupport::Notifications.instrument("#{NAMESPACE}.#{event}", extra) do
-        yield if block_given?
+      ActiveSupport::Notifications.instrument("#{NAMESPACE}.#{event}", extra) do |extra|
+        yield(extra) if block_given?
       end
     end
 
