@@ -28,4 +28,18 @@ RSpec.describe Phobos do
       expect(Phobos.create_exponential_backoff).to be_a(ExponentialBackoff)
     end
   end
+
+  describe '.logger' do
+    context 'with "config.logger.file" defined' do
+      it 'writes to the logger file' do
+        Phobos.silence_log = false
+        Phobos.config.logger.file = 'spec/spec.log'
+        Phobos.configure_logger
+
+        Phobos.logger.info('log-to-file')
+        expect(File.read('spec/spec.log')).to match /log-to-file/
+        File.delete(Phobos.config.logger.file)
+      end
+    end
+  end
 end

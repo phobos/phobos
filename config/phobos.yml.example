@@ -1,4 +1,5 @@
 logger:
+  # Optional log file, set to false or remove to disable it
   file: log/phobos.log
   level: info
 
