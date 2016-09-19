@@ -30,11 +30,25 @@ RSpec.describe Phobos do
   end
 
   describe '.logger' do
+    before do
+      STDOUT.sync = true
+      Phobos.silence_log = false
+    end
+
+    context 'without a file configured' do
+      it 'writes only to STDOUT' do
+        Phobos.config.logger.file = nil
+        expect { Phobos.configure_logger }.to_not raise_error
+
+        output = capture(:stdout) { Phobos.logger.info('log-to-stdout') }
+        expect(output).to eql output
+      end
+    end
+
     context 'with "config.logger.file" defined' do
       it 'writes to the logger file' do
-        Phobos.silence_log = false
         Phobos.config.logger.file = 'spec/spec.log'
-        Phobos.configure_logger
+        expect { Phobos.configure_logger }.to_not raise_error
 
         Phobos.logger.info('log-to-file')
         expect(File.read('spec/spec.log')).to match /log-to-file/
