@@ -47,17 +47,21 @@ module Phobos
     end
 
     def configure_logger
+      log_file = config.logger.file
       date_pattern = '%Y-%m-%dT%H:%M:%S:%L%zZ'
-      FileUtils.mkdir_p(File.dirname(config.logger.file))
+      log_layout = Logging.layouts.pattern(date_pattern: date_pattern)
+      appenders = [Logging.appenders.stdout(layout: log_layout)]
 
-      Logging.backtrace true
+      Logging.backtrace(true)
       Logging.logger.root.level = silence_log ? :fatal : config.logger.level
 
+      if log_file
+        FileUtils.mkdir_p(File.dirname(log_file))
+        appenders << Logging.appenders.file(log_file, layout: log_layout)
+      end
+
       @logger = Logging.logger[self]
-      @logger.appenders = [
-        Logging.appenders.stdout(layout: Logging.layouts.pattern(date_pattern: date_pattern)),
-        Logging.appenders.file(config.logger.file, layout: Logging.layouts.json(date_pattern: date_pattern))
-      ]
+      @logger.appenders = appenders
     end
   end
 end
