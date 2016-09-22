@@ -43,19 +43,31 @@ RSpec.describe Phobos::Listener do
   end
 
   after do
+    Timecop.return
     unsubscribe_all
   end
 
   it 'calls handler with message payload, group_id and topic' do
+    now = Time.now.utc
+    Timecop.freeze(now)
+
     subscribe_to(*LISTENER_EVENTS) { thread }
     wait_for_event('listener.start')
 
     expect(handler)
       .to receive(:consume)
       .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
+      .once { Timecop.freeze(now + 0.1) }
 
     producer.publish(topic, 'message-1')
+
+    wait_for_event('listener.process_message')
+    event = events_for('listener.process_message').first
+    expect(event.payload).to include(time_elapsed: 0.1)
+
     wait_for_event('listener.process_batch')
+    event = events_for('listener.process_batch').first
+    expect(event.payload).to include(time_elapsed: 0.1)
 
     listener.stop
     wait_for_event('listener.stop')
