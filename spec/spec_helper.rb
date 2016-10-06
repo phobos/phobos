@@ -20,6 +20,7 @@ SimpleCov.start
 
 require 'phobos'
 require 'pry-byebug'
+require 'timecop'
 
 Dir.entries('./spec/support').select { |f| f =~ /\.rb$/ }.each do |f|
   load "./spec/support/#{f}"

@@ -46,8 +46,9 @@ module Phobos
             highwater_mark_offset: batch.highwater_mark_offset
           }.merge(listener_metadata)
 
-          instrument('listener.process_batch', batch_metadata) do
-            process_batch(batch)
+          instrument('listener.process_batch', batch_metadata) do |batch_metadata|
+            time_elapsed = measure { process_batch(batch) }
+            batch_metadata.merge!(time_elapsed: time_elapsed)
             Phobos.logger.info { Hash(message: 'Committed offset').merge(batch_metadata) }
           end
 
@@ -111,8 +112,9 @@ module Phobos
         )
 
         begin
-          instrument('listener.process_message', metadata) do
-            process_message(message, metadata)
+          instrument('listener.process_message', metadata) do |metadata|
+            time_elapsed = measure { process_message(message, metadata) }
+            metadata.merge!(time_elapsed: time_elapsed)
           end
         rescue => e
           retry_count = metadata[:retry_count]
@@ -154,6 +156,12 @@ module Phobos
 
     def force_encoding(value)
       @encoding ? value.force_encoding(@encoding) : value
+    end
+
+    def measure
+      start = Time.now.utc
+      yield if block_given?
+      Time.now.utc - start
     end
 
     def compact(hash)
