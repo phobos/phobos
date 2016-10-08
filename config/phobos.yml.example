@@ -2,6 +2,9 @@ logger:
   # Optional log file, set to false or remove to disable it
   file: log/phobos.log
   level: info
+  # Comment the block to disable logs by ruby-kafka
+  ruby_kafka:
+    level: error
 
 kafka:
   # identifier for this application
