@@ -4,6 +4,7 @@
 # what happens when you produce more messages than the producer can handle.
 #
 require 'bundler/setup'
+require 'json'
 require 'phobos'
 
 TOPIC = 'test-partitions'
