@@ -161,7 +161,7 @@ module Phobos
     def measure
       start = Time.now.utc
       yield if block_given?
-      Time.now.utc - start
+      (Time.now.utc - start).round(3)
     end
 
     def compact(hash)
