@@ -11,15 +11,33 @@ RSpec.describe Phobos do
   end
 
   describe '.create_kafka_client' do
+    before { Phobos.configure(phobos_config_path) }
+
     it 'returns a new kafka client already configured' do
-      Phobos.configure(phobos_config_path)
+      Phobos.config.logger.ruby_kafka = nil
+      Phobos.configure_logger
 
       expect(Kafka)
         .to receive(:new)
-        .with(hash_including(Phobos.config.kafka.to_hash))
+        .with(hash_including(Phobos.config.kafka.to_hash.merge(logger: nil)))
         .and_return(:kafka_client)
 
       expect(Phobos.create_kafka_client).to eql :kafka_client
+    end
+
+    describe 'when "logger.ruby_kafka" is configured' do
+      before do
+        Phobos.config.logger.ruby_kafka = Phobos::DeepStruct.new(level: 'info')
+        Phobos.configure_logger
+      end
+
+      it 'configures "logger"' do
+        expect(Kafka)
+          .to receive(:new)
+          .with(hash_including(Phobos.config.kafka.to_hash.merge(logger: instance_of(Logging::Logger))))
+
+        Phobos.create_kafka_client
+      end
     end
   end
 

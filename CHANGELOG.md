@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 - [enhancement] Log file can be disabled #20
-- [enhancement] Add a new extra (time_elapsed) for notifications "listener.process_message" and "listener.process_batch"
+- [enhancement] Add a new extra (time_elapsed) for notifications "listener.process_message" and "listener.process_batch" #24
+- [enhancement] Add option to configure ruby-kafka logger #23
 
 ## 1.1.0 (2016-09-02)
 
