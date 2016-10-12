@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.2.1 (2016-10-12)
+
+- [bugfix] Ensure JSON layout for log files
+
 ## 1.2.0 (2016-10-10)
 
 - [enhancement] Log file can be disabled #20
