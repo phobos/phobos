@@ -50,15 +50,16 @@ module Phobos
       log_file = config.logger.file
       ruby_kafka = config.logger.ruby_kafka
       date_pattern = '%Y-%m-%dT%H:%M:%S:%L%zZ'
-      log_layout = Logging.layouts.pattern(date_pattern: date_pattern)
-      appenders = [Logging.appenders.stdout(layout: log_layout)]
+      file_layout = Logging.layouts.json(date_pattern: date_pattern)
+      stdout_layout = Logging.layouts.pattern(date_pattern: date_pattern)
+      appenders = [Logging.appenders.stdout(layout: stdout_layout)]
 
       Logging.backtrace(true)
       Logging.logger.root.level = silence_log ? :fatal : config.logger.level
 
       if log_file
         FileUtils.mkdir_p(File.dirname(log_file))
-        appenders << Logging.appenders.file(log_file, layout: log_layout)
+        appenders << Logging.appenders.file(log_file, layout: file_layout)
       end
 
       @ruby_kafka_logger = nil
