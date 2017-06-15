@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.3.0 (2017-06-15)
+
+- [enhancement] Add support for erb syntax in phobos config file #26
+
 ## 1.2.1 (2016-10-12)
 
 - [bugfix] Ensure JSON layout for log files

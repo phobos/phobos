@@ -8,6 +8,16 @@ RSpec.describe Phobos do
       expect(Phobos.config).to_not be_nil
       expect(Phobos.config.kafka).to_not be_nil
     end
+
+    context 'when using erb syntax in configuration file' do
+      it 'parses it correctly' do
+        Phobos.instance_variable_set(:@config, nil)
+        Phobos.configure('spec/fixtures/phobos_config.yml.erb')
+
+        expect(Phobos.config).to_not be_nil
+        expect(Phobos.config.kafka.client_id).to eq('InjectedThroughERB')
+      end
+    end
   end
 
   describe '.create_kafka_client' do

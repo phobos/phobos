@@ -289,6 +289,8 @@ When using Phobos __executors__ you don't care about how listeners are created, 
 ### <a name="usage-configuration-file"></a> Configuration file
 The configuration file is organized in 6 sections. Take a look at the example file, [config/phobos.yml.example](https://github.com/klarna/phobos/blob/master/config/phobos.yml.example).
 
+The file will be parsed through ERB so ERB syntax/file extension is supported beside the YML format.
+
 __logger__ configures the logger for all Phobos components, it automatically outputs to `STDOUT` and it saves the log in the configured file
 
 __kafka__ provides configurations for every `Kafka::Client` created over the application. All [options supported by  `ruby-kafka`][ruby-kafka-client] can be provided.
