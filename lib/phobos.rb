@@ -29,7 +29,7 @@ module Phobos
 
     def configure(yml_path)
       ENV['RAILS_ENV'] = ENV['RACK_ENV'] ||= 'development'
-      @config = DeepStruct.new(YAML.load_file(File.expand_path(yml_path)))
+      @config = DeepStruct.new(YAML.load(ERB.new(File.read(File.expand_path(yml_path))).result))
       @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash }
       @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
       configure_logger
