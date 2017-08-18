@@ -21,11 +21,17 @@ RSpec.describe Phobos do
 
     context 'when providing hash with configuration settings' do
       it 'parses it correctly' do
+        configuration_settings = {
+          kafka: { client_id: 'client_id' },
+          logger: { file: 'log/phobos.log' }
+        }
+
         Phobos.instance_variable_set(:@config, nil)
-        Phobos.configure(YAML.load(File.read(phobos_config_path)))
+        Phobos.configure(configuration_settings)
 
         expect(Phobos.config).to_not be_nil
-        expect(Phobos.config.kafka).to_not be_nil
+        expect(Phobos.config.kafka.client_id).to eq('client_id')
+        expect(Phobos.config.logger.file).to eq('log/phobos.log')
       end
     end
   end
