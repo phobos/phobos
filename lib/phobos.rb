@@ -27,9 +27,9 @@ module Phobos
     attr_reader :config, :logger
     attr_accessor :silence_log
 
-    def configure(yml_path)
+    def configure(configuration)
       ENV['RAILS_ENV'] = ENV['RACK_ENV'] ||= 'development'
-      @config = DeepStruct.new(YAML.load(ERB.new(File.read(File.expand_path(yml_path))).result))
+      @config = DeepStruct.new(fetch_settings(configuration))
       @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash }
       @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
       configure_logger
@@ -72,6 +72,14 @@ module Phobos
 
       @logger = Logging.logger[self]
       @logger.appenders = appenders
+    end
+
+    private
+
+    def fetch_settings(configuration)
+      return configuration.to_h if configuration.respond_to?(:to_h)
+
+      YAML.load(ERB.new(File.read(File.expand_path(configuration))).result)
     end
   end
 end
