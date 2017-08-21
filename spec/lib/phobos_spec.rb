@@ -18,6 +18,22 @@ RSpec.describe Phobos do
         expect(Phobos.config.kafka.client_id).to eq('InjectedThroughERB')
       end
     end
+
+    context 'when providing hash with configuration settings' do
+      it 'parses it correctly' do
+        configuration_settings = {
+          kafka: { client_id: 'client_id' },
+          logger: { file: 'log/phobos.log' }
+        }
+
+        Phobos.instance_variable_set(:@config, nil)
+        Phobos.configure(configuration_settings)
+
+        expect(Phobos.config).to_not be_nil
+        expect(Phobos.config.kafka.client_id).to eq('client_id')
+        expect(Phobos.config.logger.file).to eq('log/phobos.log')
+      end
+    end
   end
 
   describe '.create_kafka_client' do

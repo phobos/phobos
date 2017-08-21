@@ -248,10 +248,14 @@ MyProducer
 
 When running as a standalone service, Phobos sets up a `Listener` and `Executor` for you. When you use Phobos as a library in your own project, you need to set these components up yourself.
 
-First, call the method `configure` with the path of your configuration file
+First, call the method `configure` with the path of your configuration file or with configuration settings hash.
 
 ```ruby
 Phobos.configure('config/phobos.yml')
+```
+or
+```ruby
+Phobos.configure(kafka: { client_id: 'phobos' }, logger: { file: 'log/phobos.log' })
 ```
 
 __Listener__ connects to Kafka and acts as your consumer. To create a listener you need a handler class, a topic, and a group id.
