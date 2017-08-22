@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.4.1 (2017-08-22)
+
+- [enhancement] Update dev dependencies to fix warnings for the new unified Integer class
+- [bugfix] Include the error `Kafka::ProcessingError` into the abort block
+
 ## 1.4.0 (2017-08-21)
 
 - [enhancement] Add support for hash provided settings #30
