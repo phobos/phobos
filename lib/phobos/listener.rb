@@ -60,7 +60,7 @@ module Phobos
       # it's wise to not commit the batch offset to avoid data loss. This will
       # cause some messages to be reprocessed
       #
-      rescue Phobos::AbortError
+      rescue Kafka::ProcessingError, Phobos::AbortError
         instrument('listener.retry_aborted', listener_metadata) do
           Phobos.logger.info do
             {message: 'Retry loop aborted, listener is shutting down'}.merge(listener_metadata)
