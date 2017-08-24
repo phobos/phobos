@@ -118,7 +118,7 @@ $ phobos start -c /var/configs/my.yml -b /opt/apps/boot.rb
 ```
 ### <a name="usage-consuming-messages-from-kafka"></a> Consuming messages from Kafka
 
-Messages from Kafka are consumed using __handlers__. You can use Phobos __executors__ or include it in your own projet [as a library](#usage-as-library), but __handlers__ will always be used. To create a handler class, simply include the module `Phobos::Handler`. This module allows Phobos to manage the life cycle of your handler.
+Messages from Kafka are consumed using __handlers__. You can use Phobos __executors__ or include it in your own project [as a library](#usage-as-library), but __handlers__ will always be used. To create a handler class, simply include the module `Phobos::Handler`. This module allows Phobos to manage the life cycle of your handler.
 
 A handler must implement the method `#consume(payload, metadata)`.
 
