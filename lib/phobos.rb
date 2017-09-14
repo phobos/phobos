@@ -32,8 +32,14 @@ module Phobos
       @config = DeepStruct.new(fetch_settings(configuration))
       @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash }
       @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
+      @config.listeners ||= []
       configure_logger
       logger.info { Hash(message: 'Phobos configured', env: ENV['RACK_ENV']) }
+    end
+
+    def add_listeners(listeners_configuration)
+      listeners_config = DeepStruct.new(fetch_settings(listeners_configuration))
+      @config.listeners += listeners_config.listeners
     end
 
     def create_kafka_client

@@ -4,14 +4,28 @@ module Phobos
   module CLI
     class Start
       def initialize(options)
-        @config_file = File.expand_path(options[:config])
+        unless options[:skip_config]
+          @config_file = File.expand_path(options[:config])
+        end
         @boot_file = File.expand_path(options[:boot])
+
+        if options[:listeners]
+          @listeners_file = File.expand_path(options[:listeners])
+        end
       end
 
       def execute
-        validate_config_file!
-        Phobos.configure(config_file)
+        if config_file
+          validate_config_file!
+          Phobos.configure(config_file)
+        end
+
         load_boot_file
+
+        if listeners_file
+          Phobos.add_listeners(listeners_file)
+        end
+
         validate_listeners!
 
         Phobos::CLI::Runner.new.run!
@@ -19,7 +33,7 @@ module Phobos
 
       private
 
-      attr_reader :config_file, :boot_file
+      attr_reader :config_file, :boot_file, :listeners_file
 
       def validate_config_file!
         unless File.exist?(config_file)
