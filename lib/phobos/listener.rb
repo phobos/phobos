@@ -10,8 +10,8 @@ module Phobos
     def initialize(handler:, group_id:, topic:, min_bytes: nil, max_wait_time: nil, force_encoding: nil, start_from_beginning: true, max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION)
       @id = SecureRandom.hex[0...6]
       @handler_class = handler
-      @group_id = group_id
-      @topic = topic
+      @group_id = prefix_group_id(group_id)
+      @topic = prefix_topic(topic)
       @subscribe_opts = {
         start_from_beginning: start_from_beginning,
         max_bytes_per_partition: max_bytes_per_partition
@@ -166,6 +166,14 @@ module Phobos
 
     def compact(hash)
       hash.delete_if { |_, v| v.nil? }
+    end
+
+    def prefix_group_id(group_id)
+      "#{Phobos.config.try(:group_id_prefix)}#{group_id}"
+    end
+
+    def prefix_topic(topic)
+      "#{Phobos.config.try(:topic_prefix)}#{topic}"
     end
   end
 end
