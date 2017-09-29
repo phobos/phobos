@@ -73,6 +73,7 @@ module Phobos
           client = kafka_client || configure_kafka_client(Phobos.create_kafka_client)
           producer = client.producer(regular_configs)
           produce_messages(producer, messages)
+          producer.deliver_messages
         ensure
           producer&.shutdown
         end
@@ -94,6 +95,7 @@ module Phobos
         def async_publish_list(messages)
           producer = async_producer || create_async_producer
           produce_messages(producer, messages)
+          producer.deliver_messages unless async_automatic_delivery?
         end
 
         def async_producer_shutdown
@@ -119,7 +121,11 @@ module Phobos
                                                 partition_key: message[:key]
             )
           end
-          producer.deliver_messages
+        end
+
+        def async_automatic_delivery?
+          async_configs.fetch(:delivery_threshold, 0) > 0 ||
+            async_configs.fetch(:delivery_interval, 0) > 0
         end
 
         def producer_store

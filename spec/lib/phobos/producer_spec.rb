@@ -107,11 +107,12 @@ RSpec.describe Phobos::Producer do
     describe 'with a configured async_producer' do
       let(:kafka_client) { double('Kafka::Client', producer: true, close: true) }
       let(:producer) { double('Kafka::AsyncProducer', produce: true, deliver_messages: true) }
+      let(:config_hash) { TestProducer1.producer.async_configs }
 
-      it 'publishes and delivers a list of messages without closing the connection' do
+      before do
         expect(kafka_client)
           .to receive(:async_producer)
-          .with(TestProducer1.producer.async_configs)
+          .with(config_hash)
           .and_return(producer)
 
         expect(producer)
@@ -122,18 +123,69 @@ RSpec.describe Phobos::Producer do
           .to receive(:produce)
           .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2')
 
-        expect(producer).to receive(:deliver_messages)
         expect(producer).to_not receive(:close)
+      end
 
-        Thread.new do
-          TestProducer1.producer.configure_kafka_client(kafka_client)
-          TestProducer1.producer.create_async_producer
+      describe 'with a delivery interval set' do
+        let(:config_hash) { Phobos.config.producer_hash.merge(delivery_interval: 10) }
 
-          subject.producer.async_publish_list([
-            { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
-            { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
-          ])
-        end.join
+        before do
+          allow_any_instance_of(Phobos::Producer::ClassMethods::PublicAPI)
+            .to receive(:async_configs).and_return(config_hash)
+          expect(producer).to_not receive(:deliver_messages)
+        end
+
+        it 'publishes a list of messages without closing the connection' do
+          Thread.new do
+            TestProducer1.producer.create_async_producer
+            TestProducer1.producer.configure_kafka_client(kafka_client)
+
+            subject.producer.async_publish_list([
+              { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
+              { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+            ])
+          end.join
+        end
+      end
+
+      describe 'with a delivery threshold set' do
+        let(:config_hash) { Phobos.config.producer_hash.merge(delivery_threshold: 10) }
+
+        before do
+          allow_any_instance_of(Phobos::Producer::ClassMethods::PublicAPI)
+            .to receive(:async_configs).and_return(config_hash)
+          expect(producer).to_not receive(:deliver_messages)
+        end
+
+        it 'publishes a list of messages without closing the connection' do
+          Thread.new do
+            TestProducer1.producer.create_async_producer
+            TestProducer1.producer.configure_kafka_client(kafka_client)
+
+            subject.producer.async_publish_list([
+              { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
+              { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+            ])
+          end.join
+        end
+      end
+
+      describe 'with neither delivery interval or threshold' do
+        before do
+          expect(producer).to receive(:deliver_messages)
+        end
+
+        it 'publishes and delivers a list of messages without closing the connection' do
+          Thread.new do
+            TestProducer1.producer.create_async_producer
+            TestProducer1.producer.configure_kafka_client(kafka_client)
+
+            subject.producer.async_publish_list([
+              { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
+              { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+            ])
+          end.join
+        end
       end
     end
   end
