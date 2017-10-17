@@ -1,7 +1,17 @@
 module Phobos
   class Executor
     include Phobos::Instrumentation
-    LISTENER_OPTS = %i(handler group_id topic min_bytes max_wait_time force_encoding start_from_beginning max_bytes_per_partition).freeze
+    LISTENER_OPTS = %i(
+      handler
+      group_id
+      topic
+      min_bytes
+      max_wait_time
+      force_encoding
+      start_from_beginning
+      max_bytes_per_partition
+      backoff
+    ).freeze
 
     def initialize
       @threads = Concurrent::Array.new
@@ -49,7 +59,7 @@ module Phobos
 
     def run_listener(listener)
       retry_count = 0
-      backoff = Phobos.create_exponential_backoff
+      backoff = listener.create_exponential_backoff
 
       begin
         listener.start

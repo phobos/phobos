@@ -7,11 +7,15 @@ module Phobos
 
     attr_reader :group_id, :topic, :id
 
-    def initialize(handler:, group_id:, topic:, min_bytes: nil, max_wait_time: nil, force_encoding: nil, start_from_beginning: true, max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION)
+    def initialize(handler:, group_id:, topic:, min_bytes: nil,
+                   max_wait_time: nil, force_encoding: nil,
+                   start_from_beginning: true, backoff: nil,
+                   max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION)
       @id = SecureRandom.hex[0...6]
       @handler_class = handler
       @group_id = group_id
       @topic = topic
+      @backoff = backoff
       @subscribe_opts = {
         start_from_beginning: start_from_beginning,
         max_bytes_per_partition: max_bytes_per_partition
@@ -95,6 +99,10 @@ module Phobos
       end
     end
 
+    def create_exponential_backoff
+      Phobos.create_exponential_backoff(@backoff)
+    end
+
     private
 
     def listener_metadata
@@ -103,7 +111,7 @@ module Phobos
 
     def process_batch(batch)
       batch.messages.each do |message|
-        backoff = Phobos.create_exponential_backoff
+        backoff = create_exponential_backoff
         metadata = listener_metadata.merge(
           key: message.key,
           partition: message.partition,

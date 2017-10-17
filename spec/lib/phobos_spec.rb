@@ -71,6 +71,13 @@ RSpec.describe Phobos do
     it 'creates a configured ExponentialBackoff' do
       expect(Phobos.create_exponential_backoff).to be_a(ExponentialBackoff)
     end
+
+    it 'allows backoff times to be overridden' do
+      backoff = Phobos.create_exponential_backoff(min_ms: 1234000, max_ms: 5678000)
+      expect(backoff).to be_a(ExponentialBackoff)
+      expect(backoff.instance_variable_get(:@minimal_interval)).to eq(1234)
+      expect(backoff.instance_variable_get(:@maximum_elapsed_time)).to eq(5678)
+    end
   end
 
   describe '.logger' do
