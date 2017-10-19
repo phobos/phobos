@@ -311,6 +311,20 @@ __listeners__ is the list of listeners configured, each listener represents a co
 [ruby-kafka-consumer]: http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FClient%3Aconsumer
 [ruby-kafka-producer]: http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FClient%3Aproducer
 
+#### Additional listener configuration
+
+In some cases it's useful to  share _most_ of the configuration between
+multiple phobos processes, but have each process run different listeners. In
+that case, a separate yaml file can be created and loaded with the `-l` flag.
+Example:
+
+```sh
+$ phobos start -c /var/configs/my.yml -l /var/configs/additional_listeners.yml
+```
+
+Note that the config file _must_ still specify a listeners section, though it
+can be empty.
+
 ### <a name="usage-instrumentation"></a> Instrumentation
 
 Some operations are instrumented using [Active Support Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html).

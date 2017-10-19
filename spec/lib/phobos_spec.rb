@@ -36,6 +36,28 @@ RSpec.describe Phobos do
     end
   end
 
+  describe '.add_listeners' do
+    before { Phobos.configure(phobos_config_path) }
+    let(:new_listeners) do
+      {
+        listeners: [
+          {
+            handler: "ListenerTestHandler"
+          }
+        ]
+      }
+    end
+
+    it 'adds the given listeners to the previoiusly configured listeners' do
+      Phobos.add_listeners(new_listeners)
+      # Listener config loaded from phobos main config has not been
+      # overwritten:
+      expect(Phobos.config.listeners).to include(have_attributes(handler: "Phobos::EchoHandler"))
+      # Listener config passed in has been added:
+      expect(Phobos.config.listeners).to include(have_attributes(handler: "ListenerTestHandler"))
+    end
+  end
+
   describe '.create_kafka_client' do
     before { Phobos.configure(phobos_config_path) }
 

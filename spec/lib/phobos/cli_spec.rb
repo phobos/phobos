@@ -30,6 +30,16 @@ RSpec.describe Phobos::CLI do
       args = ['start', '-c', 'config/phobos.yml', '-b', 'boot.rb']
       Phobos::CLI::Commands.start(args)
     end
+
+    it 'accepts optional -l' do
+      expect(Phobos::CLI::Start)
+        .to receive(:new)
+        .with(hash_including('listeners' => 'config/listeners.yml'))
+        .and_return(double('Phobos::CLI::Start', execute: true))
+
+      args = ['start', '-c', 'config/phobos.yml', '-l', 'config/listeners.yml']
+      Phobos::CLI::Commands.start(args)
+    end
   end
 
 end

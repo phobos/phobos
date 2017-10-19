@@ -51,7 +51,7 @@ module Phobos
              default: 'phobos_boot.rb'
       option :listeners,
              aliases: ['-l'],
-             banner: 'Listeners config file'
+             banner: 'Separate listeners config file (optional)'
       option :skip_config,
              default: false,
              type: :boolean,
