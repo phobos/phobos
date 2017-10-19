@@ -116,6 +116,14 @@ By default, the __start__ command will look for the configuration file at `confi
 ```sh
 $ phobos start -c /var/configs/my.yml -b /opt/apps/boot.rb
 ```
+
+You may also choose to configure phobos with a hash from within your boot file.
+In this case, disable loading the config file with the `--skip-config` option:
+
+```sh
+$ phobos start -b /opt/apps/boot.rb --skip-config 
+```
+
 ### <a name="usage-consuming-messages-from-kafka"></a> Consuming messages from Kafka
 
 Messages from Kafka are consumed using __handlers__. You can use Phobos __executors__ or include it in your own project [as a library](#usage-as-library), but __handlers__ will always be used. To create a handler class, simply include the module `Phobos::Handler`. This module allows Phobos to manage the life cycle of your handler.
