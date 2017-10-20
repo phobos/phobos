@@ -403,21 +403,15 @@ List of gems that enhance Phobos:
 ## <a name="development"></a> Development
 
 After checking out the repo:
-* make sure docker is installed and running
+* make sure `docker` is installed and running (for windows and mac this also includes `docker-compose`).
+* Linux: make sure `docker-compose` is installed and running.
 * run `bin/setup` to install dependencies
-* run `sh utils/start-all.sh` to start the required kafka containers in the background
-* run `rspec` to run the tests
+* run `docker-compose up` to start the required kafka containers in a window
+* run `rspec` to run the tests in another window
 
 You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-The `utils` folder contain some shell scripts to help with the local Kafka cluster. It uses docker to start Kafka and zookeeper.
-
-```sh
-sh utils/start-all.sh
-sh utils/stop-all.sh
-```
 
 ## Contributing
 
