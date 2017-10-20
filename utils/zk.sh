@@ -7,13 +7,9 @@ source ${UTILS_DIR}/env.sh
 start() {
   [ $FORCE_PULL = 'true' ] && docker pull $ZK_IMAGE:$ZK_IMAGE_VERSION
 
-  docker run \
-    -d \
-    -p 2181:2181 \
-    --name zookeeper \
+  # Start zookeeper service
+  docker run -d -p 2181:2181 --name zookeeper \
     $ZK_IMAGE:$ZK_IMAGE_VERSION
-
-  sleep 3
 }
 
 stop() {

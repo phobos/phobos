@@ -8,19 +8,20 @@ start() {
   [ $FORCE_PULL = 'true' ] && docker pull $KAFKA_IMAGE:$KAFKA_IMAGE_VERSION
   ZK_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' zookeeper)
 
-  docker run \
-    -d \
-    -p 9092:9092 \
-    --name kafka \
+  # Start kafka service
+  docker run -d -p 9092:9092 --link zookeeper:zookeeper --name kafka \
     -e KAFKA_BROKER_ID=0 \
     -e KAFKA_ADVERTISED_HOST_NAME=localhost \
     -e KAFKA_ADVERTISED_PORT=9092 \
     -e ZOOKEEPER_CONNECTION_STRING=zookeeper:2181 \
-    --link zookeeper:zookeeper \
     $KAFKA_IMAGE:$KAFKA_IMAGE_VERSION
 
   # The following statement waits until kafka is up and running
-  docker exec kafka bash -c "JMX_PORT=9998 ./bin/kafka-topics.sh --zookeeper zookeeper:2181 --list"
+  docker run --rm --link zookeeper:zookeeper -e ZK_IP=$ZK_IP \
+    $KAFKA_IMAGE:$KAFKA_IMAGE_VERSION kafka-topics.sh \
+      --zookeeper $ZK_IP:2181 \
+      --list
+
   if [ $? != '0' ]; then
     echo "[kafka] failed to start"
     false
