@@ -1,7 +1,8 @@
 #!/bin/bash
 set -eu
 
-source $(dirname $0)/env.sh
+UTILS_DIR=$(dirname $0)
+source ${UTILS_DIR}/env.sh
 
 start() {
   [ $FORCE_PULL = 'true' ] && docker pull $KAFKA_IMAGE:$KAFKA_IMAGE_VERSION
@@ -19,8 +20,13 @@ start() {
     $KAFKA_IMAGE:$KAFKA_IMAGE_VERSION
 
   # The following statement waits until kafka is up and running
-  docker exec kafka bash -c "JMX_PORT=9998 ./bin/kafka-topics.sh --zookeeper $ZK_IP:2181 --list 2> /dev/null"
-  [ $? != '0' ] && echo "[kafka] failed to start"
+  docker exec kafka bash -c "JMX_PORT=9998 ./bin/kafka-topics.sh --zookeeper zookeeper:2181 --list"
+  if [ $? != '0' ]; then
+    echo "[kafka] failed to start"
+    false
+  else
+    true
+  fi
 }
 
 stop() {
