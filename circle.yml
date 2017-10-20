@@ -8,14 +8,14 @@ machine:
     CI: true
     DEFAULT_TIMEOUT: 20
   ruby:
-    version: 2.3.1
+    version: 2.4.1
 
 dependencies:
   pre:
     - docker -v
     - docker pull ches/kafka:0.10.2.1
     - docker pull jplock/zookeeper:3.4.10
-    - gem install bundler -v 1.9.5
+    - gem install bundler -v 1.13.2
     - bundle install
 
 test:
