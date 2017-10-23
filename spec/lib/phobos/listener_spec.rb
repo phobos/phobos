@@ -20,7 +20,8 @@ RSpec.describe Phobos::Listener do
   let(:max_wait_time) { 0.1 }
   let(:min_bytes) { 2 }
   let(:force_encoding) { nil }
-  let :hander_config do
+  let(:listener_backoff) { nil }
+  let :handler_config do
     {
       handler: handler_class,
       topic: topic,
@@ -29,10 +30,11 @@ RSpec.describe Phobos::Listener do
       start_from_beginning: true,
       max_wait_time: max_wait_time,
       min_bytes: min_bytes,
-      force_encoding: force_encoding
+      force_encoding: force_encoding,
+      backoff: listener_backoff
     }
   end
-  let(:listener) { Phobos::Listener.new(hander_config) }
+  let(:listener) { Phobos::Listener.new(handler_config) }
   let(:thread) do
     Thread.new { listener.start }.tap { |t| t.abort_on_exception = true }
   end
@@ -107,6 +109,26 @@ RSpec.describe Phobos::Listener do
     end
   end
 
+  context 'backoff' do
+    it 'uses the default backoff settings specified in Phobos.config.backoff' do
+      backoff = listener.create_exponential_backoff
+      expect(backoff.instance_variable_get(:@minimal_interval)).to eq(Phobos.config.backoff.min_ms / 1000.0)
+      expect(backoff.instance_variable_get(:@maximum_elapsed_time)).to eq(Phobos.config.backoff.max_ms / 1000.0)
+    end
+
+    context 'when custom backoff is set' do
+      let(:listener_backoff) do
+        { min_ms: 1234000, max_ms: 5678000 }
+      end
+
+      it 'uses the custom backoff' do
+        backoff = listener.create_exponential_backoff
+        expect(backoff.instance_variable_get(:@minimal_interval)).to eq(1234)
+        expect(backoff.instance_variable_get(:@maximum_elapsed_time)).to eq(5678)
+      end
+    end
+  end
+
   it 'calls handler with message payload, group_id and topic using async producer' do
     subscribe_to(*LISTENER_EVENTS) { thread }
     wait_for_event('listener.start')
@@ -151,7 +173,7 @@ RSpec.describe Phobos::Listener do
     # Ensuring the listener will have a high wait
     backoff = Phobos.create_exponential_backoff
     backoff.multiplier = 10
-    allow(Phobos).to receive(:create_exponential_backoff).and_return(backoff)
+    allow(listener).to receive(:create_exponential_backoff).and_return(backoff)
 
     allow(handler)
       .to receive(:consume)

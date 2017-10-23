@@ -40,9 +40,10 @@ module Phobos
       Kafka.new(config.kafka.to_hash.merge(logger: @ruby_kafka_logger))
     end
 
-    def create_exponential_backoff
-      min = Phobos.config.backoff.min_ms / 1000.0
-      max = Phobos.config.backoff.max_ms / 1000.0
+    def create_exponential_backoff(backoff_config = nil)
+      backoff_config ||= Phobos.config.backoff.to_hash
+      min = backoff_config[:min_ms] / 1000.0
+      max = backoff_config[:max_ms] / 1000.0
       ExponentialBackoff.new(min, max).tap { |backoff| backoff.randomize_factor = rand }
     end
 

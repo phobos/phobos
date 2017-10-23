@@ -303,7 +303,7 @@ __producer__ provides configurations for all producers created over the applicat
 
 __consumer__ provides configurations for all consumer groups created over the application. All [options supported by  `ruby-kafka`][ruby-kafka-consumer] can be provided.
 
-__backoff__ Phobos provides automatic retries for your handlers, if an exception is raised the listener will retry following the back off configured here
+__backoff__ Phobos provides automatic retries for your handlers, if an exception is raised the listener will retry following the back off configured here. Backoff can also be configured per listener.
 
 __listeners__ is the list of listeners configured, each listener represents a consumers group
 
