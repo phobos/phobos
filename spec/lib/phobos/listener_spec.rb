@@ -241,7 +241,7 @@ RSpec.describe Phobos::Listener do
       subscribe_to(*LISTENER_EVENTS) { thread }
       wait_for_event('listener.start')
 
-      expect(decode_payload)
+      expect_any_instance_of(handler_class)
         .to receive(:decode_payload)
         .with('message-1')
         .and_call_original

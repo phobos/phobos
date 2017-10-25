@@ -172,6 +172,18 @@ or optionally,
 
   `.start` -> `.around_consume` [ `#consume` ] -> `.stop`
 
+Finally, it is also possible to enhance/modify the message payload before consuming the message by the `decode_payload` hook which is invoked before `.around_consume` and `#consume`. This can be very useful if you for example want a single point of decoding avro messages and pass the payload around as a hash instead of a binary.
+
+```ruby
+class MyHandler
+  include Phobos::Handler
+
+  def decode_payload(payload)
+    # optionally decode the payload
+  end
+end
+```
+
 ### <a name="usage-producing-messages-to-kafka"></a> Producing messages to Kafka
 
 `ruby-kafka` provides several options for publishing messages, Phobos offers them through the module `Phobos::Producer`. It is possible to turn any ruby class into a producer (including your handlers), just include the producer module, example:
