@@ -220,20 +220,38 @@ RSpec.describe Phobos::Listener do
     wait_for_event('listener.stop')
   end
 
-  it 'calls handler ".around_consume" with message payload, group_id and topic' do
-    subscribe_to(*LISTENER_EVENTS) { thread }
-    wait_for_event('listener.start')
+  describe '.process_message' do
+    it 'calls handler ".around_consume" with message payload, group_id and topic' do
+      subscribe_to(*LISTENER_EVENTS) { thread }
+      wait_for_event('listener.start')
 
-    expect(handler_class)
-      .to receive(:around_consume)
-      .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
-      .and_call_original
+      expect(handler_class)
+        .to receive(:around_consume)
+        .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
+        .and_call_original
 
-    producer.publish(topic, 'message-1')
-    wait_for_event('listener.process_batch')
+      producer.publish(topic, 'message-1')
+      wait_for_event('listener.process_batch')
 
-    listener.stop
-    wait_for_event('listener.stop')
+      listener.stop
+      wait_for_event('listener.stop')
+    end
+
+    it 'calls handler ".decode_payload" with message payload' do
+      subscribe_to(*LISTENER_EVENTS) { thread }
+      wait_for_event('listener.start')
+
+      expect(decode_payload)
+        .to receive(:decode_payload)
+        .with('message-1')
+        .and_call_original
+
+      producer.publish(topic, 'message-1')
+      wait_for_event('listener.process_batch')
+
+      listener.stop
+      wait_for_event('listener.stop')
+    end
   end
 
   it 'consumes several messages' do

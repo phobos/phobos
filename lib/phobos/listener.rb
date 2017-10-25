@@ -152,8 +152,9 @@ module Phobos
 
     def process_message(message, metadata)
       payload = force_encoding(message.value)
-      @handler_class.around_consume(payload, metadata) do
-        @handler_class.new.consume(payload, metadata)
+      decoded_payload = @handler_class.new.decode_payload(payload)
+      @handler_class.around_consume(decoded_payload, metadata) do
+        @handler_class.new.consume(decoded_payload, metadata)
       end
     end
 

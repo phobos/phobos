@@ -8,6 +8,10 @@ module Phobos
       raise NotImplementedError
     end
 
+    def decode_payload(payload)
+      payload
+    end
+
     module ClassMethods
       def start(kafka_client)
       end
