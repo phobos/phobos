@@ -19,6 +19,7 @@ require 'phobos/producer'
 require 'phobos/handler'
 require 'phobos/echo_handler'
 require 'phobos/executor'
+require 'phobos/spec_helper'
 
 Thread.abort_on_exception = true
 
