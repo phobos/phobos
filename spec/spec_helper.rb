@@ -16,11 +16,16 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
   SimpleCov::Formatter::HTMLFormatter,
   Coveralls::SimpleCov::Formatter
 ])
-SimpleCov.start
+SimpleCov.start do
+  add_filter '/spec/'
+  add_filter '/lib/phobos/test'
+end
+
 
 require 'phobos'
 require 'pry-byebug'
 require 'timecop'
+require 'phobos/test'
 
 Dir.entries('./spec/support').select { |f| f =~ /\.rb$/ }.each do |f|
   load "./spec/support/#{f}"

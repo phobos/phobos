@@ -29,6 +29,7 @@ With Phobos by your side, all this becomes smooth sailing.
   1. [Instrumentation](#usage-instrumentation)
 1. [Plugins](#plugins)
 1. [Development](#development)
+1. [Test](#test)
 
 ## <a name="installation"></a> Installation
 
@@ -120,7 +121,7 @@ $ phobos start -c /var/configs/my.yml -b /opt/apps/boot.rb
 
 Messages from Kafka are consumed using __handlers__. You can use Phobos __executors__ or include it in your own project [as a library](#usage-as-library), but __handlers__ will always be used. To create a handler class, simply include the module `Phobos::Handler`. This module allows Phobos to manage the life cycle of your handler.
 
-A handler must implement the method `#consume(payload, metadata)`.
+A handler is required to implement the method `#consume(payload, metadata)`.
 
 Instances of your handler will be created for every message, so keep a constructor without arguments. If `consume` raises an exception, Phobos will retry the message indefinitely, applying the back off configuration presented in the configuration file. The `metadata` hash will contain a key called `retry_count` with the current number of retries for this message. To skip a message, simply return from `#consume`.
 
@@ -162,6 +163,19 @@ class MyHandler
 end
 ```
 
+Finally, it is also possible to preprocess the message payload before consuming it using the `before_consume` hook which is invoked before `.around_consume` and `#consume`. The result of this operation will be assigned to payload, so it is important to return the modified payload. This can be very useful, for example if you want a single point of decoding Avro messages and want the payload as a hash instead of a binary.
+
+```ruby
+class MyHandler
+  include Phobos::Handler
+
+  def before_consume(payload)
+    # optionally preprocess payload
+    payload
+  end
+end
+```
+
 Take a look at the examples folder for some ideas.
 
 The hander life cycle can be illustrated as:
@@ -170,7 +184,7 @@ The hander life cycle can be illustrated as:
 
 or optionally,
 
-  `.start` -> `.around_consume` [ `#consume` ] -> `.stop`
+  `.start` -> `#before_consume` -> `.around_consume` [ `#consume` ] -> `.stop`
 
 ### <a name="usage-producing-messages-to-kafka"></a> Producing messages to Kafka
 
@@ -412,6 +426,29 @@ After checking out the repo:
 You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+## <a name="test"></a> Test
+
+Phobos exports a spec helper that can help you test your consumer. The Phobos lifecycle will conveniently be activated for you with minimal setup required.
+
+* `process_message(handler:, payload:, metadata:, encoding: nil)` - Invokes your handler with payload and metadata, using a dummy listener (encoding is optional).
+
+```ruby
+require 'spec_helper'
+
+describe MyConsumer do
+  let(:payload) { 'foo' }
+  let(:metadata) { 'foo' }
+
+  it 'consumes my message' do
+    expect(described_class).to receive(:around_consume).with(payload, metadata).once.and_call_original
+    expect_any_instance_of(described_class).to receive(:before_consume).with(payload).once.and_call_original
+    expect_any_instance_of(described_class).to receive(:consume).with(payload, metadata).once.and_call_original
+
+    process_message(handler: described_class, payload: payload, metadata: metadata)
+  end
+end
+```
 
 ## Contributing
 

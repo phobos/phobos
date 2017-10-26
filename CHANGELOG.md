@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.5.0 (2017-10-25)
+
+- [enhancement] Add `before_consume` callback to support single point of decoding a message.
+- [enhancement] Add module `Phobos::Test::Helper` for testing, to test consumers with minimal setup required
+
 ## 1.4.2 (2017-09-29)
 
 - [bugfix] Async publishing always delivers messages #33
