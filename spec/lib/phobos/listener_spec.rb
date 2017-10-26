@@ -323,36 +323,6 @@ RSpec.describe Phobos::Listener do
     end
   end
 
-  describe 'when force_encoding is configured' do
-    let(:force_encoding) { 'UTF_8' }
-
-    {
-      Encoding::ASCII_8BIT => 'abc'.encode('ASCII-8BIT'),
-      Encoding::ISO_8859_1 => "\u00FC".encode('ISO-8859-1')
-    }.each do |encoding, original_payload|
-      it "converts #{encoding} to the defined format" do
-        payload = original_payload.dup
-        expect(original_payload.encoding).to eql encoding
-        payload.force_encoding(Encoding::UTF_8)
-
-        subscribe_to(*LISTENER_EVENTS) { thread }
-        wait_for_event('listener.start')
-
-        expect(handler).to receive(:consume) do |handler_payload, _|
-          expect(handler_payload.bytes).to eql original_payload.bytes
-          expect(handler_payload.encoding).to_not eql original_payload.encoding
-          expect(handler_payload.encoding).to eql Encoding::UTF_8
-        end
-
-        producer.publish(topic, original_payload)
-        wait_for_event('listener.process_batch', show_events_on_error: true)
-
-        listener.stop
-        wait_for_event('listener.stop')
-      end
-    end
-  end
-
   def consume_and_stop
     subscribe_to(*LISTENER_EVENTS) { thread }
     wait_for_event('listener.start')
