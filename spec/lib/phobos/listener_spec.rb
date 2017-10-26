@@ -75,6 +75,28 @@ RSpec.describe Phobos::Listener do
     wait_for_event('listener.stop')
   end
 
+  it 'calls Phobos::Actions::ProcessBatch with the fetched Kafka batch' do
+    subscribe_to(*LISTENER_EVENTS) { thread }
+    wait_for_event('listener.start')
+
+    expect(Phobos::Actions::ProcessBatch)
+      .to receive(:new)
+      .with(
+        listener: listener,
+        batch: Kafka::FetchedBatch,
+        listener_metadata: hash_including(group_id: group_id, topic: topic, listener_id: listener.id)
+      )
+      .and_call_original
+
+    producer.async_publish(topic, 'message-1')
+    wait_for_event('listener.process_batch')
+
+    listener.stop
+    wait_for_event('listener.stop')
+
+    self.class.producer.async_producer_shutdown
+  end
+
   it 'calls consumer with max_wait_time and min_bytes' do
     consumer = listener.send(:create_kafka_consumer)
     expect(listener).to receive(:create_kafka_consumer).and_return(consumer)
@@ -127,23 +149,6 @@ RSpec.describe Phobos::Listener do
         expect(backoff.instance_variable_get(:@maximum_elapsed_time)).to eq(5678)
       end
     end
-  end
-
-  it 'calls handler with message payload, group_id and topic using async producer' do
-    subscribe_to(*LISTENER_EVENTS) { thread }
-    wait_for_event('listener.start')
-
-    expect(handler)
-      .to receive(:consume)
-      .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
-
-    producer.async_publish(topic, 'message-1')
-    wait_for_event('listener.process_batch')
-
-    listener.stop
-    wait_for_event('listener.stop')
-
-    self.class.producer.async_producer_shutdown
   end
 
   it 'retries failed messages' do
@@ -218,40 +223,6 @@ RSpec.describe Phobos::Listener do
     listener.stop
     wait_for_event('listener.stop_handler')
     wait_for_event('listener.stop')
-  end
-
-  describe '.process_message' do
-    it 'calls handler ".around_consume" with message payload, group_id and topic' do
-      subscribe_to(*LISTENER_EVENTS) { thread }
-      wait_for_event('listener.start')
-
-      expect(handler_class)
-        .to receive(:around_consume)
-        .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
-        .and_call_original
-
-      producer.publish(topic, 'message-1')
-      wait_for_event('listener.process_batch')
-
-      listener.stop
-      wait_for_event('listener.stop')
-    end
-
-    it 'calls handler ".decode_payload" with message payload' do
-      subscribe_to(*LISTENER_EVENTS) { thread }
-      wait_for_event('listener.start')
-
-      expect_any_instance_of(handler_class)
-        .to receive(:decode_payload)
-        .with('message-1')
-        .and_call_original
-
-      producer.publish(topic, 'message-1')
-      wait_for_event('listener.process_batch')
-
-      listener.stop
-      wait_for_event('listener.stop')
-    end
   end
 
   it 'consumes several messages' do
