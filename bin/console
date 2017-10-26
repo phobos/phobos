@@ -1,17 +1,17 @@
 #!/usr/bin/env ruby
 
-require "bundler/setup"
-require "phobos"
+require 'irb'
+require 'bundler/setup'
+require 'phobos'
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
 
 # (If you use this, don't forget to add pry to your Gemfile!)
-# require "pry"
+# require 'pry'
 # Pry.start
 
 config_path = ENV['CONFIG_PATH'] || (File.exist?('config/phobos.yml') ? 'config/phobos.yml' : 'config/phobos.yml.example')
 Phobos.configure(config_path)
 
-require "irb"
 IRB.start

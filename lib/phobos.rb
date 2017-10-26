@@ -9,6 +9,7 @@ require 'concurrent'
 require 'exponential_backoff'
 require 'kafka'
 require 'logging'
+require 'erb'
 
 require 'phobos/deep_struct'
 require 'phobos/version'
