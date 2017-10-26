@@ -4,12 +4,12 @@ module Phobos
       base.extend(ClassMethods)
     end
 
-    def consume(payload, metadata)
-      raise NotImplementedError
+    def before_consume(payload)
+      payload
     end
 
-    def decode_payload(payload)
-      payload
+    def consume(payload, metadata)
+      raise NotImplementedError
     end
 
     module ClassMethods

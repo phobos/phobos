@@ -6,6 +6,7 @@ module Phobos
     DEFAULT_MAX_BYTES_PER_PARTITION = 524288 # 512 KB
 
     attr_reader :group_id, :topic, :id
+    attr_reader :handler_class, :encoding
 
     def initialize(handler:, group_id:, topic:, min_bytes: nil,
                    max_wait_time: nil, force_encoding: nil,
@@ -51,12 +52,18 @@ module Phobos
           }.merge(listener_metadata)
 
           instrument('listener.process_batch', batch_metadata) do |batch_metadata|
-            time_elapsed = measure { process_batch(batch) }
+            time_elapsed = measure do
+              Phobos::Actions::ProcessBatch.new(
+                listener: self,
+                batch: batch,
+                listener_metadata: listener_metadata
+              ).execute
+            end
             batch_metadata.merge!(time_elapsed: time_elapsed)
             Phobos.logger.info { Hash(message: 'Committed offset').merge(batch_metadata) }
           end
 
-          return if @signal_to_stop
+          return if should_stop?
         end
 
       # Abort is an exception to prevent the consumer from committing the offset.
@@ -67,7 +74,7 @@ module Phobos
       rescue Kafka::ProcessingError, Phobos::AbortError
         instrument('listener.retry_aborted', listener_metadata) do
           Phobos.logger.info do
-            {message: 'Retry loop aborted, listener is shutting down'}.merge(listener_metadata)
+            { message: 'Retry loop aborted, listener is shutting down' }.merge(listener_metadata)
           end
         end
       end
@@ -84,14 +91,14 @@ module Phobos
         end
 
         @kafka_client.close
-        if @signal_to_stop
+        if should_stop?
           Phobos.logger.info { Hash(message: 'Listener stopped').merge(listener_metadata) }
         end
       end
     end
 
     def stop
-      return if @signal_to_stop
+      return if should_stop?
       instrument('listener.stopping', listener_metadata) do
         Phobos.logger.info { Hash(message: 'Listener stopping').merge(listener_metadata) }
         @consumer&.stop
@@ -99,8 +106,8 @@ module Phobos
       end
     end
 
-    def create_exponential_backoff
-      Phobos.create_exponential_backoff(@backoff)
+    def should_stop?
+      @signal_to_stop == true
     end
 
     private
@@ -109,68 +116,9 @@ module Phobos
       { listener_id: id, group_id: group_id, topic: topic }
     end
 
-    def process_batch(batch)
-      batch.messages.each do |message|
-        backoff = create_exponential_backoff
-        metadata = listener_metadata.merge(
-          key: message.key,
-          partition: message.partition,
-          offset: message.offset,
-          retry_count: 0
-        )
-
-        begin
-          instrument('listener.process_message', metadata) do |metadata|
-            time_elapsed = measure { process_message(message, metadata) }
-            metadata.merge!(time_elapsed: time_elapsed)
-          end
-        rescue => e
-          retry_count = metadata[:retry_count]
-          interval = backoff.interval_at(retry_count).round(2)
-
-          error = {
-            waiting_time: interval,
-            exception_class: e.class.name,
-            exception_message: e.message,
-            backtrace: e.backtrace
-          }
-
-          instrument('listener.retry_handler_error', error.merge(metadata)) do
-            Phobos.logger.error do
-              {message: "error processing message, waiting #{interval}s"}.merge(error).merge(metadata)
-            end
-
-            sleep interval
-            metadata.merge!(retry_count: retry_count + 1)
-          end
-
-          raise Phobos::AbortError if @signal_to_stop
-          retry
-        end
-      end
-    end
-
-    def process_message(message, metadata)
-      payload = force_encoding(message.value)
-      decoded_payload = @handler_class.new.decode_payload(payload)
-      @handler_class.around_consume(decoded_payload, metadata) do
-        @handler_class.new.consume(decoded_payload, metadata)
-      end
-    end
-
     def create_kafka_consumer
       configs = Phobos.config.consumer_hash.select { |k| KAFKA_CONSUMER_OPTS.include?(k) }
-      @kafka_client.consumer({group_id: group_id}.merge(configs))
-    end
-
-    def force_encoding(value)
-      @encoding ? value.force_encoding(@encoding) : value
-    end
-
-    def measure
-      start = Time.now.utc
-      yield if block_given?
-      (Time.now.utc - start).round(3)
+      @kafka_client.consumer({ group_id: group_id }.merge(configs))
     end
 
     def compact(hash)

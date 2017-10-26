@@ -17,5 +17,15 @@ module Phobos
     def self.unsubscribe(subscriber)
       ActiveSupport::Notifications.unsubscribe(subscriber)
     end
+
+    def measure
+      start = Time.now.utc
+      yield if block_given?
+      (Time.now.utc - start).round(3)
+    end
+
+    def create_exponential_backoff
+      Phobos.create_exponential_backoff(@backoff)
+    end
   end
 end

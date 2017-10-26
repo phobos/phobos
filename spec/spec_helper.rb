@@ -85,7 +85,7 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
-    Phobos.silence_log = true
+    Phobos.silence_log = false
     Phobos.configure('config/phobos.yml.example')
   end
 
