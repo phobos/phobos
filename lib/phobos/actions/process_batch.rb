@@ -11,7 +11,7 @@ module Phobos
 
       def execute
         @batch.messages.each do |message|
-          backoff = create_exponential_backoff
+          backoff = @listener.create_exponential_backoff
           metadata = @listener_metadata.merge(
             key: message.key,
             partition: message.partition,
