@@ -73,9 +73,7 @@ module Phobos
       #
       rescue Kafka::ProcessingError, Phobos::AbortError
         instrument('listener.retry_aborted', listener_metadata) do
-          Phobos.logger.info do
-            { message: 'Retry loop aborted, listener is shutting down' }.merge(listener_metadata)
-          end
+          Phobos.logger.info({ message: 'Retry loop aborted, listener is shutting down' }.merge(listener_metadata))
         end
       end
 

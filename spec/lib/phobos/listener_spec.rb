@@ -225,6 +225,55 @@ RSpec.describe Phobos::Listener do
     wait_for_event('listener.stop')
   end
 
+  context 'when retry loop aborted' do
+    let(:logger) do
+      Logging.logger(STDOUT)
+    end
+
+    before :each do
+      allow(Phobos).to receive(:logger).and_return(logger)
+      allow(logger).to receive(:info)
+    end
+
+    it "gracefully exits when Phobos::AbortError happens" do
+      expect_any_instance_of(Phobos::Actions::ProcessBatch)
+        .to receive(:execute)
+        .once
+        .and_raise(Phobos::AbortError, 'Phobos aborting')
+
+      subscribe_to(*LISTENER_EVENTS) { thread }
+      wait_for_event('listener.start')
+
+      producer.publish(topic, 'message-1')
+
+      listener.stop
+      wait_for_event('listener.retry_aborted')
+
+      expect(logger)
+        .to have_received(:info)
+        .with(hash_including({ message: 'Retry loop aborted, listener is shutting down' }))
+    end
+
+    it "gracefully exits when Kafka::ProcessingError happens" do
+      expect_any_instance_of(Phobos::Actions::ProcessBatch)
+        .to receive(:execute)
+        .once
+        .and_raise(Kafka::ProcessingError.new('foo', 1, 2), 'Kafka aborting')
+
+      subscribe_to(*LISTENER_EVENTS) { thread }
+      wait_for_event('listener.start')
+
+      producer.publish(topic, 'message-1')
+
+      listener.stop
+      wait_for_event('listener.retry_aborted')
+
+      expect(logger)
+        .to have_received(:info)
+        .with(hash_including({ message: 'Retry loop aborted, listener is shutting down' }))
+    end
+  end
+
   it 'consumes several messages' do
     producer_batch_size = 500
     total_to_publish = 2_000
