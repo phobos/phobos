@@ -6,13 +6,22 @@ RSpec.describe Phobos::Actions::ProcessMessage do
   end
 
   let(:payload) { 'message-1234' }
-  let(:message) { OpenStruct.new(value: payload) }
+  let(:topic) { 'test-topic' }
+  let(:message) do
+    Kafka::FetchedMessage.new(
+      value: payload,
+      key: 'key-1',
+      topic: topic,
+      partition: 1,
+      offset: 2
+    )
+  end
   let(:metadata) { Hash.new('foo' => 'bar') }
   let(:listener) do
     Phobos::Listener.new(
       handler: TestHandler,
       group_id: 'test-group',
-      topic: 'test-topic'
+      topic: topic
     )
   end
 

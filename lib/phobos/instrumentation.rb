@@ -18,7 +18,7 @@ module Phobos
       end
     end
 
-  def measure
+    def measure
       start = Time.now.utc
       yield if block_given?
       (Time.now.utc - start).round(3)

@@ -27,10 +27,6 @@ module Phobos
       @producer_enabled = @handler_class.ancestors.include?(Phobos::Producer)
     end
 
-    def create_exponential_backoff
-      Phobos.create_exponential_backoff(@backoff)
-    end
-
     def start
       @signal_to_stop = false
       instrument('listener.start', listener_metadata) do
@@ -108,6 +104,10 @@ module Phobos
         @consumer&.stop
         @signal_to_stop = true
       end
+    end
+
+    def create_exponential_backoff
+      Phobos.create_exponential_backoff(@backoff)
     end
 
     def should_stop?
