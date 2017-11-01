@@ -3,6 +3,8 @@ module Phobos
     class ProcessMessage
       include Phobos::Instrumentation
 
+      attr_reader :metadata
+
       def initialize(listener:, message:, listener_metadata:, encoding:)
         @listener = listener
         @message = message

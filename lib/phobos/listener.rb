@@ -11,12 +11,14 @@ module Phobos
     def initialize(handler:, group_id:, topic:, min_bytes: nil,
                    max_wait_time: nil, force_encoding: nil,
                    start_from_beginning: true, backoff: nil,
+                   consume_in_batches: true,
                    max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION)
       @id = SecureRandom.hex[0...6]
       @handler_class = handler
       @group_id = group_id
       @topic = topic
       @backoff = backoff
+      @consume_in_batches = consume_in_batches
       @subscribe_opts = {
         start_from_beginning: start_from_beginning,
         max_bytes_per_partition: max_bytes_per_partition
@@ -42,17 +44,7 @@ module Phobos
       end
 
       begin
-        @consumer.each_batch(@consumer_opts) do |batch|
-          batch_processor = Phobos::Actions::ProcessBatch.new(
-            listener: self,
-            batch: batch,
-            listener_metadata: listener_metadata
-          )
-
-          batch_processor.execute
-          Phobos.logger.info { Hash(message: 'Committed offset').merge(batch_processor.metadata) }
-          return if should_stop?
-        end
+        @consume_in_batches ? consume_each_batch : consume_each_message
 
       # Abort is an exception to prevent the consumer from committing the offset.
       # Since "listener" had a message being retried while "stop" was called
@@ -80,6 +72,34 @@ module Phobos
         if should_stop?
           Phobos.logger.info { Hash(message: 'Listener stopped').merge(listener_metadata) }
         end
+      end
+    end
+
+    def consume_each_batch
+      @consumer.each_batch(@consumer_opts) do |batch|
+        batch_processor = Phobos::Actions::ProcessBatch.new(
+          listener: self,
+          batch: batch,
+          listener_metadata: listener_metadata
+        )
+
+        batch_processor.execute
+        Phobos.logger.info { Hash(message: 'Committed offset').merge(batch_processor.metadata) }
+        return if should_stop?
+      end
+    end
+
+    def consume_each_message
+      @consumer.each_message(@consumer_opts) do |message|
+        message_processor = Phobos::Actions::ProcessMessage.new(
+          listener: self,
+          message: message,
+          listener_metadata: listener_metadata
+        )
+
+        message_processor.execute
+        Phobos.logger.info { Hash(message: 'Committed offset').merge(message_processor.metadata) }
+        return if should_stop?
       end
     end
 
