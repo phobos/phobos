@@ -5,11 +5,10 @@ module Phobos
 
       attr_reader :metadata
 
-      def initialize(listener:, message:, listener_metadata:, encoding:)
+      def initialize(listener:, message:, listener_metadata:)
         @listener = listener
         @message = message
         @listener_metadata = listener_metadata
-        @encoding = encoding
         @metadata = listener_metadata.merge(
           key: message.key,
           partition: message.partition,
@@ -23,17 +22,7 @@ module Phobos
         payload = force_encoding(@message.value)
 
         begin
-          instrument('listener.process_message', @metadata) do |metadata|
-            time_elapsed = measure do
-              decoded_payload = @listener.handler_class.new.before_consume(payload)
-
-              @listener.handler_class.around_consume(decoded_payload, @metadata) do
-                @listener.handler_class.new.consume(decoded_payload, @metadata)
-              end
-            end
-
-            metadata.merge!(time_elapsed: time_elapsed)
-          end
+          process_message(payload)
         rescue => e
           retry_count = @metadata[:retry_count]
           interval = backoff.interval_at(retry_count).round(2)
@@ -51,10 +40,11 @@ module Phobos
             end
 
             sleep interval
-            @metadata.merge!(retry_count: retry_count + 1)
           end
 
           raise Phobos::AbortError if @listener.should_stop?
+
+          @metadata.merge!(retry_count: retry_count + 1)
           retry
         end
       end
@@ -62,7 +52,21 @@ module Phobos
       private
 
       def force_encoding(value)
-        @encoding ? value.force_encoding(@encoding) : value
+        @listener.encoding ? value.force_encoding(@listener.encoding) : value
+      end
+
+      def process_message(payload)
+        instrument('listener.process_message', @metadata) do |metadata|
+          time_elapsed = measure do
+            decoded_payload = @listener.handler_class.new.before_consume(payload)
+
+            @listener.handler_class.around_consume(decoded_payload, @metadata) do
+              @listener.handler_class.new.consume(decoded_payload, @metadata)
+            end
+          end
+
+          metadata.merge!(time_elapsed: time_elapsed)
+        end
       end
     end
   end

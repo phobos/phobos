@@ -23,8 +23,7 @@ module Phobos
               Phobos::Actions::ProcessMessage.new(
                 listener: @listener,
                 message: message,
-                listener_metadata: @listener_metadata,
-                encoding: @listener.encoding
+                listener_metadata: @listener_metadata
               ).execute
             end
           end
