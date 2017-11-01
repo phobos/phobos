@@ -43,26 +43,14 @@ module Phobos
 
       begin
         @consumer.each_batch(@consumer_opts) do |batch|
-          batch_metadata = {
-            batch_size: batch.messages.count,
-            partition: batch.partition,
-            offset_lag: batch.offset_lag,
-            # the offset of the most recent message in the partition
-            highwater_mark_offset: batch.highwater_mark_offset
-          }.merge(listener_metadata)
+          batch_processor = Phobos::Actions::ProcessBatch.new(
+            listener: self,
+            batch: batch,
+            listener_metadata: listener_metadata
+          )
 
-          instrument('listener.process_batch', batch_metadata) do |batch_metadata|
-            time_elapsed = measure do
-              Phobos::Actions::ProcessBatch.new(
-                listener: self,
-                batch: batch,
-                listener_metadata: listener_metadata
-              ).execute
-            end
-            batch_metadata.merge!(time_elapsed: time_elapsed)
-            Phobos.logger.info { Hash(message: 'Committed offset').merge(batch_metadata) }
-          end
-
+          batch_processor.execute
+          Phobos.logger.info { Hash(message: 'Committed offset').merge(batch_processor.metadata) }
           return if should_stop?
         end
 

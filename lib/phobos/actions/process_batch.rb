@@ -3,23 +3,23 @@ module Phobos
     class ProcessBatch
       include Phobos::Instrumentation
 
+      attr_reader :metadata
+
       def initialize(listener:, batch:, listener_metadata:)
         @listener = listener
         @batch = batch
         @listener_metadata = listener_metadata
+        @metadata = listener_metadata.merge(
+          batch_size: batch.messages.count,
+          partition: batch.partition,
+          offset_lag: batch.offset_lag
+        )
       end
 
       def execute
-        @batch.messages.each do |message|
-          metadata = @listener_metadata.merge(
-            key: message.key,
-            partition: message.partition,
-            offset: message.offset,
-            retry_count: 0
-          )
-
-          instrument('listener.process_message', metadata) do |metadata|
-            time_elapsed = measure do
+        instrument('listener.process_batch', @metadata) do |metadata|
+          time_elapsed = measure do
+            @batch.messages.each do |message|
               Phobos::Actions::ProcessMessage.new(
                 listener: @listener,
                 message: message,
@@ -27,9 +27,9 @@ module Phobos
                 encoding: @listener.encoding
               ).execute
             end
-
-            metadata.merge!(time_elapsed: time_elapsed)
           end
+
+          metadata.merge!(time_elapsed: time_elapsed)
         end
       end
     end
