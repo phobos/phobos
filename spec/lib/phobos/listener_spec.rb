@@ -173,25 +173,55 @@ RSpec.describe Phobos::Listener do
 
   context 'when min_bytes is not set' do
     let(:min_bytes) { nil }
+    let(:consumer) { listener.send(:create_kafka_consumer) }
 
-    it 'does not pass min_bytes to consumer' do
-      consumer = listener.send(:create_kafka_consumer)
+    before do
       expect(listener).to receive(:create_kafka_consumer).and_return(consumer)
-      expect(consumer).to receive(:each_batch).with(hash_excluding(:min_bytes)).and_call_original
+    end
 
-      consume_and_stop
+    context 'batches' do
+      let(:consume_in_batches) { true }
+
+      it 'does not pass min_bytes to consumer' do
+        expect(consumer).to receive(:each_batch).with(hash_excluding(:min_bytes)).and_call_original
+        consume_and_stop
+      end
+    end
+
+    context 'individual messages' do
+      let(:consume_in_batches) { false }
+
+      it 'does not pass min_bytes to consumer' do
+        expect(consumer).to receive(:each_message).with(hash_excluding(:min_bytes)).and_call_original
+        consume_and_stop
+      end
     end
   end
 
   context 'when max_wait_time is not set' do
     let(:max_wait_time) { nil }
+    let(:consumer) { listener.send(:create_kafka_consumer) }
 
-    it 'does not pass max_wait_time to consumer' do
-      consumer = listener.send(:create_kafka_consumer)
+    before do
       expect(listener).to receive(:create_kafka_consumer).and_return(consumer)
-      expect(consumer).to receive(:each_batch).with(hash_excluding(:max_wait_time)).and_call_original
+    end
 
-      consume_and_stop
+    context 'batches' do
+      let(:consume_in_batches) { true }
+
+      it 'does not pass max_wait_time to consumer' do
+        expect(consumer).to receive(:each_batch).with(hash_excluding(:max_wait_time)).and_call_original
+        consume_and_stop
+      end
+    end
+
+    context 'individual messages' do
+      let(:consume_in_batches) { false }
+
+      it 'does not pass max_wait_time to consumer' do
+        expect(consumer).to receive(:each_message).with(hash_excluding(:max_wait_time)).and_call_original
+        consume_and_stop
+      end
     end
   end
 
@@ -412,7 +442,7 @@ RSpec.describe Phobos::Listener do
     wait_for_event('listener.start')
 
     producer.publish(topic, 'message-1')
-    wait_for_event('listener.process_batch')
+    wait_for_event('listener.process_message')
 
     listener.stop
     wait_for_event('listener.stop')
