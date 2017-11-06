@@ -49,6 +49,13 @@ module Phobos
              aliases: ['-b'],
              banner: 'File path to load application specific code',
              default: 'phobos_boot.rb'
+      option :listeners,
+             aliases: ['-l'],
+             banner: 'Separate listeners config file (optional)'
+      option :skip_config,
+             default: false,
+             type: :boolean,
+             banner: 'Skip config file'
       def start
         Phobos::CLI::Start.new(options).execute
       end

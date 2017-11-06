@@ -1,0 +1,6 @@
+listeners:
+  - handler: Phobos::Handler
+    topic: test
+    start_from_beginning: true
+    group_id: test-1
+    max_concurrency: 1
