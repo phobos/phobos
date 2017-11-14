@@ -1,6 +1,6 @@
 ![Phobos](https://raw.githubusercontent.com/klarna/phobos/master/logo.png)
 
-[![Circle CI](https://circleci.com/gh/klarna/phobos.svg?style=shield&circle-token=2289e0fe5bd934074597b32e7f8f0bc98ea0e3c7)](https://circleci.com/gh/klarna/phobos/tree/master)
+[![Build Status](https://travis-ci.org/klarna/phobos.svg?branch=master)](https://travis-ci.org/klarna/phobos)
 [![Coverage Status](https://coveralls.io/repos/github/klarna/phobos/badge.svg?branch=master)](https://coveralls.io/github/klarna/phobos?branch=master)
 
 # Phobos
@@ -122,7 +122,7 @@ You may also choose to configure phobos with a hash from within your boot file.
 In this case, disable loading the config file with the `--skip-config` option:
 
 ```sh
-$ phobos start -b /opt/apps/boot.rb --skip-config 
+$ phobos start -b /opt/apps/boot.rb --skip-config
 ```
 
 ### <a name="usage-consuming-messages-from-kafka"></a> Consuming messages from Kafka

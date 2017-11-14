@@ -1,0 +1,13 @@
+.idea
+.DS_Store
+.dockerignore
+.gitignore
+.travis.yml
+Dockerfile
+docker-compose.yml
+Gemfile.lock
+logo.png
+log/
+coverage/
+spec/examples.txt
+pkg/

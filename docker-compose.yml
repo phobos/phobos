@@ -1,5 +1,15 @@
 version: '2'
 services:
+  test:
+    depends_on:
+      - kafka
+    build:
+      context: .
+    network_mode: service:kafka
+    environment:
+      - "DEFAULT_TIMEOUT=${DEFAULT_TIMEOUT}"
+    command: rspec
+
   zookeeper:
     image: jplock/zookeeper:3.4.10
     ports:

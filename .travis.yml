@@ -1,0 +1,18 @@
+sudo: required
+
+services:
+  - docker
+
+env:
+  - DEFAULT_TIMEOUT=20
+
+before_install:
+- env
+- docker-compose --version
+- docker --version
+- docker-compose config
+- docker-compose up -d --force-recreate kafka zookeeper
+- docker-compose build test
+
+script:
+- docker-compose run --rm test bundle exec rspec
