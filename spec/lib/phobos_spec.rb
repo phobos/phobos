@@ -103,26 +103,60 @@ RSpec.describe Phobos do
   end
 
   describe '.logger' do
-    before do
-      STDOUT.sync = true
-      Phobos.silence_log = false
+    let(:stdout_appender) do
+      Logging.logger[Phobos].appenders.grep(Logging::Appenders::Stdout).first
+    end
+    let(:file_appender) do
+      Logging.logger[Phobos].appenders.grep(Logging::Appenders::File).first
     end
 
-    context 'without a file configured' do
-      it 'writes only to STDOUT' do
-        Phobos.config.logger.file = nil
-        expect { Phobos.configure_logger }.to_not raise_error
+    it 'outputs human readable format to stdout' do
+      expect(stdout_appender.layout).to be_a(Logging::Layouts::Pattern)
+      expect(stdout_appender.layout.instance_variable_get(:@pattern)).to eq "[%d] %-5l -- %c : %m\n"
+      expect(stdout_appender.layout.instance_variable_get(:@obj_format)).to eq :string
+    end
 
-        output = capture(:stdout) { Phobos.logger.info('log-to-stdout') }
-        expect(output).to eql output
+    it 'outputs json format to file' do
+      expect(file_appender.layout).to be_a(Logging::Layouts::Parseable)
+      expect(file_appender.layout.instance_variable_get(:@style)).to eq :json
+    end
+
+    context 'when stdout_json is true' do
+      before :each do
+        Phobos.config.logger.stdout_json = true
+        Phobos.configure_logger
+      end
+
+      after :each do
+        Phobos.config.logger.stdout_json = false
+        Phobos.configure_logger
+      end
+
+      it 'outputs json format to stdout' do
+        expect(stdout_appender.layout).to be_a(Logging::Layouts::Parseable)
+        expect(stdout_appender.layout.instance_variable_get(:@style)).to eq :json
+      end
+
+      it 'outputs json format to file' do
+        expect(file_appender.layout).to be_a(Logging::Layouts::Parseable)
+        expect(file_appender.layout.instance_variable_get(:@style)).to eq :json
       end
     end
 
-    context 'with "config.logger.file" defined' do
-      it 'writes to the logger file' do
+    context 'file' do
+      before :each do
+        allow(Phobos).to receive(:silence_log).and_return(false)
+        @old_file = Phobos.config.logger.file
         Phobos.config.logger.file = 'spec/spec.log'
-        expect { Phobos.configure_logger }.to_not raise_error
+        Phobos.configure_logger
+      end
 
+      after :each do
+        Phobos.config.logger.file = @old_file
+        Phobos.configure_logger
+      end
+
+      it 'writes to the logger file' do
         Phobos.logger.info('log-to-file')
         expect(File.read('spec/spec.log')).to match /log-to-file/
         File.delete(Phobos.config.logger.file)

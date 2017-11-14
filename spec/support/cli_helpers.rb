@@ -1,12 +1,12 @@
 module CLIHelpers
-  def capture(stream)
+  def capture_stdout
     begin
-      stream = stream.to_s
-      eval "$#{stream} = StringIO.new"
+      stream = $stdout
+      $stdout = StringIO.new
       yield
-      result = eval("$#{stream}").string
+      result = $stdout.string
     ensure
-      eval("$#{stream} = #{stream.upcase}")
+      $stdout = stream
     end
 
     result
