@@ -4,6 +4,7 @@ module Phobos
 
     KAFKA_CONSUMER_OPTS = %i(session_timeout offset_commit_interval offset_commit_threshold heartbeat_interval).freeze
     DEFAULT_MAX_BYTES_PER_PARTITION = 524288 # 512 KB
+    DELIVERY_OPTS = %w[batch message].freeze
 
     attr_reader :group_id, :topic, :id
     attr_reader :handler_class, :encoding
@@ -11,14 +12,14 @@ module Phobos
     def initialize(handler:, group_id:, topic:, min_bytes: nil,
                    max_wait_time: nil, force_encoding: nil,
                    start_from_beginning: true, backoff: nil,
-                   consume_in_batches: true,
+                   delivery: 'batch',
                    max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION)
       @id = SecureRandom.hex[0...6]
       @handler_class = handler
       @group_id = group_id
       @topic = topic
       @backoff = backoff
-      @consume_in_batches = consume_in_batches
+      @delivery = delivery.to_s
       @subscribe_opts = {
         start_from_beginning: start_from_beginning,
         max_bytes_per_partition: max_bytes_per_partition
@@ -44,7 +45,7 @@ module Phobos
       end
 
       begin
-        @consume_in_batches ? consume_each_batch : consume_each_message
+        @delivery == 'batch' ? consume_each_batch : consume_each_message
 
       # Abort is an exception to prevent the consumer from committing the offset.
       # Since "listener" had a message being retried while "stop" was called

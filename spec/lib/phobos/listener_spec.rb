@@ -21,7 +21,7 @@ RSpec.describe Phobos::Listener do
   let(:min_bytes) { 2 }
   let(:force_encoding) { nil }
   let(:listener_backoff) { nil }
-  let(:consume_in_batches) { true }
+  let(:delivery) { 'batch' }
   let :handler_config do
     {
       handler: handler_class,
@@ -33,7 +33,7 @@ RSpec.describe Phobos::Listener do
       min_bytes: min_bytes,
       force_encoding: force_encoding,
       backoff: listener_backoff,
-      consume_in_batches: consume_in_batches
+      delivery: delivery
     }
   end
   let(:listener) { Phobos::Listener.new(handler_config) }
@@ -108,7 +108,7 @@ RSpec.describe Phobos::Listener do
   end
 
   context 'consuming individual messages' do
-    let(:consume_in_batches) { false }
+    let(:delivery) { 'message' }
 
     before do
       expect_any_instance_of(Kafka::Consumer)
@@ -180,7 +180,7 @@ RSpec.describe Phobos::Listener do
     end
 
     context 'batches' do
-      let(:consume_in_batches) { true }
+      let(:delivery) { 'batch' }
 
       it 'does not pass min_bytes to consumer' do
         expect(consumer).to receive(:each_batch).with(hash_excluding(:min_bytes)).and_call_original
@@ -189,7 +189,7 @@ RSpec.describe Phobos::Listener do
     end
 
     context 'individual messages' do
-      let(:consume_in_batches) { false }
+      let(:delivery) { 'message' }
 
       it 'does not pass min_bytes to consumer' do
         expect(consumer).to receive(:each_message).with(hash_excluding(:min_bytes)).and_call_original
@@ -207,7 +207,7 @@ RSpec.describe Phobos::Listener do
     end
 
     context 'batches' do
-      let(:consume_in_batches) { true }
+      let(:delivery) { 'batch' }
 
       it 'does not pass max_wait_time to consumer' do
         expect(consumer).to receive(:each_batch).with(hash_excluding(:max_wait_time)).and_call_original
@@ -216,7 +216,7 @@ RSpec.describe Phobos::Listener do
     end
 
     context 'individual messages' do
-      let(:consume_in_batches) { false }
+      let(:delivery) { 'message' }
 
       it 'does not pass max_wait_time to consumer' do
         expect(consumer).to receive(:each_message).with(hash_excluding(:max_wait_time)).and_call_original

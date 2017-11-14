@@ -98,8 +98,8 @@ listeners:
     # Apply this encoding to the message payload, if blank it uses the original encoding. This property accepts values
     # defined by the ruby Encoding class (https://ruby-doc.org/core-2.3.0/Encoding.html). Ex: UTF_8, ASCII_8BIT, etc
     force_encoding:
-    # Change this to false if consuming messages individually
-    consume_in_batches: true
+    # Change this to 'message' if consuming messages individually. Defaults to 'batch'
+    delivery: batch
     # Use this if custom backoff is required for a listener
     backoff:
       min_ms: 500
