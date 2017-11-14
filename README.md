@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/klarna/phobos.svg?branch=master)](https://travis-ci.org/klarna/phobos)
 [![Coverage Status](https://coveralls.io/repos/github/klarna/phobos/badge.svg?branch=master)](https://coveralls.io/github/klarna/phobos?branch=master)
+[![Chat with us on Discord](https://discordapp.com/api/guilds/379938130326847488/widget.png)](https://discord.gg/rfMUBVD)
 
 # Phobos
 

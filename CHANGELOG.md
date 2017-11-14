@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support for outputting logs as json #50
 - Make configuration, especially of listeners, more flexible. #31
+- Phobos Discord chat
 
 ### Changed
 - Pin ruby-kafka version to < 0.5.0 #48
