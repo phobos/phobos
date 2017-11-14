@@ -105,7 +105,7 @@ RSpec.describe Phobos do
   describe '.logger' do
     before do
       STDOUT.sync = true
-      Phobos.silence_log = false
+      allow(Phobos).to receive(:silence_log).and_return(false)
     end
 
     context 'without a file configured' do

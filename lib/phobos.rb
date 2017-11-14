@@ -62,7 +62,7 @@ module Phobos
       date_pattern = '%Y-%m-%dT%H:%M:%S:%L%zZ'
       json_layout = Logging.layouts.json(date_pattern: date_pattern)
 
-      stdout_layout = if config.logger.stdout_format&.to_sym == :json
+      stdout_layout = if config.logger.stdout_json == true
         json_layout
       else
         Logging.layouts.pattern(date_pattern: date_pattern)

@@ -1,8 +1,9 @@
 logger:
   # Optional log file, set to false or remove to disable it
   file: log/phobos.log
-  # Optional log format for stdout, remove to use human readable format
-  stdout_format: json
+  # Optional output format for stdout, default is false (human readable).
+  # Set to true to enable json output.
+  stdout_json: false
   level: info
   # Comment the block to disable ruby-kafka logs
   ruby_kafka:
