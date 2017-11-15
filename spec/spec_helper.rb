@@ -47,6 +47,7 @@ RSpec.configure do |config|
   config.before(:each) do
     Phobos.silence_log = true
     Phobos.configure('config/phobos.yml.example')
+    allow_any_instance_of(Kafka::Cluster).to receive(:disconnect)
   end
 
   config.profile_examples = false
