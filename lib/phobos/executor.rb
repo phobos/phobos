@@ -11,6 +11,7 @@ module Phobos
       start_from_beginning
       max_bytes_per_partition
       backoff
+      delivery
     ).freeze
 
     def initialize

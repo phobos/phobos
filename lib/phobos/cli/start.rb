@@ -43,11 +43,25 @@ module Phobos
       end
 
       def validate_listeners!
-        Phobos.config.listeners.collect(&:handler).each do |handler_class|
+        Phobos.config.listeners.each do |listener|
+          handler_class = listener.handler
+
           begin
             handler_class.constantize
           rescue NameError
             Phobos::CLI.logger.error { Hash(message: "Handler '#{handler_class}' not defined") }
+            exit(1)
+          end
+
+          delivery = listener.delivery
+          if delivery.nil?
+            Phobos::CLI.logger.warn do
+              Hash(message: "Delivery option should be specified, defaulting to 'batch' - specify this option to silence this message")
+            end
+          elsif !Listener::DELIVERY_OPTS.include?(delivery)
+            Phobos::CLI.logger.error do
+              Hash(message: "Invalid delivery option '#{delivery}'. Please specify one of: #{Listener::DELIVERY_OPTS.join(', ')}")
+            end
             exit(1)
           end
         end

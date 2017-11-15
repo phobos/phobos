@@ -21,6 +21,7 @@ RSpec.describe Phobos::Listener do
   let(:min_bytes) { 2 }
   let(:force_encoding) { nil }
   let(:listener_backoff) { nil }
+  let(:delivery) { 'batch' }
   let :handler_config do
     {
       handler: handler_class,
@@ -31,7 +32,8 @@ RSpec.describe Phobos::Listener do
       max_wait_time: max_wait_time,
       min_bytes: min_bytes,
       force_encoding: force_encoding,
-      backoff: listener_backoff
+      backoff: listener_backoff,
+      delivery: delivery
     }
   end
   let(:listener) { Phobos::Listener.new(handler_config) }
@@ -49,52 +51,114 @@ RSpec.describe Phobos::Listener do
     unsubscribe_all
   end
 
-  it 'calls handler with message payload, group_id and topic' do
-    now = Time.now.utc
-    Timecop.freeze(now)
+  context 'consuming in batches' do
+    before do
+      expect_any_instance_of(Kafka::Consumer)
+        .to receive(:each_batch).and_call_original
+    end
 
-    subscribe_to(*LISTENER_EVENTS) { thread }
-    wait_for_event('listener.start')
+    it 'calls handler with message payload, group_id and topic' do
+      now = Time.now.utc
+      Timecop.freeze(now)
 
-    expect(handler)
-      .to receive(:consume)
-      .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
-      .once { Timecop.freeze(now + 0.1) }
+      subscribe_to(*LISTENER_EVENTS) { thread }
+      wait_for_event('listener.start')
 
-    producer.publish(topic, 'message-1')
+      expect(handler)
+        .to receive(:consume)
+        .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
+        .once { Timecop.freeze(now + 0.1) }
 
-    wait_for_event('listener.process_message')
-    event = events_for('listener.process_message').first
-    expect(event.payload).to include(time_elapsed: 0.1)
+      producer.publish(topic, 'message-1')
 
-    wait_for_event('listener.process_batch')
-    event = events_for('listener.process_batch').first
-    expect(event.payload).to include(time_elapsed: 0.1)
+      wait_for_event('listener.process_message')
+      event = events_for('listener.process_message').first
+      expect(event.payload).to include(time_elapsed: 0.1)
 
-    listener.stop
-    wait_for_event('listener.stop')
+      wait_for_event('listener.process_batch')
+      event = events_for('listener.process_batch').first
+      expect(event.payload).to include(time_elapsed: 0.1)
+      expect(event.payload[:batch_size]).to eq(1)
+
+      listener.stop
+      wait_for_event('listener.stop')
+    end
+
+    it 'calls Phobos::Actions::ProcessBatch with the fetched Kafka batch' do
+      subscribe_to(*LISTENER_EVENTS) { thread }
+      wait_for_event('listener.start')
+
+      expect(Phobos::Actions::ProcessBatch)
+        .to receive(:new)
+        .with(
+          listener: listener,
+          batch: Kafka::FetchedBatch,
+          listener_metadata: hash_including(group_id: group_id, topic: topic, listener_id: listener.id)
+        )
+        .and_call_original
+
+      producer.async_publish(topic, 'message-1')
+      wait_for_event('listener.process_batch')
+
+      listener.stop
+      wait_for_event('listener.stop')
+
+      self.class.producer.async_producer_shutdown
+    end
   end
 
-  it 'calls Phobos::Actions::ProcessBatch with the fetched Kafka batch' do
-    subscribe_to(*LISTENER_EVENTS) { thread }
-    wait_for_event('listener.start')
+  context 'consuming individual messages' do
+    let(:delivery) { 'message' }
 
-    expect(Phobos::Actions::ProcessBatch)
-      .to receive(:new)
-      .with(
-        listener: listener,
-        batch: Kafka::FetchedBatch,
-        listener_metadata: hash_including(group_id: group_id, topic: topic, listener_id: listener.id)
-      )
-      .and_call_original
+    before do
+      expect_any_instance_of(Kafka::Consumer)
+        .to receive(:each_message).and_call_original
+    end
 
-    producer.async_publish(topic, 'message-1')
-    wait_for_event('listener.process_batch')
+    it 'calls handler with message payload, group_id and topic' do
+      now = Time.now.utc
+      Timecop.freeze(now)
 
-    listener.stop
-    wait_for_event('listener.stop')
+      subscribe_to(*LISTENER_EVENTS) { thread }
+      wait_for_event('listener.start')
 
-    self.class.producer.async_producer_shutdown
+      expect(handler)
+        .to receive(:consume)
+        .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
+        .once { Timecop.freeze(now + 0.1) }
+
+      producer.publish(topic, 'message-1')
+
+      wait_for_event('listener.process_message')
+      event = events_for('listener.process_message').first
+      expect(event.payload).to include(time_elapsed: 0.1)
+      expect(event.payload[:batch_size]).to be_nil
+
+      listener.stop
+      wait_for_event('listener.stop')
+    end
+
+    it 'calls Phobos::Actions::ProcessMessage with the fetched Kafka message' do
+      subscribe_to(*LISTENER_EVENTS) { thread }
+      wait_for_event('listener.start')
+
+      expect(Phobos::Actions::ProcessMessage)
+        .to receive(:new)
+        .with(
+          listener: listener,
+          message: Kafka::FetchedMessage,
+          listener_metadata: hash_including(group_id: group_id, topic: topic, listener_id: listener.id)
+        )
+        .and_call_original
+
+      producer.async_publish(topic, 'message-1')
+      wait_for_event('listener.process_message')
+
+      listener.stop
+      wait_for_event('listener.stop')
+
+      self.class.producer.async_producer_shutdown
+    end
   end
 
   it 'calls consumer with max_wait_time and min_bytes' do
@@ -109,25 +173,55 @@ RSpec.describe Phobos::Listener do
 
   context 'when min_bytes is not set' do
     let(:min_bytes) { nil }
+    let(:consumer) { listener.send(:create_kafka_consumer) }
 
-    it 'does not pass min_bytes to consumer' do
-      consumer = listener.send(:create_kafka_consumer)
+    before do
       expect(listener).to receive(:create_kafka_consumer).and_return(consumer)
-      expect(consumer).to receive(:each_batch).with(hash_excluding(:min_bytes)).and_call_original
+    end
 
-      consume_and_stop
+    context 'batches' do
+      let(:delivery) { 'batch' }
+
+      it 'does not pass min_bytes to consumer' do
+        expect(consumer).to receive(:each_batch).with(hash_excluding(:min_bytes)).and_call_original
+        consume_and_stop
+      end
+    end
+
+    context 'individual messages' do
+      let(:delivery) { 'message' }
+
+      it 'does not pass min_bytes to consumer' do
+        expect(consumer).to receive(:each_message).with(hash_excluding(:min_bytes)).and_call_original
+        consume_and_stop
+      end
     end
   end
 
   context 'when max_wait_time is not set' do
     let(:max_wait_time) { nil }
+    let(:consumer) { listener.send(:create_kafka_consumer) }
 
-    it 'does not pass max_wait_time to consumer' do
-      consumer = listener.send(:create_kafka_consumer)
+    before do
       expect(listener).to receive(:create_kafka_consumer).and_return(consumer)
-      expect(consumer).to receive(:each_batch).with(hash_excluding(:max_wait_time)).and_call_original
+    end
 
-      consume_and_stop
+    context 'batches' do
+      let(:delivery) { 'batch' }
+
+      it 'does not pass max_wait_time to consumer' do
+        expect(consumer).to receive(:each_batch).with(hash_excluding(:max_wait_time)).and_call_original
+        consume_and_stop
+      end
+    end
+
+    context 'individual messages' do
+      let(:delivery) { 'message' }
+
+      it 'does not pass max_wait_time to consumer' do
+        expect(consumer).to receive(:each_message).with(hash_excluding(:max_wait_time)).and_call_original
+        consume_and_stop
+      end
     end
   end
 
@@ -236,7 +330,7 @@ RSpec.describe Phobos::Listener do
     end
 
     it "gracefully exits when Phobos::AbortError happens" do
-      expect_any_instance_of(Phobos::Actions::ProcessBatch)
+      expect_any_instance_of(Phobos::Actions::ProcessMessage)
         .to receive(:execute)
         .once
         .and_raise(Phobos::AbortError, 'Phobos aborting')
@@ -255,7 +349,7 @@ RSpec.describe Phobos::Listener do
     end
 
     it "gracefully exits when Kafka::ProcessingError happens" do
-      expect_any_instance_of(Phobos::Actions::ProcessBatch)
+      expect_any_instance_of(Phobos::Actions::ProcessMessage)
         .to receive(:execute)
         .once
         .and_raise(Kafka::ProcessingError.new('foo', 1, 2), 'Kafka aborting')
@@ -348,7 +442,7 @@ RSpec.describe Phobos::Listener do
     wait_for_event('listener.start')
 
     producer.publish(topic, 'message-1')
-    wait_for_event('listener.process_batch')
+    wait_for_event('listener.process_message')
 
     listener.stop
     wait_for_event('listener.stop')

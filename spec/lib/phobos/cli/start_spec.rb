@@ -28,6 +28,32 @@ RSpec.describe Phobos::CLI::Start do
       end
     end
 
+    context 'delivery option' do
+      before do
+        allow(Phobos::CLI::Runner).to receive(:new).and_return(double('Phobos::CLI::Runner', run!: true))
+      end
+
+      it 'works with batch' do
+        start = Phobos::CLI::Start.new(config: 'spec/fixtures/batch_listener.yml', boot: 'phobos_boot.rb')
+        expect { start.execute }.to_not raise_error
+      end
+
+      it 'works with message' do
+        start = Phobos::CLI::Start.new(config: 'spec/fixtures/message_listener.yml', boot: 'phobos_boot.rb')
+        expect { start.execute }.to_not raise_error
+      end
+
+      it 'works with no delivery option' do
+        start = Phobos::CLI::Start.new(config: 'spec/fixtures/no_delivery_option.yml', boot: 'phobos_boot.rb')
+        expect { start.execute }.to_not raise_error
+      end
+
+      it 'fails with invalid option' do
+        start = Phobos::CLI::Start.new(config: 'spec/fixtures/invalid_delivery_option.yml', boot: 'phobos_boot.rb')
+        expect { start.execute }.to raise_error SystemExit
+      end
+    end
+
     it 'validates configured handlers' do
       allow(Phobos::CLI::Runner).to receive(:new).and_return(double('Phobos::CLI::Runner', run!: true))
       start = Phobos::CLI::Start.new(config: 'spec/fixtures/bad_listeners.phobos.config.yml', boot: 'phobos_boot.rb')

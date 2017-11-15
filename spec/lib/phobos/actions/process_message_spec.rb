@@ -25,12 +25,18 @@ RSpec.describe Phobos::Actions::ProcessMessage do
     )
   end
 
-  subject { described_class.new(listener: listener, message: message, metadata: metadata, encoding: nil) }
+  subject do
+    described_class.new(
+      listener: listener,
+      message: message,
+      listener_metadata: metadata
+    )
+  end
 
   it 'processes the message by calling around consume, before consume and consume of the handler' do
-    expect(TestHandler).to receive(:around_consume).with(payload, metadata).once.and_call_original
+    expect(TestHandler).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
     expect_any_instance_of(TestHandler).to receive(:before_consume).with(payload).once.and_call_original
-    expect_any_instance_of(TestHandler).to receive(:consume).with(payload, metadata).once.and_call_original
+    expect_any_instance_of(TestHandler).to receive(:consume).with(payload, subject.metadata).once.and_call_original
 
     subject.execute
   end
@@ -40,6 +46,7 @@ RSpec.describe Phobos::Actions::ProcessMessage do
     let(:force_encoding) { 'UTF-8' }
     before :each do
       allow(TestHandler).to receive(:new).and_return(handler)
+      allow(listener).to receive(:encoding).and_return(force_encoding)
     end
 
     {
@@ -55,7 +62,44 @@ RSpec.describe Phobos::Actions::ProcessMessage do
           expect(handler_payload.encoding).to eql Encoding::UTF_8
         end
 
-        described_class.new(listener: listener, message: OpenStruct.new(value: original_payload.dup), metadata: metadata, encoding: force_encoding).execute
+        described_class.new(
+          listener: listener,
+          message: OpenStruct.new(value: original_payload.dup),
+          listener_metadata: metadata
+        ).execute
+      end
+    end
+  end
+
+  context 'when processing fails' do
+    before do
+      expect(subject)
+        .to receive(:process_message).once.ordered.and_raise('processing error')
+    end
+
+    it 'it retries failed messages' do
+      expect(subject)
+        .to receive(:process_message).once.ordered.and_raise('processing error')
+      expect(subject)
+        .to receive(:process_message).once.ordered.and_call_original
+
+      subject.execute
+      expect(subject.metadata[:retry_count]).to eq(2)
+    end
+
+    context 'when listener is stopping' do
+      before do
+        allow(listener).to receive(:should_stop?).and_return(true)
+      end
+
+      it 'does not retry and raises abort error' do
+        expect(subject).to_not receive(:process_message)
+
+        expect {
+          subject.execute
+        }.to raise_error(Phobos::AbortError)
+
+        expect(subject.metadata[:retry_count]).to eq(0)
       end
     end
   end

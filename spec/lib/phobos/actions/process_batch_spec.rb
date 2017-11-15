@@ -27,65 +27,15 @@ RSpec.describe Phobos::Actions::ProcessBatch do
     expect(Phobos::Actions::ProcessMessage).to receive(:new).with(
       listener: listener,
       message: message1,
-      metadata: hash_including(key: 'key-1', partition: 1, offset: 2, retry_count: 0),
-      encoding: nil
+      listener_metadata: listener_metadata
     ).once.ordered.and_call_original
 
     expect(Phobos::Actions::ProcessMessage).to receive(:new).with(
       listener: listener,
       message: message2,
-      metadata: hash_including(key: 'key-2', partition: 3, offset: 4, retry_count: 0),
-      encoding: nil
+      listener_metadata: listener_metadata
     ).once.ordered.and_call_original
 
     subject.execute
-  end
-
-  context 'when processing fails' do
-    before do
-      expect(Phobos::Actions::ProcessMessage).to receive(:new).with(
-        listener: listener,
-        message: message1,
-        metadata: hash_including(key: 'key-1', partition: 1, offset: 2, retry_count: 0),
-        encoding: nil
-      ).once.ordered.and_call_original
-
-      expect(Phobos::Actions::ProcessMessage).to receive(:new).with(
-        listener: listener,
-        message: message2,
-        metadata: hash_including(key: 'key-2', partition: 3, offset: 4, retry_count: 0),
-        encoding: nil
-      ).once.ordered.and_raise('processing error')
-    end
-
-    it 'it retries failed messages' do
-      expect(Phobos::Actions::ProcessMessage).to receive(:new).with(
-        listener: listener,
-        message: message2,
-        metadata: hash_including(key: 'key-2', partition: 3, offset: 4, retry_count: 1),
-        encoding: nil
-      ).once.ordered.and_call_original
-
-      subject.execute
-    end
-
-    context 'when listener is stopping' do
-      before do
-        allow(listener).to receive(:should_stop?).and_return(true)
-      end
-
-      it 'does not retry and raises abort error' do
-        expect(Phobos::Actions::ProcessMessage).to_not receive(:new).with(
-          listener: listener,
-          message: message2,
-          metadata: hash_including(key: 'key-2', partition: 3, offset: 4, retry_count: 1),
-          encoding: nil
-        )
-
-        expect {
-          subject.execute
-        }.to raise_error(Phobos::AbortError)
-      end
-    end
   end
 end

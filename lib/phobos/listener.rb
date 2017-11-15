@@ -4,6 +4,7 @@ module Phobos
 
     KAFKA_CONSUMER_OPTS = %i(session_timeout offset_commit_interval offset_commit_threshold heartbeat_interval).freeze
     DEFAULT_MAX_BYTES_PER_PARTITION = 524288 # 512 KB
+    DELIVERY_OPTS = %w[batch message].freeze
 
     attr_reader :group_id, :topic, :id
     attr_reader :handler_class, :encoding
@@ -11,12 +12,14 @@ module Phobos
     def initialize(handler:, group_id:, topic:, min_bytes: nil,
                    max_wait_time: nil, force_encoding: nil,
                    start_from_beginning: true, backoff: nil,
+                   delivery: 'batch',
                    max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION)
       @id = SecureRandom.hex[0...6]
       @handler_class = handler
       @group_id = group_id
       @topic = topic
       @backoff = backoff
+      @delivery = delivery.to_s
       @subscribe_opts = {
         start_from_beginning: start_from_beginning,
         max_bytes_per_partition: max_bytes_per_partition
@@ -42,29 +45,7 @@ module Phobos
       end
 
       begin
-        @consumer.each_batch(@consumer_opts) do |batch|
-          batch_metadata = {
-            batch_size: batch.messages.count,
-            partition: batch.partition,
-            offset_lag: batch.offset_lag,
-            # the offset of the most recent message in the partition
-            highwater_mark_offset: batch.highwater_mark_offset
-          }.merge(listener_metadata)
-
-          instrument('listener.process_batch', batch_metadata) do |batch_metadata|
-            time_elapsed = measure do
-              Phobos::Actions::ProcessBatch.new(
-                listener: self,
-                batch: batch,
-                listener_metadata: listener_metadata
-              ).execute
-            end
-            batch_metadata.merge!(time_elapsed: time_elapsed)
-            Phobos.logger.info { Hash(message: 'Committed offset').merge(batch_metadata) }
-          end
-
-          return if should_stop?
-        end
+        @delivery == 'batch' ? consume_each_batch : consume_each_message
 
       # Abort is an exception to prevent the consumer from committing the offset.
       # Since "listener" had a message being retried while "stop" was called
@@ -92,6 +73,34 @@ module Phobos
         if should_stop?
           Phobos.logger.info { Hash(message: 'Listener stopped').merge(listener_metadata) }
         end
+      end
+    end
+
+    def consume_each_batch
+      @consumer.each_batch(@consumer_opts) do |batch|
+        batch_processor = Phobos::Actions::ProcessBatch.new(
+          listener: self,
+          batch: batch,
+          listener_metadata: listener_metadata
+        )
+
+        batch_processor.execute
+        Phobos.logger.info { Hash(message: 'Committed offset').merge(batch_processor.metadata) }
+        return if should_stop?
+      end
+    end
+
+    def consume_each_message
+      @consumer.each_message(@consumer_opts) do |message|
+        message_processor = Phobos::Actions::ProcessMessage.new(
+          listener: self,
+          message: message,
+          listener_metadata: listener_metadata
+        )
+
+        message_processor.execute
+        Phobos.logger.info { Hash(message: 'Committed offset').merge(message_processor.metadata) }
+        return if should_stop?
       end
     end
 
