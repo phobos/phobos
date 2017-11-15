@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Support for outputting logs as json #50
 - Make configuration, especially of listeners, more flexible. #31
 - Phobos Discord chat
+- Support for consuming `each_message` instead of `each_batch` via the delivery listener option. #21
+- Instantiate a single handler class instance and use that both for `consume` and `before_consume`. #47
 
 ### Changed
 - Pin ruby-kafka version to < 0.5.0 #48

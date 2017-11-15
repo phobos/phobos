@@ -98,7 +98,15 @@ listeners:
     # Apply this encoding to the message payload, if blank it uses the original encoding. This property accepts values
     # defined by the ruby Encoding class (https://ruby-doc.org/core-2.3.0/Encoding.html). Ex: UTF_8, ASCII_8BIT, etc
     force_encoding:
-    # Change this to 'message' if consuming messages individually. Defaults to 'batch'
+    # Specify the delivery method for a listener.
+    # Possible values: [`message`, `batch` (default)]
+    #  - `message` will yield individual messages from Ruby Kafka using `each_message` and will commit/heartbeat at every consumed message.
+    #     This is overall a bit slower than using batch, but easier to configure.
+    #  - `batch` will yield batches from Ruby Kafka using `each_batch`, and commit/heartbeat at every consumed batch.
+    #     Due to implementation in Ruby Kafka, it should be noted that when configuring large batch sizes in combination with taking long time to consume messages,
+    #     your consumers might get kicked from the Kafka cluster for not sending a heartbeat within the expected interval.
+    #     Take this into consideration when determining your configuration.
+    # Note: Ultimately commit/heartbeart will depend on the offset commit options and the heartbeat interval.
     delivery: batch
     # Use this if custom backoff is required for a listener
     backoff:
