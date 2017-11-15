@@ -1,18 +1,35 @@
 sudo: required
+language: ruby
+rvm:
+  - 2.4.1
 
 services:
   - docker
 
 env:
-  - DEFAULT_TIMEOUT=20
+  global:
+    - DEFAULT_TIMEOUT=20
+    - CC_TEST_REPORTER_ID=ce08ec7297e0161c25b6b0c86e7bd4b9eb85b15de9e2a17fe419b8439aa40def
 
 before_install:
-- env
-- docker-compose --version
-- docker --version
-- docker-compose config
-- docker-compose up -d --force-recreate kafka zookeeper
-- docker-compose build test
+  - env
+  - docker-compose --version
+  - docker --version
+  - docker-compose config
+  - docker-compose up -d --force-recreate kafka zookeeper
+  - docker-compose build test
+
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter before-build || echo "Skipping CC coverage before-build"; fi
+  - mkdir coverage/
+  - touch ./coverage/.resultset.json
 
 script:
-- docker-compose run --rm test bundle exec rspec
+  - docker-compose run --rm test
+
+after_script:
+  - cat ./coverage/.resultset.json | sed "s|/opt/phobos|$PWD|" > ./coverage/.newresultset.json
+  - cp ./coverage/.newresultset.json ./coverage/.resultset.json
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT || echo "Skipping CC coverage after-build"; fi

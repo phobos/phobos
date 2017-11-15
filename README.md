@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/klarna/phobos.svg?branch=master)](https://travis-ci.org/klarna/phobos)
 [![Coverage Status](https://coveralls.io/repos/github/klarna/phobos/badge.svg?branch=master)](https://coveralls.io/github/klarna/phobos?branch=master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/2d00845fc6e7e83df6e7/maintainability)](https://codeclimate.com/github/klarna/phobos/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/2d00845fc6e7e83df6e7/test_coverage)](https://codeclimate.com/github/klarna/phobos/test_coverage)
 [![Chat with us on Discord](https://discordapp.com/api/guilds/379938130326847488/widget.png)](https://discord.gg/rfMUBVD)
 
 # Phobos

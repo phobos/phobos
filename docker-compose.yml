@@ -9,6 +9,8 @@ services:
     environment:
       - "DEFAULT_TIMEOUT=${DEFAULT_TIMEOUT}"
     command: rspec
+    volumes:
+      - ./coverage:/opt/phobos/coverage
 
   zookeeper:
     image: jplock/zookeeper:3.4.10
