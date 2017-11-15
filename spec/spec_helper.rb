@@ -2,13 +2,9 @@ $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 Thread.abort_on_exception = true
 
 require 'simplecov'
-require 'coveralls'
-
-Coveralls::Output.silent = true
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
-  SimpleCov::Formatter::HTMLFormatter,
-  Coveralls::SimpleCov::Formatter
+  SimpleCov::Formatter::HTMLFormatter
 ])
 
 SimpleCov.start do
