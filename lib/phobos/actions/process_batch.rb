@@ -18,11 +18,9 @@ module Phobos
 
       def execute
         instrument('listener.process_batch', @metadata) do |metadata|
-          consume_result = nil
-
           time_elapsed = measure do
             @batch.messages.each do |message|
-              consume_result = Phobos::Actions::ProcessMessage.new(
+              Phobos::Actions::ProcessMessage.new(
                 listener: @listener,
                 message: message,
                 listener_metadata: @listener_metadata
@@ -31,8 +29,6 @@ module Phobos
           end
 
           metadata.merge!(time_elapsed: time_elapsed)
-
-          consume_result
         end
       end
     end

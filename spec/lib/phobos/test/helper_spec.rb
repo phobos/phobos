@@ -20,6 +20,7 @@ RSpec.describe Phobos::Test::Helper do
   end
 
   let(:payload) { 'foo' }
+  let(:metadata) { Hash(foo: 'bar') }
   let(:topic) { Phobos::Test::Helper::Topic }
   let(:group_id) { Phobos::Test::Helper::Group }
 
@@ -32,14 +33,14 @@ RSpec.describe Phobos::Test::Helper do
       process_message(handler: TestHandler, payload: payload)
     end
 
-    it 'calls before_consume' do
+    it 'invokes handler before_consume with payload' do
       expect_any_instance_of(TestHandler).to receive(:before_consume).with(payload)
       process_message(handler: TestHandler, payload: payload)
     end
 
-    it 'calls consume' do
-      expect_any_instance_of(TestHandler).to receive(:consume).with(payload, Hash)
-      process_message(handler: TestHandler, payload: payload)
+    it 'invokes handler consume with payload and metadata' do
+      expect_any_instance_of(TestHandler).to receive(:consume).with(payload, hash_including(metadata))
+      process_message(handler: TestHandler, payload: payload, metadata: metadata)
     end
 
     it 'returns the result of the handler consume method' do

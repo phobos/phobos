@@ -455,7 +455,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 Phobos exports a spec helper that can help you test your consumer. The Phobos lifecycle will conveniently be activated for you with minimal setup required.
 
-* `process_message(handler:, payload:, metadata:, encoding: nil)` - Invokes your handler with payload and metadata, using a dummy listener (encoding is optional).
+* `process_message(handler:, payload:, metadata: {}, encoding: nil)` - Invokes your handler with payload and metadata, using a dummy listener (encoding and metadata are optional).
 
 ```ruby
 require 'spec_helper'
