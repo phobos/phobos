@@ -16,7 +16,7 @@ RSpec.describe Phobos::Actions::ProcessMessage do
       offset: 2
     )
   end
-  let(:metadata) { Hash.new('foo' => 'bar') }
+  let(:metadata) { Hash(foo: 'bar') }
   let(:listener) do
     Phobos::Listener.new(
       handler: TestHandler,

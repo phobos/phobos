@@ -462,7 +462,7 @@ require 'spec_helper'
 
 describe MyConsumer do
   let(:payload) { 'foo' }
-  let(:metadata) { 'foo' }
+  let(:metadata) { Hash(foo: 'bar') }
 
   it 'consumes my message' do
     expect(described_class).to receive(:around_consume).with(payload, metadata).once.and_call_original
