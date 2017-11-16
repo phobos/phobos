@@ -11,15 +11,16 @@ RSpec.describe Phobos::Test::Helper do
   end
 
   let(:payload) { 'foo' }
-  let(:metadata) { 'bar' }
+  let(:topic) { Phobos::Test::Helper::Topic }
+  let(:group_id) { Phobos::Test::Helper::Group }
 
   describe '#process_message' do
-    it 'creates dummy listener instance for the given handler' do
-      process_message(handler: TestHandler, payload: payload, metadata: metadata)
-    end
+    it 'synchronously runs the necessary steps for consuming a message with no manual setup' do
+      expect_any_instance_of(Phobos::Actions::ProcessMessage)
+        .to receive(:instrument)
+        .with('listener.process_message', Hash)
 
-    it 'creates a ProcessMessage instance and invokes execute' do
-      process_message(handler: TestHandler, payload: payload, metadata: metadata)
+      process_message(handler: TestHandler, payload: payload)
     end
   end
 end
