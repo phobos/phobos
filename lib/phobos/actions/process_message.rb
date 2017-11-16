@@ -57,16 +57,19 @@ module Phobos
 
       def process_message(payload)
         instrument('listener.process_message', @metadata) do |metadata|
+          consume_result = nil
           time_elapsed = measure do
             handler = @listener.handler_class.new
             preprocessed_payload = handler.before_consume(payload)
 
             @listener.handler_class.around_consume(preprocessed_payload, @metadata) do
-              handler.consume(preprocessed_payload, @metadata)
+              consume_result = handler.consume(preprocessed_payload, @metadata)
             end
           end
 
           metadata.merge!(time_elapsed: time_elapsed)
+
+          consume_result
         end
       end
     end

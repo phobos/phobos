@@ -5,7 +5,7 @@ RSpec.describe Phobos::Actions::ProcessBatch do
     include Phobos::Handler
   end
 
-  let(:listener_metadata) { Hash.new('foo' => 'bar') }
+  let(:listener_metadata) { Hash(foo: 'bar') }
   let(:topic) { 'test-topic' }
   let(:listener) do
     Phobos::Listener.new(
