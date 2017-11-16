@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
 
+## [1.6.1] - 2017-11-16
+### Fixed
+- `Phobos::Test::Helper` is broken #53
+
 ## [1.6.0] - 2017-11-16
 ### Added
 - Support for outputting logs as json #50
