@@ -3,7 +3,7 @@ module Phobos
     include Phobos::Instrumentation
 
     KAFKA_CONSUMER_OPTS = %i(session_timeout offset_commit_interval offset_commit_threshold heartbeat_interval).freeze
-    DEFAULT_MAX_BYTES_PER_PARTITION = 524288 # 512 KB
+    DEFAULT_MAX_BYTES_PER_PARTITION = 1048576 # 1 MB
     DELIVERY_OPTS = %w[batch message].freeze
 
     attr_reader :group_id, :topic, :id
