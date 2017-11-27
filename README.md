@@ -390,7 +390,6 @@ end
     * partition
     * offset_lag
     * highwater_mark_offset
-    * time_elapsed
   * `listener.process_message` is sent after process a message. It includes the following payload:
     * listener_id
     * group_id
@@ -399,7 +398,6 @@ end
     * partition
     * offset
     * retry_count
-    * time_elapsed
   * `listener.retry_handler_error` is sent after waited for `handler#consume` retry. It includes the following payload:
     * listener_id
     * group_id

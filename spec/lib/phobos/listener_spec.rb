@@ -73,11 +73,11 @@ RSpec.describe Phobos::Listener do
 
       wait_for_event('listener.process_message')
       event = events_for('listener.process_message').first
-      expect(event.payload).to include(time_elapsed: 0.1)
+      expect(event.duration).to eq 100.0
 
       wait_for_event('listener.process_batch')
       event = events_for('listener.process_batch').first
-      expect(event.payload).to include(time_elapsed: 0.1)
+      expect(event.duration).to eq 100.0
       expect(event.payload[:batch_size]).to eq(1)
 
       listener.stop
@@ -131,7 +131,7 @@ RSpec.describe Phobos::Listener do
 
       wait_for_event('listener.process_message')
       event = events_for('listener.process_message').first
-      expect(event.payload).to include(time_elapsed: 0.1)
+      expect(event.duration).to eq 100.0
       expect(event.payload[:batch_size]).to be_nil
 
       listener.stop
