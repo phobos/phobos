@@ -8,7 +8,6 @@ module Phobos
       def initialize(listener:, message:, listener_metadata:)
         @listener = listener
         @message = message
-        @listener_metadata = listener_metadata
         @metadata = listener_metadata.merge(
           key: message.key,
           partition: message.partition,

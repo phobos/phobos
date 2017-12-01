@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Test are failing with ruby-kafka 0.5.0 #48
 - Allow Phobos to run in apps using ActiveSupport 3.x #57
+### Added
+- Property handler added to listener instrumentation
 ### Removed
 - Property (time_elapsed) removed #24 - use duration instead
 
