@@ -41,21 +41,21 @@ module Phobos
       end
 
       desc 'start', 'Starts Phobos'
-      option :config,
-             aliases: ['-c'],
-             default: 'config/phobos.yml',
-             banner: 'Configuration file'
-      option :boot,
-             aliases: ['-b'],
-             banner: 'File path to load application specific code',
-             default: 'phobos_boot.rb'
-      option :listeners,
-             aliases: ['-l'],
-             banner: 'Separate listeners config file (optional)'
-      option :skip_config,
-             default: false,
-             type: :boolean,
-             banner: 'Skip config file'
+      method_option :config,
+                    aliases: ['-c'],
+                    default: 'config/phobos.yml',
+                    banner: 'Configuration file'
+      method_option :boot,
+                    aliases: ['-b'],
+                    banner: 'File path to load application specific code',
+                    default: 'phobos_boot.rb'
+      method_option :listeners,
+                    aliases: ['-l'],
+                    banner: 'Separate listeners config file (optional)'
+      method_option :skip_config,
+                    default: false,
+                    type: :boolean,
+                    banner: 'Skip config file'
       def start
         Phobos::CLI::Start.new(options).execute
       end
