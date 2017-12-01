@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## UNRELEASED
 ### Fixed
 - Test are failing with ruby-kafka 0.5.0 #48
+- Allow Phobos to run in apps using ActiveSupport 3.x #57
 
 ## [1.6.1] - 2017-11-16
 ### Fixed
