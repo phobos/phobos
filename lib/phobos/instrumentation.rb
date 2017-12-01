@@ -1,3 +1,5 @@
+require 'active_support/notifications'
+
 module Phobos
   module Instrumentation
     NAMESPACE = 'phobos'
