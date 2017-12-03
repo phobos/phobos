@@ -8,7 +8,6 @@ module Phobos
       def initialize(listener:, message:, listener_metadata:)
         @listener = listener
         @message = message
-        @listener_metadata = listener_metadata
         @metadata = listener_metadata.merge(
           key: message.key,
           partition: message.partition,
@@ -56,20 +55,13 @@ module Phobos
       end
 
       def process_message(payload)
-        instrument('listener.process_message', @metadata) do |metadata|
-          consume_result = nil
-          time_elapsed = measure do
-            handler = @listener.handler_class.new
-            preprocessed_payload = handler.before_consume(payload)
+        instrument('listener.process_message', @metadata) do
+          handler = @listener.handler_class.new
+          preprocessed_payload = handler.before_consume(payload)
 
-            @listener.handler_class.around_consume(preprocessed_payload, @metadata) do
-              consume_result = handler.consume(preprocessed_payload, @metadata)
-            end
+          @listener.handler_class.around_consume(preprocessed_payload, @metadata) do
+            handler.consume(preprocessed_payload, @metadata)
           end
-
-          metadata.merge!(time_elapsed: time_elapsed)
-
-          consume_result
         end
       end
     end

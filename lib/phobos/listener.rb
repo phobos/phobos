@@ -124,7 +124,7 @@ module Phobos
     private
 
     def listener_metadata
-      { listener_id: id, group_id: group_id, topic: topic }
+      { listener_id: id, group_id: group_id, topic: topic, handler: handler_class.to_s }
     end
 
     def create_kafka_consumer

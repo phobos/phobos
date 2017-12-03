@@ -378,32 +378,35 @@ end
     * listener_id
     * group_id
     * topic
+    * handler
   * `listener.start` is sent when listener starts. It includes the following payload:
     * listener_id
     * group_id
     * topic
+    * handler
   * `listener.process_batch` is sent after process a batch. It includes the following payload:
     * listener_id
     * group_id
     * topic
+    * handler
     * batch_size
     * partition
     * offset_lag
     * highwater_mark_offset
-    * time_elapsed
   * `listener.process_message` is sent after process a message. It includes the following payload:
     * listener_id
     * group_id
     * topic
+    * handler
     * key
     * partition
     * offset
     * retry_count
-    * time_elapsed
   * `listener.retry_handler_error` is sent after waited for `handler#consume` retry. It includes the following payload:
     * listener_id
     * group_id
     * topic
+    * handler
     * key
     * partition
     * offset
@@ -416,18 +419,22 @@ end
     * listener_id
     * group_id
     * topic
+    * handler
   * `listener.stopping` is sent when the listener receives signal to stop
     * listener_id
     * group_id
     * topic
+    * handler
   * `listener.stop_handler` is sent after stopping the handler
     * listener_id
     * group_id
     * topic
+    * handler
   * `listener.stop` is send after stopping the listener
     * listener_id
     * group_id
     * topic
+    * handler
 
 ## <a name="plugins"></a> Plugins
 

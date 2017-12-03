@@ -1,3 +1,5 @@
+require 'active_support/notifications'
+
 module Phobos
   module Instrumentation
     NAMESPACE = 'phobos'
@@ -16,12 +18,6 @@ module Phobos
       ActiveSupport::Notifications.instrument("#{NAMESPACE}.#{event}", extra) do |extra|
         yield(extra) if block_given?
       end
-    end
-
-    def measure
-      start = Time.now.utc
-      yield if block_given?
-      (Time.now.utc - start).round(3)
     end
   end
 end
