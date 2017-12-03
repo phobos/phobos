@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Property (handler) added to listener instrumentation
 ### Removed
 - Property (time_elapsed) removed #24 - use duration instead
+### Changed
+- Max bytes per partition is now 1 MB by default #56
 
 ## [1.6.1] - 2017-11-16
 ### Fixed
