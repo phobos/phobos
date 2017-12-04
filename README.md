@@ -445,6 +445,11 @@ List of gems that enhance Phobos:
   * Ensures that your handler will consume messages only once
   * Allows your system to quickly reprocess events in case of failures
 
+* [Phobos Prometheus](https://github.com/phobos/phobos_prometheus) adds prometheus metrics to your phobos consumer.
+  * Measures total messages and batches processed
+  * Measures total duration needed to process each message (and batch)
+  * Adds `/metrics` endpoit to scrape data
+
 ## <a name="development"></a> Development
 
 After checking out the repo:
