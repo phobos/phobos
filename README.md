@@ -445,10 +445,9 @@ List of gems that enhance Phobos:
   * Ensures that your handler will consume messages only once
   * Allows your system to quickly reprocess events in case of failures
 
-* [Phobos Checkpoint UI](https://github.com/klarna/phobos_checkpoint_ui) gives your Phobos DB Checkpoint powered app a responsive web app with the following features:
+* [Phobos Checkpoint UI](https://github.com/klarna/phobos_checkpoint_ui) gives your Phobos DB Checkpoint powered app a web gui with the features below. Maintaining a Kafka consumer app has never been smoother:
   * Search events and inspect payload
   * See failures and retry / delete them
-  * Maintaining a Kafka consumer has never been smoother
 
 * [Phobos Prometheus](https://github.com/phobos/phobos_prometheus) adds prometheus metrics to your phobos consumer.
   * Measures total messages and batches processed

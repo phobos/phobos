@@ -5,13 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
+
+## [1.7.0] - 2017-12-05
 ### Fixed
 - Test are failing with ruby-kafka 0.5.0 #48
 - Allow Phobos to run in apps using ActiveSupport 3.x #57
 ### Added
-- Property (handler) added to listener instrumentation
+- Property (handler) added to listener instrumentation #60
 ### Removed
-- Property (time_elapsed) removed #24 - use duration instead
+- Property (time_elapsed) removed - use duration instead #24
 ### Changed
 - Max bytes per partition is now 1 MB by default #56
 
