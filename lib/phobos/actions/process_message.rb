@@ -51,7 +51,7 @@ module Phobos
       private
 
       def force_encoding(value)
-        @listener.encoding ? value.force_encoding(@listener.encoding) : value
+        @listener.encoding ? value&.force_encoding(@listener.encoding) : value
       end
 
       def process_message(payload)
