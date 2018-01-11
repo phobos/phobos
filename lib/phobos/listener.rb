@@ -2,7 +2,14 @@ module Phobos
   class Listener
     include Phobos::Instrumentation
 
-    KAFKA_CONSUMER_OPTS = %i(session_timeout offset_commit_interval offset_commit_threshold heartbeat_interval).freeze
+    KAFKA_CONSUMER_OPTS = %i(
+      session_timeout
+      offset_commit_interval
+      offset_commit_threshold
+      heartbeat_interval
+      offset_retention_time
+    ).freeze
+
     DEFAULT_MAX_BYTES_PER_PARTITION = 1048576 # 1 MB
     DELIVERY_OPTS = %w[batch message].freeze
 
