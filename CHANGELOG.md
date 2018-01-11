@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
+### Fixed
+- Possible NoMethodError #force_encoding #63
 
 ## [1.7.0] - 2017-12-05
 ### Fixed
