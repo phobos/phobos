@@ -13,11 +13,9 @@ module Phobos
         )
 
         message = Kafka::FetchedMessage.new(
-          value: payload,
-          key: nil,
+          message: Kafka::Protocol::Message.new(value: payload, key: nil, offset: 13),
           topic: TOPIC,
-          partition: 0,
-          offset: 13,
+          partition: 0
         )
 
         Phobos::Actions::ProcessMessage.new(

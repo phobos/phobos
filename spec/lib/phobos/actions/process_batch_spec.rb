@@ -14,11 +14,22 @@ RSpec.describe Phobos::Actions::ProcessBatch do
       topic: topic
     )
   end
-  let(:message1) { Kafka::FetchedMessage.new(value: 'value-1', key: 'key-1', topic: topic, partition: 1, offset: 2) }
-  let(:message2) { Kafka::FetchedMessage.new(value: 'value-2', key: 'key-2', topic: topic, partition: 3, offset: 4) }
-  let(:messages) { [message1, message2]}
+  let(:message1) do
+    Kafka::FetchedMessage.new(
+      message: Kafka::Protocol::Message.new(value: 'value-1', key: 'key-1', offset: 2),
+      topic: topic,
+      partition: 1
+    )
+  end
+  let(:message2) do
+    Kafka::FetchedMessage.new(
+      message: Kafka::Protocol::Message.new(value: 'value-2', key: 'key-2', offset: 4),
+      topic: topic,
+      partition: 3
+    )
+  end
   let(:batch) {
-    Kafka::FetchedBatch.new(topic: 'foo', partition: 1, highwater_mark_offset: 1, messages: messages)
+    Kafka::FetchedBatch.new(topic: 'foo', partition: 1, highwater_mark_offset: 1, messages: [message1, message2])
   }
 
   subject { described_class.new(listener: listener, batch: batch, listener_metadata: listener_metadata) }

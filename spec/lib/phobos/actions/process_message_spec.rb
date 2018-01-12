@@ -9,11 +9,9 @@ RSpec.describe Phobos::Actions::ProcessMessage do
   let(:topic) { 'test-topic' }
   let(:message) do
     Kafka::FetchedMessage.new(
-      value: payload,
-      key: 'key-1',
+      message: Kafka::Protocol::Message.new(value: payload, key: 'key-1', offset: 2),
       topic: topic,
       partition: 1,
-      offset: 2
     )
   end
   let(:metadata) { Hash(foo: 'bar') }
