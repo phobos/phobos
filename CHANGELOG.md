@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## UNRELEASED
 ### Fixed
 - Possible NoMethodError #force_encoding #63
+### Added
+- Add offset_retention_time to consumer options #62
 
 ## [1.7.0] - 2017-12-05
 ### Fixed

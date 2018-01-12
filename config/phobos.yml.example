@@ -70,6 +70,8 @@ consumer:
   # number of messages that can be processed before their offsets are committed.
   # If zero, offset commits are not triggered by message processing
   offset_commit_threshold: 0
+  # the time period that committed offsets will be retained, in seconds. Defaults to the broker setting.
+  offset_retention_time:
   # interval between heartbeats; must be less than the session window
   heartbeat_interval: 10
 
