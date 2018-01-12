@@ -67,6 +67,18 @@ RSpec.describe Phobos::Actions::ProcessMessage do
         ).execute
       end
     end
+
+    it "passes on messages with no content untouched" do
+      expect(handler).to receive(:consume) do |handler_payload, _|
+        expect(handler_payload).to be nil
+      end
+
+      described_class.new(
+        listener: listener,
+        message: OpenStruct.new(value: nil),
+        listener_metadata: metadata
+      ).execute
+    end
   end
 
   context 'when processing fails' do
