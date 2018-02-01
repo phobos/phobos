@@ -88,7 +88,9 @@ module Phobos
         retry_count += 1
         retry unless @signal_to_stop
       end
+    rescue Exception => e
+      Phobos.logger.error { Hash(message: "Listener crashed (#{e.message})", backtrace: e.backtrace) }
+      raise e
     end
-
   end
 end
