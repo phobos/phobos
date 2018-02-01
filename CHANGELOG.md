@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## UNRELEASED
 ### Fixed
 - Possible NoMethodError #force_encoding #63
+- Phobos fails silently #66
 ### Added
 - Add offset_retention_time to consumer options #62
 
