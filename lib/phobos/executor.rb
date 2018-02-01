@@ -58,6 +58,14 @@ module Phobos
 
     private
 
+    def error_metadata(e)
+      {
+        exception_class: e.class.name,
+        exception_message: e.message,
+        backtrace: e.backtrace
+      }
+    end
+
     def run_listener(listener)
       retry_count = 0
       backoff = listener.create_exponential_backoff
@@ -74,11 +82,8 @@ module Phobos
         metadata = {
           listener_id: listener.id,
           retry_count: retry_count,
-          waiting_time: interval,
-          exception_class: e.class.name,
-          exception_message: e.message,
-          backtrace: e.backtrace
-        }
+          waiting_time: interval
+        }.merge(error_metadata(e))
 
         instrument('executor.retry_listener_error', metadata) do
           Phobos.logger.error { Hash(message: "Listener crashed, waiting #{interval}s (#{e.message})").merge(metadata)}
@@ -89,7 +94,7 @@ module Phobos
         retry unless @signal_to_stop
       end
     rescue Exception => e
-      Phobos.logger.error { Hash(message: "Listener crashed (#{e.message})", backtrace: e.backtrace) }
+      Phobos.logger.error { Hash(message: "Failed to run listener (#{e.message})").merge(error_metadata(e)) }
       raise e
     end
   end
