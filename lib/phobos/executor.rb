@@ -48,7 +48,7 @@ module Phobos
       return if @signal_to_stop
       instrument('executor.stop') do
         @signal_to_stop = true
-        @listeners.map(&:stop)
+        @listeners.each(&:stop)
         @threads.select(&:alive?).each { |thread| thread.wakeup rescue nil }
         @thread_pool&.shutdown
         @thread_pool&.wait_for_termination
