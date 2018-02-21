@@ -31,13 +31,12 @@ module Phobos
     attr_accessor :silence_log
 
     def configure(configuration)
-      ENV['RAILS_ENV'] = ENV['RACK_ENV'] ||= 'development'
       @config = DeepStruct.new(fetch_settings(configuration))
       @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash }
       @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
       @config.listeners ||= []
       configure_logger
-      logger.info { Hash(message: 'Phobos configured', env: ENV['RACK_ENV']) }
+      logger.info { Hash(message: 'Phobos configured', env: ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'N/A') }
     end
 
     def add_listeners(listeners_configuration)
