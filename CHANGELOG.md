@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
 ### Fixed
+- Phobos overwrites ENV['RAILS_ENV'] with incorrect value #71
 - Possible NoMethodError #force_encoding #63
 - Phobos fails silently #66
 ### Added
