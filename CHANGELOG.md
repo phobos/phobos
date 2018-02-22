@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
+
+## [1.7.1] - 2018-02-22
 ### Fixed
 - Phobos overwrites ENV['RAILS_ENV'] with incorrect value #71
 - Possible NoMethodError #force_encoding #63
