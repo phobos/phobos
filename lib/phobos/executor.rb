@@ -12,6 +12,11 @@ module Phobos
       max_bytes_per_partition
       backoff
       delivery
+      session_timeout
+      offset_commit_interval
+      offset_commit_threshold
+      heartbeat_interval
+      offset_retention_time
     ).freeze
 
     def initialize
