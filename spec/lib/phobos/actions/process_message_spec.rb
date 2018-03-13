@@ -5,6 +5,15 @@ RSpec.describe Phobos::Actions::ProcessMessage do
     include Phobos::Handler
   end
 
+  # For backwards compatibility
+  class TestHandler2 < Phobos::EchoHandler
+    include Phobos::Handler
+
+    def self.around_consume(payload, metadata)
+      yield
+    end
+  end
+
   let(:payload) { 'message-1234' }
   let(:topic) { 'test-topic' }
   let(:message) do
@@ -32,11 +41,29 @@ RSpec.describe Phobos::Actions::ProcessMessage do
   end
 
   it 'processes the message by calling around consume, before consume and consume of the handler' do
-    expect(TestHandler).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
+    expect_any_instance_of(TestHandler).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
     expect_any_instance_of(TestHandler).to receive(:before_consume).with(payload).once.and_call_original
     expect_any_instance_of(TestHandler).to receive(:consume).with(payload, subject.metadata).once.and_call_original
 
     subject.execute
+  end
+
+  context '.around_consumed defined' do
+    let(:listener) do
+      Phobos::Listener.new(
+        handler: TestHandler2,
+        group_id: 'test-group',
+        topic: topic
+      )
+    end
+
+    it 'supports and prefers around_consume if defined as a class method' do
+      expect(TestHandler2).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
+      expect_any_instance_of(TestHandler2).to receive(:before_consume).with(payload).once.and_call_original
+      expect_any_instance_of(TestHandler2).to receive(:consume).with(payload, subject.metadata).once.and_call_original
+
+      subject.execute
+    end
   end
 
   context 'with encoding' do

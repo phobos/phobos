@@ -58,9 +58,12 @@ module Phobos
         instrument('listener.process_message', @metadata) do
           handler = @listener.handler_class.new
           preprocessed_payload = handler.before_consume(payload)
+          consume_block = Proc.new { handler.consume(preprocessed_payload, @metadata) }
 
-          @listener.handler_class.around_consume(preprocessed_payload, @metadata) do
-            handler.consume(preprocessed_payload, @metadata)
+          if @listener.handler_class.respond_to?(:around_consume)
+            @listener.handler_class.around_consume(preprocessed_payload, @metadata, &consume_block)
+          else
+            handler.around_consume(preprocessed_payload, @metadata, &consume_block)
           end
         end
       end
