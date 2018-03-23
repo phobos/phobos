@@ -20,7 +20,11 @@ module Phobos
                    max_wait_time: nil, force_encoding: nil,
                    start_from_beginning: true, backoff: nil,
                    delivery: 'batch',
-                   max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION)
+                   max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION,
+                   session_timeout: nil, offset_commit_interval: nil,
+                   heartbeat_interval: nil, offset_commit_threshold: nil,
+                   offset_retention_time: nil
+                  )
       @id = SecureRandom.hex[0...6]
       @handler_class = handler
       @group_id = group_id
@@ -31,8 +35,15 @@ module Phobos
         start_from_beginning: start_from_beginning,
         max_bytes_per_partition: max_bytes_per_partition
       }
+      @kafka_consumer_opts = compact(
+        session_timeout: session_timeout,
+        offset_commit_interval: offset_commit_interval,
+        heartbeat_interval: heartbeat_interval,
+        offset_retention_time: offset_retention_time,
+        offset_commit_threshold: offset_commit_threshold
+      )
       @encoding = Encoding.const_get(force_encoding.to_sym) if force_encoding
-      @consumer_opts = compact(min_bytes: min_bytes, max_wait_time: max_wait_time)
+      @message_processing_opts = compact(min_bytes: min_bytes, max_wait_time: max_wait_time)
       @kafka_client = Phobos.create_kafka_client
       @producer_enabled = @handler_class.ancestors.include?(Phobos::Producer)
     end
@@ -84,7 +95,7 @@ module Phobos
     end
 
     def consume_each_batch
-      @consumer.each_batch(@consumer_opts) do |batch|
+      @consumer.each_batch(@message_processing_opts) do |batch|
         batch_processor = Phobos::Actions::ProcessBatch.new(
           listener: self,
           batch: batch,
@@ -98,7 +109,7 @@ module Phobos
     end
 
     def consume_each_message
-      @consumer.each_message(@consumer_opts) do |message|
+      @consumer.each_message(@message_processing_opts) do |message|
         message_processor = Phobos::Actions::ProcessMessage.new(
           listener: self,
           message: message,
@@ -136,6 +147,7 @@ module Phobos
 
     def create_kafka_consumer
       configs = Phobos.config.consumer_hash.select { |k| KAFKA_CONSUMER_OPTS.include?(k) }
+      configs.merge!(@kafka_consumer_opts)
       @kafka_client.consumer({ group_id: group_id }.merge(configs))
     end
 

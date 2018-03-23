@@ -114,3 +114,10 @@ listeners:
     backoff:
       min_ms: 500
       max_ms: 10000
+    # session_timeout, offset_commit_interval, offset_commit_threshold, offset_retention_time, and heartbeat_interval
+    # can be customized per listener if desired
+    session_timeout: 30
+    offset_commit_interval: 15
+    offset_commit_threshold: 5
+    offset_retention_time: 172800
+    heartbeat_interval: 20

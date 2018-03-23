@@ -21,6 +21,11 @@ RSpec.describe Phobos::Listener do
   let(:min_bytes) { 2 }
   let(:force_encoding) { nil }
   let(:listener_backoff) { nil }
+  let(:session_timeout) { nil }
+  let(:offset_commit_interval) { nil }
+  let(:offset_commit_threshold) { nil }
+  let(:heartbeat_interval) { nil }
+  let(:offset_retention_time) { nil }
   let(:delivery) { 'batch' }
   let :handler_config do
     {
@@ -33,6 +38,11 @@ RSpec.describe Phobos::Listener do
       min_bytes: min_bytes,
       force_encoding: force_encoding,
       backoff: listener_backoff,
+      offset_commit_interval: offset_commit_interval,
+      offset_commit_threshold: offset_commit_threshold,
+      offset_retention_time: offset_retention_time,
+      session_timeout: session_timeout,
+      heartbeat_interval: heartbeat_interval,
       delivery: delivery
     }
   end
@@ -241,6 +251,49 @@ RSpec.describe Phobos::Listener do
         backoff = listener.create_exponential_backoff
         expect(backoff.instance_variable_get(:@minimal_interval)).to eq(1234)
         expect(backoff.instance_variable_get(:@maximum_elapsed_time)).to eq(5678)
+      end
+    end
+  end
+
+  context 'kafka consumer opts' do
+    let(:default_consumer_opts) { Phobos.config.consumer_hash.merge(group_id: group_id) }
+
+    it 'uses the consumer defined options' do
+      expect_any_instance_of(Kafka::Client)
+        .to receive(:consumer)
+        .with(default_consumer_opts)
+        .once
+        .and_call_original
+
+      subscribe_to(*LISTENER_EVENTS) { thread }
+      wait_for_event('listener.start')
+    end
+
+    describe 'when custom options are set' do
+      let(:session_timeout) { 60 }
+      let(:offset_retention_time) { 3600 }
+      let(:heartbeat_interval) { 20 }
+      let(:offset_commit_interval) { 20 }
+      let(:offset_commit_threshold) { 3 }
+      let(:kafka_consumer_opts) do
+        default_consumer_opts.merge(
+          session_timeout: session_timeout,
+          offset_retention_time: offset_retention_time,
+          offset_commit_interval: offset_commit_interval,
+          offset_commit_threshold: offset_commit_threshold,
+          heartbeat_interval: heartbeat_interval
+        )
+      end
+
+      it 'uses the custom options' do
+        expect_any_instance_of(Kafka::Client)
+          .to receive(:consumer)
+          .with(kafka_consumer_opts)
+          .once
+          .and_call_original
+
+        subscribe_to(*LISTENER_EVENTS) { thread }
+        wait_for_event('listener.start')
       end
     end
   end
