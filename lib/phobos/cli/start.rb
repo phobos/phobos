@@ -15,12 +15,12 @@ module Phobos
       end
 
       def execute
+        load_boot_file
+
         if config_file
           validate_config_file!
           Phobos.configure(config_file)
         end
-
-        load_boot_file
 
         if listeners_file
           Phobos.add_listeners(listeners_file)
