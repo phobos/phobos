@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
 
+## [1.7.2] - 2018-05-03
+### Added
+- Add ability to override session_timeout, heartbeat_interval, offset_retention_time, offset_commit_interval, and offset_commit_threshold per listener
+### Changed
+- Phobos CLI: Load boot file before configuring (instead of after)
+
 ## [1.7.1] - 2018-02-22
 ### Fixed
 - Phobos overwrites ENV['RAILS_ENV'] with incorrect value #71
