@@ -13,7 +13,7 @@ services:
       - ./coverage:/opt/phobos/coverage
 
   zookeeper:
-    image: jplock/zookeeper:3.4.10
+    image: wurstmeister/zookeeper:latest
     ports:
      - 2181:2181
 
