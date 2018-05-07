@@ -6,7 +6,7 @@ RSpec.describe Phobos::CLI do
   describe '$ phobos' do
     it 'prints help text' do
       output = capture_stdout { Phobos::CLI::Commands.start([]) }
-      expect(output).to include 'help [COMMAND]  # Describe available commands or one specific command'
+      expect(output).to include 'help [COMMAND]  # Describe available commands or one...'
     end
   end
 
