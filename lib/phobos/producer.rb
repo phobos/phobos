@@ -13,12 +13,12 @@ module Phobos
         @host_obj = host_obj
       end
 
-      def publish(topic, payload, key = nil)
-        class_producer.publish(topic, payload, key)
+      def publish(topic, payload, key = nil, headers = {})
+        class_producer.publish(topic, payload, key, headers)
       end
 
-      def async_publish(topic, payload, key = nil)
-        class_producer.async_publish(topic, payload, key)
+      def async_publish(topic, payload, key = nil, headers = {})
+        class_producer.async_publish(topic, payload, key, headers)
       end
 
       # @param messages [Array(Hash(:topic, :payload, :key))]
@@ -65,8 +65,8 @@ module Phobos
           producer_store[:kafka_client]
         end
 
-        def publish(topic, payload, key = nil)
-          publish_list([{ topic: topic, payload: payload, key: key }])
+        def publish(topic, payload, key = nil, headers = {})
+          publish_list([{ topic: topic, payload: payload, key: key, headers: headers }])
         end
 
         def publish_list(messages)
@@ -88,8 +88,8 @@ module Phobos
           producer_store[:async_producer]
         end
 
-        def async_publish(topic, payload, key = nil)
-          async_publish_list([{ topic: topic, payload: payload, key: key }])
+        def async_publish(topic, payload, key = nil, headers = {})
+          async_publish_list([{ topic: topic, payload: payload, key: key, headers: headers }])
         end
 
         def async_publish_list(messages)
@@ -116,9 +116,11 @@ module Phobos
 
         def produce_messages(producer, messages)
           messages.each do |message|
+            headers = message[:headers].transform_keys(&:to_s).transform_values(&:to_s)
             producer.produce(message[:payload], topic: message[:topic],
                                                 key: message[:key],
-                                                partition_key: message[:key]
+                                                partition_key: message[:key],
+                                                headers: headers
             )
           end
         end

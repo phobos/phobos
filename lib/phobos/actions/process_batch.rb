@@ -12,7 +12,8 @@ module Phobos
         @metadata = listener_metadata.merge(
           batch_size: batch.messages.count,
           partition: batch.partition,
-          offset_lag: batch.offset_lag
+          offset_lag: batch.offset_lag,
+
         )
       end
 
