@@ -139,6 +139,11 @@ module Phobos
       @signal_to_stop == true
     end
 
+    def send_heartbeat_if_necessary
+      return if should_stop?
+      @consumer&.try(:send_heartbeat_if_necessary)
+    end
+
     private
 
     def listener_metadata
