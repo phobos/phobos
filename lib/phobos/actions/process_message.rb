@@ -1,6 +1,8 @@
 module Phobos
   module Actions
     class ProcessMessage
+      MAX_SLEEP_INTERVAL = 3
+
       include Phobos::Instrumentation
 
       attr_reader :metadata
@@ -38,13 +40,23 @@ module Phobos
               { message: "error processing message, waiting #{interval}s" }.merge(error).merge(@metadata)
             end
 
-            sleep interval
+            snooze(interval)
           end
-
-          raise Phobos::AbortError if @listener.should_stop?
 
           @metadata.merge!(retry_count: retry_count + 1)
           retry
+        end
+      end
+
+      def snooze(interval)
+        remaining_interval = interval
+
+        @listener.send_heartbeat_if_necessary
+
+        while remaining_interval.positive?
+          sleep [remaining_interval, MAX_SLEEP_INTERVAL].min
+          remaining_interval -= MAX_SLEEP_INTERVAL
+          @listener.send_heartbeat_if_necessary
         end
       end
 
