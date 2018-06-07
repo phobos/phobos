@@ -103,7 +103,7 @@ module Phobos
         )
 
         batch_processor.execute
-        Phobos.logger.info { Hash(message: 'Committed offset').merge(batch_processor.metadata) }
+        Phobos.logger.debug { Hash(message: 'Committed offset').merge(batch_processor.metadata) }
         return if should_stop?
       end
     end
@@ -117,7 +117,7 @@ module Phobos
         )
 
         message_processor.execute
-        Phobos.logger.info { Hash(message: 'Committed offset').merge(message_processor.metadata) }
+        Phobos.logger.debug { Hash(message: 'Committed offset').merge(message_processor.metadata) }
         return if should_stop?
       end
     end
