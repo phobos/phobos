@@ -1,17 +1,15 @@
+# frozen_string_literal: true
+
 require 'phobos/cli/runner'
 
 module Phobos
   module CLI
     class Start
       def initialize(options)
-        unless options[:skip_config]
-          @config_file = File.expand_path(options[:config])
-        end
+        @config_file = File.expand_path(options[:config]) unless options[:skip_config]
         @boot_file = File.expand_path(options[:boot])
 
-        if options[:listeners]
-          @listeners_file = File.expand_path(options[:listeners])
-        end
+        @listeners_file = File.expand_path(options[:listeners]) if options[:listeners]
       end
 
       def execute
@@ -22,9 +20,7 @@ module Phobos
           Phobos.configure(config_file)
         end
 
-        if listeners_file
-          Phobos.add_listeners(listeners_file)
-        end
+        Phobos.add_listeners(listeners_file) if listeners_file
 
         validate_listeners!
 

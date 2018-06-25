@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Phobos
   module Producer
     def self.included(base)
@@ -49,7 +51,7 @@ module Phobos
 
       class PublicAPI
         NAMESPACE = :phobos_producer_store
-        ASYNC_PRODUCER_PARAMS = %i(max_queue_size delivery_threshold delivery_interval).freeze
+        ASYNC_PRODUCER_PARAMS = [:max_queue_size, :delivery_threshold, :delivery_interval].freeze
 
         # This method configures the kafka client used with publish operations
         # performed by the host class
@@ -105,7 +107,7 @@ module Phobos
         end
 
         def regular_configs
-          Phobos.config.producer_hash.reject { |k, _| ASYNC_PRODUCER_PARAMS.include?(k)}
+          Phobos.config.producer_hash.reject { |k, _| ASYNC_PRODUCER_PARAMS.include?(k) }
         end
 
         def async_configs
@@ -118,8 +120,7 @@ module Phobos
           messages.each do |message|
             producer.produce(message[:payload], topic: message[:topic],
                                                 key: message[:key],
-                                                partition_key: message[:key]
-            )
+                                                partition_key: message[:key])
           end
         end
 

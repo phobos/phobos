@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Phobos::Listener do
@@ -76,8 +78,8 @@ RSpec.describe Phobos::Listener do
 
       expect(handler)
         .to receive(:consume)
-        .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
-        .once { Timecop.freeze(now + 0.1) }
+          .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
+          .once { Timecop.freeze(now + 0.1) }
 
       producer.publish(topic, 'message-1')
 
@@ -134,8 +136,8 @@ RSpec.describe Phobos::Listener do
 
       expect(handler)
         .to receive(:consume)
-        .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
-        .once { Timecop.freeze(now + 0.1) }
+          .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
+          .once { Timecop.freeze(now + 0.1) }
 
       producer.publish(topic, 'message-1')
 
@@ -244,7 +246,7 @@ RSpec.describe Phobos::Listener do
 
     context 'when custom backoff is set' do
       let(:listener_backoff) do
-        { min_ms: 1234000, max_ms: 5678000 }
+        { min_ms: 1_234_000, max_ms: 5_678_000 }
       end
 
       it 'uses the custom backoff' do

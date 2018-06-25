@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Phobos::Producer do
@@ -65,9 +67,9 @@ RSpec.describe Phobos::Producer do
         expect(kafka_client).to_not receive(:close)
 
         subject.producer.publish_list([
-          { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
-          { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
-        ])
+                                        { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
+                                        { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+                                      ])
       end
     end
 
@@ -96,9 +98,9 @@ RSpec.describe Phobos::Producer do
         expect(kafka_client).to_not receive(:close)
 
         subject.producer.publish_list([
-          { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
-          { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
-        ])
+                                        { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
+                                        { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+                                      ])
       end
     end
   end
@@ -141,9 +143,9 @@ RSpec.describe Phobos::Producer do
             TestProducer1.producer.configure_kafka_client(kafka_client)
 
             subject.producer.async_publish_list([
-              { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
-              { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
-            ])
+                                                  { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
+                                                  { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+                                                ])
           end.join
         end
       end
@@ -163,9 +165,9 @@ RSpec.describe Phobos::Producer do
             TestProducer1.producer.configure_kafka_client(kafka_client)
 
             subject.producer.async_publish_list([
-              { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
-              { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
-            ])
+                                                  { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
+                                                  { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+                                                ])
           end.join
         end
       end
@@ -181,9 +183,9 @@ RSpec.describe Phobos::Producer do
             TestProducer1.producer.configure_kafka_client(kafka_client)
 
             subject.producer.async_publish_list([
-              { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
-              { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
-            ])
+                                                  { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
+                                                  { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+                                                ])
           end.join
         end
       end

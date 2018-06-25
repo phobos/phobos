@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Phobos
   module Actions
     class ProcessMessage
@@ -22,7 +24,7 @@ module Phobos
 
         begin
           process_message(payload)
-        rescue => e
+        rescue StandardError => e
           retry_count = @metadata[:retry_count]
           interval = backoff.interval_at(retry_count).round(2)
 
@@ -43,7 +45,7 @@ module Phobos
 
           raise Phobos::AbortError if @listener.should_stop?
 
-          @metadata.merge!(retry_count: retry_count + 1)
+          @metadata[:retry_count] = retry_count + 1
           retry
         end
       end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ostruct'
 require 'securerandom'
 require 'yaml'
@@ -62,9 +64,9 @@ module Phobos
       json_layout = Logging.layouts.json(date_pattern: date_pattern)
 
       stdout_layout = if config.logger.stdout_json == true
-        json_layout
-      else
-        Logging.layouts.pattern(date_pattern: date_pattern)
+                        json_layout
+                      else
+                        Logging.layouts.pattern(date_pattern: date_pattern)
       end
 
       appenders = [Logging.appenders.stdout(layout: stdout_layout)]
@@ -94,7 +96,14 @@ module Phobos
     def fetch_settings(configuration)
       return configuration.to_h if configuration.respond_to?(:to_h)
 
-      YAML.load(ERB.new(File.read(File.expand_path(configuration))).result)
+      YAML.safe_load(
+        ERB.new(
+          File.read(File.expand_path(configuration))
+        ).result,
+        [Symbol],
+        [],
+        true
+      )
     end
   end
 end

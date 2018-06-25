@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Phobos::Actions::ProcessBatch do
@@ -28,9 +30,9 @@ RSpec.describe Phobos::Actions::ProcessBatch do
       partition: 3
     )
   end
-  let(:batch) {
+  let(:batch) do
     Kafka::FetchedBatch.new(topic: 'foo', partition: 1, highwater_mark_offset: 1, messages: [message1, message2])
-  }
+  end
 
   subject { described_class.new(listener: listener, batch: batch, listener_metadata: listener_metadata) }
 

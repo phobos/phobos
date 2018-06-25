@@ -1,16 +1,12 @@
+# frozen_string_literal: true
+
 module Phobos
   class Listener
     include Phobos::Instrumentation
 
-    KAFKA_CONSUMER_OPTS = %i(
-      session_timeout
-      offset_commit_interval
-      offset_commit_threshold
-      heartbeat_interval
-      offset_retention_time
-    ).freeze
+    KAFKA_CONSUMER_OPTS = [:session_timeout, :offset_commit_interval, :offset_commit_threshold, :heartbeat_interval, :offset_retention_time].freeze
 
-    DEFAULT_MAX_BYTES_PER_PARTITION = 1048576 # 1 MB
+    DEFAULT_MAX_BYTES_PER_PARTITION = 1_048_576 # 1 MB
     DELIVERY_OPTS = %w[batch message].freeze
 
     attr_reader :group_id, :topic, :id
@@ -23,8 +19,7 @@ module Phobos
                    max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION,
                    session_timeout: nil, offset_commit_interval: nil,
                    heartbeat_interval: nil, offset_commit_threshold: nil,
-                   offset_retention_time: nil
-                  )
+                   offset_retention_time: nil)
       @id = SecureRandom.hex[0...6]
       @handler_class = handler
       @group_id = group_id
@@ -75,7 +70,6 @@ module Phobos
           Phobos.logger.info({ message: 'Retry loop aborted, listener is shutting down' }.merge(listener_metadata))
         end
       end
-
     ensure
       instrument('listener.stop', listener_metadata) do
         instrument('listener.stop_handler', listener_metadata) { @handler_class.stop }

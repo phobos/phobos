@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'phobos/cli'
 
 RSpec.describe Phobos::CLI do
-
   describe '$ phobos' do
     it 'prints help text' do
       output = capture_stdout { Phobos::CLI::Commands.start([]) }
@@ -41,5 +42,4 @@ RSpec.describe Phobos::CLI do
       Phobos::CLI::Commands.start(args)
     end
   end
-
 end

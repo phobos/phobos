@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 require 'thor'
 require 'phobos/cli/start'
 
 module Phobos
   module CLI
-
     def self.logger
       @logger ||= Logging.logger[self].tap do |l|
         l.appenders = [Logging.appenders.stdout]

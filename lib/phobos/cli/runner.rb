@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 module Phobos
   module CLI
     class Runner
-
-      SIGNALS = %i( INT TERM QUIT ).freeze
+      SIGNALS = [:INT, :TERM, :QUIT].freeze
 
       def initialize
         @signal_queue = []
@@ -42,7 +43,6 @@ module Phobos
         writer.write_nonblock('.')
         signal_queue << signal
       end
-
     end
   end
 end

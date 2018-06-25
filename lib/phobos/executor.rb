@@ -1,23 +1,9 @@
+# frozen_string_literal: true
+
 module Phobos
   class Executor
     include Phobos::Instrumentation
-    LISTENER_OPTS = %i(
-      handler
-      group_id
-      topic
-      min_bytes
-      max_wait_time
-      force_encoding
-      start_from_beginning
-      max_bytes_per_partition
-      backoff
-      delivery
-      session_timeout
-      offset_commit_interval
-      offset_commit_threshold
-      heartbeat_interval
-      offset_retention_time
-    ).freeze
+    LISTENER_OPTS = [:handler, :group_id, :topic, :min_bytes, :max_wait_time, :force_encoding, :start_from_beginning, :max_bytes_per_partition, :backoff, :delivery, :session_timeout, :offset_commit_interval, :offset_commit_threshold, :heartbeat_interval, :offset_retention_time].freeze
 
     def initialize
       @threads = Concurrent::Array.new
@@ -54,7 +40,11 @@ module Phobos
       instrument('executor.stop') do
         @signal_to_stop = true
         @listeners.each(&:stop)
-        @threads.select(&:alive?).each { |thread| thread.wakeup rescue nil }
+        @threads.select(&:alive?).each do |thread|
+          thread.wakeup
+        rescue StandardError
+          nil
+        end
         @thread_pool&.shutdown
         @thread_pool&.wait_for_termination
         Phobos.logger.info { Hash(message: 'Executor stopped') }
@@ -91,7 +81,7 @@ module Phobos
         }.merge(error_metadata(e))
 
         instrument('executor.retry_listener_error', metadata) do
-          Phobos.logger.error { Hash(message: "Listener crashed, waiting #{interval}s (#{e.message})").merge(metadata)}
+          Phobos.logger.error { Hash(message: "Listener crashed, waiting #{interval}s (#{e.message})").merge(metadata) }
           sleep interval
         end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Phobos
   module Handler
     def self.included(base)
@@ -8,18 +10,16 @@ module Phobos
       payload
     end
 
-    def consume(payload, metadata)
+    def consume(_payload, _metadata)
       raise NotImplementedError
     end
 
     module ClassMethods
-      def start(kafka_client)
-      end
+      def start(kafka_client); end
 
-      def stop
-      end
+      def stop; end
 
-      def around_consume(payload, metadata)
+      def around_consume(_payload, _metadata)
         yield
       end
     end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'phobos/cli'
 
@@ -8,7 +10,7 @@ RSpec.describe Phobos::CLI::Start do
       expect { start.execute }.to raise_error SystemExit
     end
 
-    context "when called with `skip_config` option not passed" do
+    context 'when called with `skip_config` option not passed' do
       let(:start) { Phobos::CLI::Start.new(config: phobos_config_path, boot: 'phobos_boot.rb') }
 
       it 'calls Phobos.configure with config file' do

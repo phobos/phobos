@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Phobos::DeepStruct do
@@ -5,9 +7,9 @@ RSpec.describe Phobos::DeepStruct do
     {
       a: 1,
       b: [2, 3],
-      c: {x: 4, y: 5},
-      d: [{j: 6}, {j: 7}],
-      e: [8, {x: 9}]
+      c: { x: 4, y: 5 },
+      d: [{ j: 6 }, { j: 7 }],
+      e: [8, { x: 9 }]
     }
   end
 
