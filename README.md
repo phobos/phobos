@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/klarna/phobos.svg?branch=master)](https://travis-ci.org/klarna/phobos)
 [![Maintainability](https://api.codeclimate.com/v1/badges/2d00845fc6e7e83df6e7/maintainability)](https://codeclimate.com/github/klarna/phobos/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/2d00845fc6e7e83df6e7/test_coverage)](https://codeclimate.com/github/klarna/phobos/test_coverage)
+[![Depfu](https://badges.depfu.com/badges/57da3d5ff1da449cf8739cfe30b8d2f8/count.svg)](https://depfu.com/github/klarna/phobos?project=Bundler)
 [![Chat with us on Discord](https://discordapp.com/api/guilds/379938130326847488/widget.png)](https://discord.gg/rfMUBVD)
 
 # Phobos
