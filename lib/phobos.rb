@@ -55,6 +55,7 @@ module Phobos
       ExponentialBackoff.new(min, max).tap { |backoff| backoff.randomize_factor = rand }
     end
 
+    # :nodoc:
     def configure_logger
       log_file = config.logger.file
       ruby_kafka = config.logger.ruby_kafka
@@ -62,10 +63,10 @@ module Phobos
       json_layout = Logging.layouts.json(date_pattern: date_pattern)
 
       stdout_layout = if config.logger.stdout_json == true
-        json_layout
-      else
-        Logging.layouts.pattern(date_pattern: date_pattern)
-      end
+                        json_layout
+                      else
+                        Logging.layouts.pattern(date_pattern: date_pattern)
+                      end
 
       appenders = [Logging.appenders.stdout(layout: stdout_layout)]
 
@@ -77,16 +78,20 @@ module Phobos
         appenders << Logging.appenders.file(log_file, layout: json_layout)
       end
 
-      @ruby_kafka_logger = nil
+      @ruby_kafka_logger = config.custom_kafka_logger
 
-      if ruby_kafka
+      if ruby_kafka && @ruby_kafka_logger.nil?
         @ruby_kafka_logger = Logging.logger['RubyKafka']
         @ruby_kafka_logger.appenders = appenders
         @ruby_kafka_logger.level = silence_log ? :fatal : ruby_kafka.level
       end
 
-      @logger = Logging.logger[self]
-      @logger.appenders = appenders
+      if config.custom_logger
+        @logger = config.custom_logger
+      else
+        @logger = Logging.logger[self]
+        @logger.appenders = appenders
+      end
     end
 
     private
