@@ -33,6 +33,32 @@ RSpec.describe Phobos do
         expect(Phobos.config.kafka.client_id).to eq('client_id')
         expect(Phobos.config.logger.file).to eq('log/phobos.log')
       end
+
+      it 'sets custom loggers' do
+        logger = Logger.new(STDOUT)
+        kafka_logger = Logger.new(STDOUT)
+        configuration_settings = {
+          kafka: { client_id: 'client_id' },
+          logger: { file: 'log/phobos.log' },
+          custom_logger: logger,
+          custom_kafka_logger: kafka_logger
+        }
+
+        Phobos.instance_variable_set(:@config, nil)
+        Phobos.configure(configuration_settings)
+
+        expect(Phobos.config).to_not be_nil
+        expect(Phobos.config.kafka.client_id).to eq('client_id')
+        expect(Phobos.logger).to eq(logger)
+
+        expect(Kafka).to receive(:new).with(
+          {
+            client_id: 'client_id',
+            logger: kafka_logger
+          })
+        Phobos.create_kafka_client
+      end
+
     end
   end
 

@@ -78,9 +78,11 @@ module Phobos
         appenders << Logging.appenders.file(log_file, layout: json_layout)
       end
 
-      @ruby_kafka_logger = config.custom_kafka_logger
+      @ruby_kafka_logger = nil
 
-      if ruby_kafka && @ruby_kafka_logger.nil?
+      if config.custom_kafka_logger
+        @ruby_kafka_logger = config.custom_kafka_logger
+      elsif ruby_kafka
         @ruby_kafka_logger = Logging.logger['RubyKafka']
         @ruby_kafka_logger.appenders = appenders
         @ruby_kafka_logger.level = silence_log ? :fatal : ruby_kafka.level
