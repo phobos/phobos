@@ -33,7 +33,7 @@ RSpec.describe Phobos::Actions::ProcessMessage do
 
   it 'processes the message by calling around consume, before consume and consume of the handler' do
     expect(TestHandler).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
-    expect_any_instance_of(TestHandler).to receive(:before_consume).with(payload).once.and_call_original
+    expect_any_instance_of(TestHandler).to receive(:before_consume).with(payload, subject.metadata).once.and_call_original
     expect_any_instance_of(TestHandler).to receive(:consume).with(payload, subject.metadata).once.and_call_original
 
     subject.execute

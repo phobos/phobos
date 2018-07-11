@@ -180,7 +180,7 @@ Finally, it is also possible to preprocess the message payload before consuming 
 class MyHandler
   include Phobos::Handler
 
-  def before_consume(payload)
+  def before_consume(payload, metadata)
     # optionally preprocess payload
     payload
   end
@@ -507,7 +507,7 @@ describe MyConsumer do
 
   it 'consumes my message' do
     expect(described_class).to receive(:around_consume).with(payload, metadata).once.and_call_original
-    expect_any_instance_of(described_class).to receive(:before_consume).with(payload).once.and_call_original
+    expect_any_instance_of(described_class).to receive(:before_consume).with(payload, metadata).once.and_call_original
     expect_any_instance_of(described_class).to receive(:consume).with(payload, metadata).once.and_call_original
 
     process_message(handler: described_class, payload: payload, metadata: metadata)
