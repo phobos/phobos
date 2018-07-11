@@ -4,7 +4,7 @@ module Phobos
       base.extend(ClassMethods)
     end
 
-    def before_consume(payload)
+    def before_consume(payload, metadata)
       payload
     end
 
