@@ -38,10 +38,8 @@ module Phobos
               { message: "error processing message, waiting #{interval}s" }.merge(error).merge(@metadata)
             end
 
-            sleep interval
+            wait_for_next_retry interval
           end
-
-          raise Phobos::AbortError if @listener.should_stop?
 
           @metadata.merge!(retry_count: retry_count + 1)
           retry
@@ -63,6 +61,21 @@ module Phobos
             handler.consume(preprocessed_payload, @metadata)
           end
         end
+      end
+
+      def wait_for_next_retry(interval)
+        MAX_SLEEP_INTERVAL = 3
+        raise Phobos::AbortError if @listener.should_stop?
+        @listener.send_heartbeat_if_necessary
+        while interval > MAX_SLEEP_INTERVAL
+          sleep MAX_SLEEP_INTERVAL
+          raise Phobos::AbortError if @listener.should_stop?
+          @listener.send_heartbeat_if_necessary
+          interval = interval - MAX_SLEEP_INTERVAL
+        end
+        sleep interval
+        raise Phobos::AbortError if @listener.should_stop?
+        @listener.send_heartbeat_if_necessary
       end
     end
   end
