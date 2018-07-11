@@ -65,18 +65,16 @@ module Phobos
 
       @ruby_kafka_logger = nil
 
-      custom_kafka_logger = config.custom_kafka_logger
-      if custom_kafka_logger
-        @ruby_kafka_logger = custom_kafka_logger
+      if config.custom_kafka_logger
+        @ruby_kafka_logger = config.custom_kafka_logger
       elsif ruby_kafka
         @ruby_kafka_logger = Logging.logger['RubyKafka']
         @ruby_kafka_logger.appenders = appenders
         @ruby_kafka_logger.level = silence_log ? :fatal : ruby_kafka.level
       end
 
-      custom_logger = config.custom_logger
-      if custom_logger
-        @logger = custom_logger
+      if config.custom_logger
+        @logger = config.custom_logger
       else
         @logger = Logging.logger[self]
         @logger.appenders = appenders
