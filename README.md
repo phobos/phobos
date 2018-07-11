@@ -320,17 +320,24 @@ The configuration file is organized in 6 sections. Take a look at the example fi
 
 The file will be parsed through ERB so ERB syntax/file extension is supported beside the YML format.
 
-__logger__ configures the logger for all Phobos components, it automatically outputs to `STDOUT` and it saves the log in the configured file
+__logger__ configures the logger for all Phobos components. It automatically 
+outputs to `STDOUT` and it saves the log in the configured file.
 
-__kafka__ provides configurations for every `Kafka::Client` created over the application. All [options supported by  `ruby-kafka`][ruby-kafka-client] can be provided.
+__kafka__ provides configurations for every `Kafka::Client` created over the application. 
+All [options supported by  `ruby-kafka`][ruby-kafka-client] can be provided.
 
-__producer__ provides configurations for all producers created over the application, the options are the same for regular and async producers. All [options supported by  `ruby-kafka`][ruby-kafka-producer] can be provided.
+__producer__ provides configurations for all producers created over the application, 
+the options are the same for regular and async producers. 
+All [options supported by  `ruby-kafka`][ruby-kafka-producer] can be provided.
 
-__consumer__ provides configurations for all consumer groups created over the application. All [options supported by  `ruby-kafka`][ruby-kafka-consumer] can be provided.
+__consumer__ provides configurations for all consumer groups created over the application. 
+All [options supported by  `ruby-kafka`][ruby-kafka-consumer] can be provided.
 
-__backoff__ Phobos provides automatic retries for your handlers, if an exception is raised the listener will retry following the back off configured here. Backoff can also be configured per listener.
+__backoff__ Phobos provides automatic retries for your handlers. If an exception 
+is raised, the listener will retry following the back off configured here. 
+Backoff can also be configured per listener.
 
-__listeners__ is the list of listeners configured, each listener represents a consumers group
+__listeners__ is the list of listeners configured. Each listener represents a consumer group.
 
 [ruby-kafka-client]: http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FClient%3Ainitialize
 [ruby-kafka-consumer]: http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FClient%3Aconsumer
@@ -349,6 +356,23 @@ $ phobos start -c /var/configs/my.yml -l /var/configs/additional_listeners.yml
 
 Note that the config file _must_ still specify a listeners section, though it
 can be empty.
+
+#### Custom configuration/logging
+
+Phobos can be configured using a hash rather than the config file directly. This
+can be useful if you want to do some pre-processing before sending the file
+to Phobos. One particularly useful aspect is the ability to provide Phobos
+with a custom logger, e.g. by reusing the Rails logger:
+
+```ruby
+Phobos.configure(
+  custom_logger: Rails.logger,
+  custom_kafka_logger: Rails.logger
+)
+```
+
+If these keys are given, they will override the `logger` keys in the Phobos
+config file.
 
 ### <a name="usage-instrumentation"></a> Instrumentation
 

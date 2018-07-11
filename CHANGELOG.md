@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## UNRELEASED
 ### Changed
 - Reduce the volume of info-level log messages #78
+- Add ability to configure a custom logger #81
 
 ## [1.7.2] - 2018-05-03
 ### Added

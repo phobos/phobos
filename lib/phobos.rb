@@ -55,38 +55,49 @@ module Phobos
       ExponentialBackoff.new(min, max).tap { |backoff| backoff.randomize_factor = rand }
     end
 
+    # :nodoc:
     def configure_logger
-      log_file = config.logger.file
       ruby_kafka = config.logger.ruby_kafka
-      date_pattern = '%Y-%m-%dT%H:%M:%S:%L%zZ'
-      json_layout = Logging.layouts.json(date_pattern: date_pattern)
-
-      stdout_layout = if config.logger.stdout_json == true
-        json_layout
-      else
-        Logging.layouts.pattern(date_pattern: date_pattern)
-      end
-
-      appenders = [Logging.appenders.stdout(layout: stdout_layout)]
 
       Logging.backtrace(true)
       Logging.logger.root.level = silence_log ? :fatal : config.logger.level
-
-      if log_file
-        FileUtils.mkdir_p(File.dirname(log_file))
-        appenders << Logging.appenders.file(log_file, layout: json_layout)
-      end
+      appenders = logger_appenders
 
       @ruby_kafka_logger = nil
 
-      if ruby_kafka
+      if config.custom_kafka_logger
+        @ruby_kafka_logger = config.custom_kafka_logger
+      elsif ruby_kafka
         @ruby_kafka_logger = Logging.logger['RubyKafka']
         @ruby_kafka_logger.appenders = appenders
         @ruby_kafka_logger.level = silence_log ? :fatal : ruby_kafka.level
       end
 
-      @logger = Logging.logger[self]
-      @logger.appenders = appenders
+      if config.custom_logger
+        @logger = config.custom_logger
+      else
+        @logger = Logging.logger[self]
+        @logger.appenders = appenders
+      end
+    end
+
+    def logger_appenders
+      date_pattern = '%Y-%m-%dT%H:%M:%S:%L%zZ'
+      json_layout = Logging.layouts.json(date_pattern: date_pattern)
+      log_file = config.logger.file
+      stdout_layout = if config.logger.stdout_json == true
+                        json_layout
+                      else
+                        Logging.layouts.pattern(date_pattern: date_pattern)
+                      end
+
+      appenders = [Logging.appenders.stdout(layout: stdout_layout)]
+
+      if log_file
+        FileUtils.mkdir_p(File.dirname(log_file))
+        appenders << Logging.appenders.file(log_file, layout: json_layout)
+      end
+      appenders
     end
 
     private
