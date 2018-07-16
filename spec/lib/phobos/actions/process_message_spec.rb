@@ -31,6 +31,10 @@ RSpec.describe Phobos::Actions::ProcessMessage do
     )
   end
 
+  before do
+    allow(subject).to receive(:sleep) # Prevent sleeping in tests
+  end
+
   it 'processes the message by calling around consume, before consume and consume of the handler' do
     expect(TestHandler).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
     expect_any_instance_of(TestHandler).to receive(:before_consume).with(payload).once.and_call_original
@@ -110,6 +114,54 @@ RSpec.describe Phobos::Actions::ProcessMessage do
         }.to raise_error(Phobos::AbortError)
 
         expect(subject.metadata[:retry_count]).to eq(0)
+      end
+    end
+  end
+
+  describe '#snooze' do
+    context 'when interval is 0' do
+      let(:interval) { 0 }
+
+      it 'attempts to send a heartbeat' do
+        expect(listener).to receive(:send_heartbeat_if_necessary).once
+        subject.snooze(interval)
+      end
+
+      it 'does not sleep' do
+        expect(subject).to receive(:sleep).never
+        subject.snooze(interval)
+      end
+    end
+
+    context 'when interval is less than MAX_SLEEP_INTERVAL' do
+      let(:interval) { described_class::MAX_SLEEP_INTERVAL.to_f / 2 }
+
+      it 'attempts to send heartbeats twice' do
+        expect(listener).to receive(:send_heartbeat_if_necessary).twice
+        subject.snooze(interval)
+      end
+
+      it 'sleeps once at the specified interval' do
+        expect(subject).to receive(:sleep).with(interval).once
+        subject.snooze(interval)
+      end
+    end
+
+    context 'when interval is MAX_SLEEP_INTERVAL + 1' do
+      let(:interval) { described_class::MAX_SLEEP_INTERVAL + 1 }
+
+      it 'attempts to send heartbeats 3 times' do
+        expect(listener)
+          .to receive(:send_heartbeat_if_necessary)
+          .exactly(3).times
+        subject.snooze(interval)
+      end
+
+      it 'sleeps once for MAX_SLEEP_INTERVAL and once for 1 second' do
+        expect(subject).to receive(:sleep).with(described_class::MAX_SLEEP_INTERVAL).ordered.once
+        expect(subject).to receive(:sleep).with(1).ordered.once
+        expect(subject).to receive(:sleep).ordered.never
+        subject.snooze(interval)
       end
     end
   end
