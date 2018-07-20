@@ -174,7 +174,7 @@ class MyHandler
 end
 ```
 
-Note: `around_consume` can also be defined as a class method. If defined, the class method `.around_consume` takes precedence.
+Note: `around_consume` was previously defined as a class method. The current code supports both implementations, giving precendence to the class method, but future versions will no longer support `.around_consume`.
 
 ```ruby
 class MyHandler

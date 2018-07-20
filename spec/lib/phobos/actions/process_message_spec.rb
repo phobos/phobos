@@ -59,6 +59,7 @@ RSpec.describe Phobos::Actions::ProcessMessage do
 
     it 'supports and prefers around_consume if defined as a class method' do
       expect(TestHandler2).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
+      expect(Phobos).to receive(:deprecate).once
       expect_any_instance_of(TestHandler2).to receive(:before_consume).with(payload, subject.metadata).once.and_call_original
       expect_any_instance_of(TestHandler2).to receive(:consume).with(payload, subject.metadata).once.and_call_original
 

@@ -100,6 +100,10 @@ module Phobos
       appenders
     end
 
+    def deprecate(message)
+      warn "DEPRECATION WARNING: #{message} #{Kernel.caller.first}"
+    end
+
     private
 
     def fetch_settings(configuration)
