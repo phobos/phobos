@@ -14,6 +14,14 @@ RSpec.describe Phobos::Actions::ProcessMessage do
     end
   end
 
+  class TestHandler3 < Phobos::EchoHandler
+    include Phobos::Handler
+
+    def before_consume(payload)
+      payload
+    end
+  end
+
   let(:payload) { 'message-1234' }
   let(:topic) { 'test-topic' }
   let(:message) do
@@ -65,6 +73,26 @@ RSpec.describe Phobos::Actions::ProcessMessage do
 
       subject.execute
     end
+  end
+
+  context '#before_consume defined with 1 argument' do
+    let(:listener) do
+      Phobos::Listener.new(
+        handler: TestHandler3,
+        group_id: 'test-group',
+        topic: topic
+      )
+    end
+
+    it 'supports the method and logs a deprecation message' do
+      expect(Phobos).to receive(:deprecate).once
+      expect_any_instance_of(TestHandler3).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
+      expect_any_instance_of(TestHandler3).to receive(:before_consume).with(payload).once.and_call_original
+      expect_any_instance_of(TestHandler3).to receive(:consume).with(payload, subject.metadata).once.and_call_original
+
+      subject.execute
+    end
+
   end
 
   context 'with encoding' do

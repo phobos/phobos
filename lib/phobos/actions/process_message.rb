@@ -57,7 +57,13 @@ module Phobos
       def process_message(payload)
         instrument('listener.process_message', @metadata) do
           handler = @listener.handler_class.new
-          preprocessed_payload = handler.before_consume(payload, @metadata)
+          preprocessed_payload = begin
+            handler.before_consume(payload, @metadata)
+          rescue ArgumentError => e
+            Phobos.deprecate("before_consume now expects metadata as second argument, please update your consumer."\
+              " This will not be backwards compatible in the future.")
+            handler.before_consume(payload)
+          end
           consume_block = Proc.new { handler.consume(preprocessed_payload, @metadata) }
 
           if @listener.handler_class.respond_to?(:around_consume)
