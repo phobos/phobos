@@ -156,7 +156,25 @@ class MyHandler
 end
 ```
 
-It is also possible to control the execution of `#consume` with the class method `.around_consume(payload, metadata)`. This method receives the payload and metadata, and then invokes `#consume` method by means of a block; example:
+It is also possible to control the execution of `#consume` with the method `#around_consume(payload, metadata)`. This method receives the payload and metadata, and then invokes `#consume` method by means of a block; example:
+
+```ruby
+class MyHandler
+  include Phobos::Handler
+
+  def around_consume(payload, metadata)
+    Phobos.logger.info "consuming..."
+    output = yield
+    Phobos.logger.info "done, output: #{output}"
+  end
+
+  def consume(payload, metadata)
+    # consume or skip message
+  end
+end
+```
+
+Note: `around_consume` was previously defined as a class method. The current code supports both implementations, giving precendence to the class method, but future versions will no longer support `.around_consume`.
 
 ```ruby
 class MyHandler
@@ -174,13 +192,13 @@ class MyHandler
 end
 ```
 
-Finally, it is also possible to preprocess the message payload before consuming it using the `before_consume` hook which is invoked before `.around_consume` and `#consume`. The result of this operation will be assigned to payload, so it is important to return the modified payload. This can be very useful, for example if you want a single point of decoding Avro messages and want the payload as a hash instead of a binary.
+Finally, it is also possible to preprocess the message payload before consuming it using the `before_consume` hook which is invoked before `#around_consume` and `#consume`. The result of this operation will be assigned to payload, so it is important to return the modified payload. This can be very useful, for example if you want a single point of decoding Avro messages and want the payload as a hash instead of a binary.
 
 ```ruby
 class MyHandler
   include Phobos::Handler
 
-  def before_consume(payload)
+  def before_consume(payload, metadata)
     # optionally preprocess payload
     payload
   end
@@ -195,7 +213,7 @@ The hander life cycle can be illustrated as:
 
 or optionally,
 
-  `.start` -> `#before_consume` -> `.around_consume` [ `#consume` ] -> `.stop`
+  `.start` -> `#before_consume` -> `#around_consume` [ `#consume` ] -> `.stop`
 
 ### <a name="usage-producing-messages-to-kafka"></a> Producing messages to Kafka
 
@@ -506,8 +524,8 @@ describe MyConsumer do
   let(:metadata) { Hash(foo: 'bar') }
 
   it 'consumes my message' do
-    expect(described_class).to receive(:around_consume).with(payload, metadata).once.and_call_original
-    expect_any_instance_of(described_class).to receive(:before_consume).with(payload).once.and_call_original
+    expect_any_instance_of(described_class).to receive(:around_consume).with(payload, metadata).once.and_call_original
+    expect_any_instance_of(described_class).to receive(:before_consume).with(payload, metadata).once.and_call_original
     expect_any_instance_of(described_class).to receive(:consume).with(payload, metadata).once.and_call_original
 
     process_message(handler: described_class, payload: payload, metadata: metadata)

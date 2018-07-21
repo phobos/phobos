@@ -4,7 +4,7 @@ module Phobos
       base.extend(ClassMethods)
     end
 
-    def before_consume(payload)
+    def before_consume(payload, metadata)
       payload
     end
 
@@ -12,15 +12,15 @@ module Phobos
       raise NotImplementedError
     end
 
+    def around_consume(payload, metadata)
+      yield
+    end
+
     module ClassMethods
       def start(kafka_client)
       end
 
       def stop
-      end
-
-      def around_consume(payload, metadata)
-        yield
       end
     end
   end

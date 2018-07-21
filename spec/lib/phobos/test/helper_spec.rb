@@ -6,7 +6,7 @@ RSpec.describe Phobos::Test::Helper do
     include Phobos::Handler
     CONSUME_VISITED = 'consume was visited'
 
-    def before_consume(payload)
+    def before_consume(payload, metadata)
       payload
     end
 
@@ -21,6 +21,7 @@ RSpec.describe Phobos::Test::Helper do
 
   let(:payload) { 'foo' }
   let(:metadata) { Hash(foo: 'bar') }
+  let(:listener_metadata) { Hash(key: nil, partition: 0, offset: 13, retry_count: 0) }
   let(:topic) { Phobos::Test::Helper::Topic }
   let(:group_id) { Phobos::Test::Helper::Group }
 
@@ -34,7 +35,7 @@ RSpec.describe Phobos::Test::Helper do
     end
 
     it 'invokes handler before_consume with payload' do
-      expect_any_instance_of(TestHandler).to receive(:before_consume).with(payload)
+      expect_any_instance_of(TestHandler).to receive(:before_consume).with(payload, listener_metadata)
       process_message(handler: TestHandler, payload: payload)
     end
 
