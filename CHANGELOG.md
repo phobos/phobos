@@ -5,9 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
+### Added
+- Possibility to configure a custom logger #81
 ### Changed
 - Reduce the volume of info-level log messages #78
-- Add ability to configure a custom logger #81
+- Phobos Handler `around_consume` is now an instance method #82
 - Send consumer heartbeats between retry attempts #83
 
 ## [1.7.2] - 2018-05-03
