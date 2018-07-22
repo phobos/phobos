@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
+
+## [1.8.0] - 2018-07-22
 ### Added
 - Possibility to configure a custom logger #81
 ### Changed
