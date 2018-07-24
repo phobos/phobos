@@ -16,7 +16,7 @@ RSpec.describe Phobos::Producer do
 
       expect(TestProducer1.producer)
         .to receive(:publish_list)
-        .with([{ topic: 'topic', payload: 'message', key: 'key' }])
+        .with([{ topic: 'topic', payload: 'message', key: 'key', partition_key: nil }])
 
       subject.producer.publish('topic', 'message', 'key')
     end
@@ -29,10 +29,10 @@ RSpec.describe Phobos::Producer do
 
       expect(TestProducer1.producer)
         .to receive(:async_publish_list)
-        .with([{ topic: 'topic', payload: 'message', key: 'key' }])
+        .with([{ topic: 'topic', payload: 'message', key: 'key', partition_key: 'partition_key' }])
 
       TestProducer1.producer.create_async_producer
-      subject.producer.async_publish('topic', 'message', 'key')
+      subject.producer.async_publish('topic', 'message', 'key', 'partition_key')
     end
   end
 
@@ -54,7 +54,7 @@ RSpec.describe Phobos::Producer do
 
         expect(producer)
           .to receive(:produce)
-          .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'key-1')
+          .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1')
 
         expect(producer)
           .to receive(:produce)
@@ -65,7 +65,7 @@ RSpec.describe Phobos::Producer do
         expect(kafka_client).to_not receive(:close)
 
         subject.producer.publish_list([
-          { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
+          { payload: 'message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1' },
           { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
         ])
       end
@@ -85,7 +85,7 @@ RSpec.describe Phobos::Producer do
 
         expect(producer)
           .to receive(:produce)
-          .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'key-1')
+          .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1')
 
         expect(producer)
           .to receive(:produce)
@@ -96,7 +96,7 @@ RSpec.describe Phobos::Producer do
         expect(kafka_client).to_not receive(:close)
 
         subject.producer.publish_list([
-          { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
+          { payload: 'message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1' },
           { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
         ])
       end
