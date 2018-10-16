@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Phobos
+  # rubocop:disable Metrics/ParameterLists, Metrics/ClassLength
   class Listener
     include Phobos::Instrumentation
     include Phobos::Log
@@ -157,4 +158,5 @@ module Phobos
       hash.delete_if { |_, v| v.nil? }
     end
   end
+  # rubocop:enable Metrics/ParameterLists, Metrics/ClassLength
 end

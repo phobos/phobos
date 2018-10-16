@@ -26,6 +26,3 @@ AllCops:
     - spec/**/*
     - examples/**/*
   TargetRubyVersion: 2.3
-
-Metrics/ParameterLists:
-  Max: 15
