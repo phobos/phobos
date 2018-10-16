@@ -47,7 +47,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'pry-byebug'
-  spec.add_development_dependency 'rake', '~> 10.0'
+  spec.add_development_dependency 'rake', '~> 12.3'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rubocop_rules'
   spec.add_development_dependency 'simplecov'
@@ -58,6 +58,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'concurrent-ruby-ext', '>= 1.0.2'
   spec.add_dependency 'exponential-backoff'
   spec.add_dependency 'logging'
-  spec.add_dependency 'ruby-kafka', '>= 0.3.14'
+  spec.add_dependency 'ruby-kafka', '0.7.2'
   spec.add_dependency 'thor'
 end

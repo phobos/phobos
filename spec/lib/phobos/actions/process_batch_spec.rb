@@ -30,9 +30,15 @@ RSpec.describe Phobos::Actions::ProcessBatch do
       partition: 3
     )
   end
-  let(:batch) do
-    Kafka::FetchedBatch.new(topic: 'foo', partition: 1, highwater_mark_offset: 1, messages: [message1, message2])
-  end
+  let(:batch) {
+    Kafka::FetchedBatch.new(
+      topic: 'foo',
+      partition: 1,
+      highwater_mark_offset: 1,
+      messages: [message1, message2],
+      last_offset: 0,
+    )
+  }
 
   subject { described_class.new(listener: listener, batch: batch, listener_metadata: listener_metadata) }
 

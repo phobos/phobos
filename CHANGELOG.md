@@ -5,8 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
+- Added ability to send partition keys separate from messsage keys.
+
+## [1.8.0] - 2018-07-22
+### Added
+- Possibility to configure a custom logger #81
 ### Changed
 - Reduce the volume of info-level log messages #78
+- Phobos Handler `around_consume` is now an instance method #82
+- Send consumer heartbeats between retry attempts #83
 
 ## [1.7.2] - 2018-05-03
 ### Added

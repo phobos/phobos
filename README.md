@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/klarna/phobos.svg?branch=master)](https://travis-ci.org/klarna/phobos)
 [![Maintainability](https://api.codeclimate.com/v1/badges/2d00845fc6e7e83df6e7/maintainability)](https://codeclimate.com/github/klarna/phobos/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/2d00845fc6e7e83df6e7/test_coverage)](https://codeclimate.com/github/klarna/phobos/test_coverage)
+[![Depfu](https://badges.depfu.com/badges/57da3d5ff1da449cf8739cfe30b8d2f8/count.svg)](https://depfu.com/github/klarna/phobos?project=Bundler)
 [![Chat with us on Discord](https://discordapp.com/api/guilds/379938130326847488/widget.png)](https://discord.gg/rfMUBVD)
 
 # Phobos
@@ -155,7 +156,25 @@ class MyHandler
 end
 ```
 
-It is also possible to control the execution of `#consume` with the class method `.around_consume(payload, metadata)`. This method receives the payload and metadata, and then invokes `#consume` method by means of a block; example:
+It is also possible to control the execution of `#consume` with the method `#around_consume(payload, metadata)`. This method receives the payload and metadata, and then invokes `#consume` method by means of a block; example:
+
+```ruby
+class MyHandler
+  include Phobos::Handler
+
+  def around_consume(payload, metadata)
+    Phobos.logger.info "consuming..."
+    output = yield
+    Phobos.logger.info "done, output: #{output}"
+  end
+
+  def consume(payload, metadata)
+    # consume or skip message
+  end
+end
+```
+
+Note: `around_consume` was previously defined as a class method. The current code supports both implementations, giving precendence to the class method, but future versions will no longer support `.around_consume`.
 
 ```ruby
 class MyHandler
@@ -173,13 +192,13 @@ class MyHandler
 end
 ```
 
-Finally, it is also possible to preprocess the message payload before consuming it using the `before_consume` hook which is invoked before `.around_consume` and `#consume`. The result of this operation will be assigned to payload, so it is important to return the modified payload. This can be very useful, for example if you want a single point of decoding Avro messages and want the payload as a hash instead of a binary.
+Finally, it is also possible to preprocess the message payload before consuming it using the `before_consume` hook which is invoked before `#around_consume` and `#consume`. The result of this operation will be assigned to payload, so it is important to return the modified payload. This can be very useful, for example if you want a single point of decoding Avro messages and want the payload as a hash instead of a binary.
 
 ```ruby
 class MyHandler
   include Phobos::Handler
 
-  def before_consume(payload)
+  def before_consume(payload, metadata)
     # optionally preprocess payload
     payload
   end
@@ -194,7 +213,7 @@ The hander life cycle can be illustrated as:
 
 or optionally,
 
-  `.start` -> `#before_consume` -> `.around_consume` [ `#consume` ] -> `.stop`
+  `.start` -> `#before_consume` -> `#around_consume` [ `#consume` ] -> `.stop`
 
 ### <a name="usage-producing-messages-to-kafka"></a> Producing messages to Kafka
 
@@ -319,17 +338,24 @@ The configuration file is organized in 6 sections. Take a look at the example fi
 
 The file will be parsed through ERB so ERB syntax/file extension is supported beside the YML format.
 
-__logger__ configures the logger for all Phobos components, it automatically outputs to `STDOUT` and it saves the log in the configured file
+__logger__ configures the logger for all Phobos components. It automatically 
+outputs to `STDOUT` and it saves the log in the configured file.
 
-__kafka__ provides configurations for every `Kafka::Client` created over the application. All [options supported by  `ruby-kafka`][ruby-kafka-client] can be provided.
+__kafka__ provides configurations for every `Kafka::Client` created over the application. 
+All [options supported by  `ruby-kafka`][ruby-kafka-client] can be provided.
 
-__producer__ provides configurations for all producers created over the application, the options are the same for regular and async producers. All [options supported by  `ruby-kafka`][ruby-kafka-producer] can be provided.
+__producer__ provides configurations for all producers created over the application, 
+the options are the same for regular and async producers. 
+All [options supported by  `ruby-kafka`][ruby-kafka-producer] can be provided.
 
-__consumer__ provides configurations for all consumer groups created over the application. All [options supported by  `ruby-kafka`][ruby-kafka-consumer] can be provided.
+__consumer__ provides configurations for all consumer groups created over the application. 
+All [options supported by  `ruby-kafka`][ruby-kafka-consumer] can be provided.
 
-__backoff__ Phobos provides automatic retries for your handlers, if an exception is raised the listener will retry following the back off configured here. Backoff can also be configured per listener.
+__backoff__ Phobos provides automatic retries for your handlers. If an exception 
+is raised, the listener will retry following the back off configured here. 
+Backoff can also be configured per listener.
 
-__listeners__ is the list of listeners configured, each listener represents a consumers group
+__listeners__ is the list of listeners configured. Each listener represents a consumer group.
 
 [ruby-kafka-client]: http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FClient%3Ainitialize
 [ruby-kafka-consumer]: http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FClient%3Aconsumer
@@ -348,6 +374,23 @@ $ phobos start -c /var/configs/my.yml -l /var/configs/additional_listeners.yml
 
 Note that the config file _must_ still specify a listeners section, though it
 can be empty.
+
+#### Custom configuration/logging
+
+Phobos can be configured using a hash rather than the config file directly. This
+can be useful if you want to do some pre-processing before sending the file
+to Phobos. One particularly useful aspect is the ability to provide Phobos
+with a custom logger, e.g. by reusing the Rails logger:
+
+```ruby
+Phobos.configure(
+  custom_logger: Rails.logger,
+  custom_kafka_logger: Rails.logger
+)
+```
+
+If these keys are given, they will override the `logger` keys in the Phobos
+config file.
 
 ### <a name="usage-instrumentation"></a> Instrumentation
 
@@ -481,8 +524,8 @@ describe MyConsumer do
   let(:metadata) { Hash(foo: 'bar') }
 
   it 'consumes my message' do
-    expect(described_class).to receive(:around_consume).with(payload, metadata).once.and_call_original
-    expect_any_instance_of(described_class).to receive(:before_consume).with(payload).once.and_call_original
+    expect_any_instance_of(described_class).to receive(:around_consume).with(payload, metadata).once.and_call_original
+    expect_any_instance_of(described_class).to receive(:before_consume).with(payload, metadata).once.and_call_original
     expect_any_instance_of(described_class).to receive(:consume).with(payload, metadata).once.and_call_original
 
     process_message(handler: described_class, payload: payload, metadata: metadata)

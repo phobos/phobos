@@ -15,12 +15,12 @@ module Phobos
         @host_obj = host_obj
       end
 
-      def publish(topic, payload, key = nil)
-        class_producer.publish(topic, payload, key)
+      def publish(topic, payload, key=nil, partition_key=nil)
+        class_producer.publish(topic, payload, key, partition_key)
       end
 
-      def async_publish(topic, payload, key = nil)
-        class_producer.async_publish(topic, payload, key)
+      def async_publish(topic, payload, key=nil, partition_key=nil)
+        class_producer.async_publish(topic, payload, key, partition_key)
       end
 
       # @param messages [Array(Hash(:topic, :payload, :key))]
@@ -67,8 +67,9 @@ module Phobos
           producer_store[:kafka_client]
         end
 
-        def publish(topic, payload, key = nil)
-          publish_list([{ topic: topic, payload: payload, key: key }])
+        def publish(topic, payload, key=nil, partition_key=nil)
+          publish_list([{ topic: topic, payload: payload, key: key,
+                          partition_key: partition_key }])
         end
 
         def publish_list(messages)
@@ -90,8 +91,9 @@ module Phobos
           producer_store[:async_producer]
         end
 
-        def async_publish(topic, payload, key = nil)
-          async_publish_list([{ topic: topic, payload: payload, key: key }])
+        def async_publish(topic, payload, key=nil, partition_key=nil)
+          async_publish_list([{ topic: topic, payload: payload, key: key,
+                                partition_key: partition_key }])
         end
 
         def async_publish_list(messages)
@@ -118,9 +120,10 @@ module Phobos
 
         def produce_messages(producer, messages)
           messages.each do |message|
+            partition_key = message[:partition_key] || message[:key]
             producer.produce(message[:payload], topic: message[:topic],
                                                 key: message[:key],
-                                                partition_key: message[:key])
+                                                partition_key: partition_key)
           end
         end
 
