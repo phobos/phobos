@@ -57,8 +57,3 @@ Metrics/LineLength:
 # Configuration parameters: CountComments, ExcludedMethods.
 Metrics/MethodLength:
   Max: 28
-
-# Offense count: 2
-# Configuration parameters: CountKeywordArgs.
-Metrics/ParameterLists:
-  Max: 15
