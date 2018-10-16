@@ -27,7 +27,9 @@ Gem::Specification.new do |spec|
   ]
 
   spec.summary       = 'Simplifying Kafka for ruby apps'
-  spec.description   = 'Phobos is a microframework and library for kafka based applications, it wraps common behaviors needed by consumers/producers in an easy an convenient API. It uses ruby-kafka as its kafka client and core component.'
+  spec.description   = 'Phobos is a microframework and library for kafka based applications, '\
+    'it wraps common behaviors needed by consumers/producers in an easy an convenient API. '\
+    'It uses ruby-kafka as its kafka client and core component.'
   spec.homepage      = 'https://github.com/klarna/phobos'
   spec.license       = 'Apache License Version 2.0'
 
@@ -39,7 +41,9 @@ Gem::Specification.new do |spec|
     raise 'RubyGems 2.0 or newer is required to protect against public gem pushes.'
   end
 
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  spec.files = `git ls-files -z`.split("\x0").reject do |f|
+    f.match(%r{^(test|spec|features)/})
+  end
   spec.bindir        = 'bin'
   spec.executables   = spec.files.grep(%r{^bin/phobos}) { |f| File.basename(f) }
   spec.require_paths = ['lib']

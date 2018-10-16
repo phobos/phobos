@@ -40,7 +40,9 @@ module Phobos
       @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
       @config.listeners ||= []
       configure_logger
-      logger.info { Hash(message: 'Phobos configured', env: ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'N/A') }
+      logger.info do
+        Hash(message: 'Phobos configured', env: ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'N/A')
+      end
     end
 
     def add_listeners(listeners_configuration)

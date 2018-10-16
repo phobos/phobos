@@ -52,11 +52,13 @@ module Phobos
           delivery = listener.delivery
           if delivery.nil?
             Phobos::CLI.logger.warn do
-              Hash(message: "Delivery option should be specified, defaulting to 'batch' - specify this option to silence this message")
+              Hash(message: "Delivery option should be specified, defaulting to 'batch'"\
+                ' - specify this option to silence this message')
             end
           elsif !Listener::DELIVERY_OPTS.include?(delivery)
             Phobos::CLI.logger.error do
-              Hash(message: "Invalid delivery option '#{delivery}'. Please specify one of: #{Listener::DELIVERY_OPTS.join(', ')}")
+              Hash(message: "Invalid delivery option '#{delivery}'. Please specify one of: "\
+                "#{Listener::DELIVERY_OPTS.join(', ')}")
             end
             exit(1)
           end

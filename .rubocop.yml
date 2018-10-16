@@ -20,3 +20,7 @@ inherit_from:
 # Metrics/BlockLength:
 #   Exclude:
 #    - 'tasks/the_huge_task.rake'
+
+AllCops:
+  Exclude:
+    - spec/**/*

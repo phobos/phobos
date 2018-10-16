@@ -106,9 +106,10 @@ RSpec.describe Phobos do
       end
 
       it 'configures "logger"' do
+        expected = Phobos.config.kafka.to_hash.merge(logger: instance_of(Logging::Logger))
         expect(Kafka)
           .to receive(:new)
-          .with(hash_including(Phobos.config.kafka.to_hash.merge(logger: instance_of(Logging::Logger))))
+          .with(hash_including(expected))
 
         Phobos.create_kafka_client
       end

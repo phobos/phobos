@@ -69,7 +69,8 @@ ensure
     .async_producer_shutdown
 
   #
-  # Since no client was configured (we can do this with `MyProducer.producer.configure_kafka_client`)
+  # Since no client was configured (we can do this with
+  #   `MyProducer.producer.configure_kafka_client`)
   # we must get the auto generated one and close it properly
   #
   MyProducer

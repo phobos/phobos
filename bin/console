@@ -12,7 +12,8 @@ require 'phobos'
 # require 'pry'
 # Pry.start
 
-config_path = ENV['CONFIG_PATH'] || (File.exist?('config/phobos.yml') ? 'config/phobos.yml' : 'config/phobos.yml.example')
+config_path = ENV['CONFIG_PATH'] ||
+              (File.exist?('config/phobos.yml') ? 'config/phobos.yml' : 'config/phobos.yml.example')
 Phobos.configure(config_path)
 
 IRB.start
