@@ -82,7 +82,7 @@ module Phobos
     def configure_ruby_kafka_logger
       if config.custom_kafka_logger
         @ruby_kafka_logger = config.custom_kafka_logger
-      elsif config.logger.ruby_kafka.level
+      elsif config.logger.ruby_kafka
         @ruby_kafka_logger = Logging.logger['RubyKafka']
         @ruby_kafka_logger.appenders = logger_appenders
         @ruby_kafka_logger.level = silence_log ? :fatal : config.logger.ruby_kafka.level
