@@ -15,6 +15,7 @@ require 'erb'
 
 require 'phobos/deep_struct'
 require 'phobos/version'
+require 'phobos/constants'
 require 'phobos/instrumentation'
 require 'phobos/errors'
 require 'phobos/listener'

@@ -4,8 +4,6 @@ module Phobos
   class Listener
     include Phobos::Instrumentation
 
-    KAFKA_CONSUMER_OPTS = [:session_timeout, :offset_commit_interval, :offset_commit_threshold, :heartbeat_interval, :offset_retention_time].freeze
-
     DEFAULT_MAX_BYTES_PER_PARTITION = 1_048_576 # 1 MB
     DELIVERY_OPTS = %w[batch message].freeze
 
@@ -53,8 +51,10 @@ module Phobos
         # since "start" blocks a thread might be used to call it
         @handler_class.producer.configure_kafka_client(@kafka_client) if @producer_enabled
 
-        instrument('listener.start_handler', listener_metadata) { @handler_class.start(@kafka_client) }
-        Phobos.logger.info { Hash(message: 'Listener started').merge(listener_metadata) }
+        instrument('listener.start_handler', listener_metadata) do
+          @handler_class.start(@kafka_client)
+        end
+        log_info('Listener started')
       end
 
       begin
@@ -67,7 +67,7 @@ module Phobos
       #
       rescue Kafka::ProcessingError, Phobos::AbortError
         instrument('listener.retry_aborted', listener_metadata) do
-          Phobos.logger.info({ message: 'Retry loop aborted, listener is shutting down' }.merge(listener_metadata))
+          log_info('Retry loop aborted, listener is shutting down')
         end
       end
     ensure
@@ -82,9 +82,7 @@ module Phobos
         end
 
         @kafka_client.close
-        if should_stop?
-          Phobos.logger.info { Hash(message: 'Listener stopped').merge(listener_metadata) }
-        end
+        log_info('Listener stopped') if should_stop?
       end
     end
 
@@ -97,7 +95,7 @@ module Phobos
         )
 
         batch_processor.execute
-        Phobos.logger.debug { Hash(message: 'Committed offset').merge(batch_processor.metadata) }
+        log_debug('Committed offset', batch_processor.metadata)
         return if should_stop?
       end
     end
@@ -111,7 +109,7 @@ module Phobos
         )
 
         message_processor.execute
-        Phobos.logger.debug { Hash(message: 'Committed offset').merge(message_processor.metadata) }
+        log_debug('Committed offset', message_processor.metadata)
         return if should_stop?
       end
     end
@@ -120,7 +118,7 @@ module Phobos
       return if should_stop?
 
       instrument('listener.stopping', listener_metadata) do
-        Phobos.logger.info { Hash(message: 'Listener stopping').merge(listener_metadata) }
+        log_info('Listener stopping')
         @consumer&.stop
         @signal_to_stop = true
       end
@@ -147,13 +145,23 @@ module Phobos
     end
 
     def create_kafka_consumer
-      configs = Phobos.config.consumer_hash.select { |k| KAFKA_CONSUMER_OPTS.include?(k) }
+      configs = Phobos.config.consumer_hash.select do |k|
+        Constants::KAFKA_CONSUMER_OPTS.include?(k)
+      end
       configs.merge!(@kafka_consumer_opts)
       @kafka_client.consumer({ group_id: group_id }.merge(configs))
     end
 
     def compact(hash)
       hash.delete_if { |_, v| v.nil? }
+    end
+
+    def log_info(msg)
+      Phobos.logger.info(Hash(message: msg).merge(listener_metadata))
+    end
+
+    def log_debug(msg, metadata)
+      Phobos.logger.debug(Hash(message: msg).merge(metadata))
     end
   end
 end
