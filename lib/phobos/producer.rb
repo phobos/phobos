@@ -128,8 +128,8 @@ module Phobos
         end
 
         def async_automatic_delivery?
-          async_configs.fetch(:delivery_threshold, 0) > 0 ||
-            async_configs.fetch(:delivery_interval, 0) > 0
+          async_configs.fetch(:delivery_threshold, 0).positive? ||
+            async_configs.fetch(:delivery_interval, 0).positive?
         end
 
         def producer_store

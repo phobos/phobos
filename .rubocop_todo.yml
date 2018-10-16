@@ -100,12 +100,3 @@ Style/GuardClause:
   Exclude:
     - 'lib/phobos/cli/start.rb'
     - 'phobos.gemspec'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect, EnforcedStyle, IgnoredMethods.
-# SupportedStyles: predicate, comparison
-Style/NumericPredicate:
-  Exclude:
-    - 'spec/**/*'
-    - 'lib/phobos/producer.rb'
