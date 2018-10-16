@@ -42,9 +42,11 @@ module Phobos
         @signal_to_stop = true
         @listeners.each(&:stop)
         @threads.select(&:alive?).each do |thread|
-          thread.wakeup
-        rescue StandardError
-          nil
+          begin
+            thread.wakeup
+          rescue StandardError
+            nil
+          end
         end
         @thread_pool&.shutdown
         @thread_pool&.wait_for_termination

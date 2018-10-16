@@ -29,52 +29,54 @@ end
 end
 
 Thread.new do
-  total = 1
+  begin
+    total = 1
 
-  loop do
-    break if @stop
+    loop do
+      break if @stop
 
-    key = SecureRandom.uuid
-    payload = Time.now.utc.to_json
+      key = SecureRandom.uuid
+      payload = Time.now.utc.to_json
 
-    begin
-      # Producer will use phobos configuration to create a kafka client and
-      # a producer and it will bind both to the current thread, so it's safe
-      # to call class methods here
+      begin
+        # Producer will use phobos configuration to create a kafka client and
+        # a producer and it will bind both to the current thread, so it's safe
+        # to call class methods here
+        #
+        MyProducer
+          .producer
+          .async_publish(TOPIC, payload, key)
+
+        puts "produced #{key}, total: #{total}"
+
+      # Since this is very simplistic code, we are going to generate more messages than
+      # the producer can write to Kafka. Eventually we'll get some buffer overflows
       #
-      MyProducer
-        .producer
-        .async_publish(TOPIC, payload, key)
+      rescue Kafka::BufferOverflow => e
+        puts '| waiting'
+        sleep(1)
+        retry
+      end
 
-      puts "produced #{key}, total: #{total}"
-
-    # Since this is very simplistic code, we are going to generate more messages than
-    # the producer can write to Kafka. Eventually we'll get some buffer overflows
-    #
-    rescue Kafka::BufferOverflow => e
-      puts '| waiting'
-      sleep(1)
-      retry
+      total += 1
     end
+  ensure
+    #
+    # Before we stop we must shutdown the async producer to ensure that all messages
+    # are delivered
+    #
+    MyProducer
+      .producer
+      .async_producer_shutdown
 
-    total += 1
+    #
+    # Since no client was configured (we can do this with
+    #   `MyProducer.producer.configure_kafka_client`)
+    # we must get the auto generated one and close it properly
+    #
+    MyProducer
+      .producer
+      .kafka_client
+      .close
   end
-ensure
-  #
-  # Before we stop we must shutdown the async producer to ensure that all messages
-  # are delivered
-  #
-  MyProducer
-    .producer
-    .async_producer_shutdown
-
-  #
-  # Since no client was configured (we can do this with
-  #   `MyProducer.producer.configure_kafka_client`)
-  # we must get the auto generated one and close it properly
-  #
-  MyProducer
-    .producer
-    .kafka_client
-    .close
 end.join

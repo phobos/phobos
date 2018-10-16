@@ -24,3 +24,5 @@ inherit_from:
 AllCops:
   Exclude:
     - spec/**/*
+    - examples/**/*
+  TargetRubyVersion: 2.3
