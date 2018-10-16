@@ -51,7 +51,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'simplecov'
   spec.add_development_dependency 'timecop'
 
-  spec.add_dependency 'ruby-kafka', '0.7.2'
+  spec.add_dependency 'ruby-kafka', '0.7.3'
   spec.add_dependency 'concurrent-ruby', '>= 1.0.2'
   spec.add_dependency 'concurrent-ruby-ext', '>= 1.0.2'
   spec.add_dependency 'activesupport', '>= 3.0.0'
