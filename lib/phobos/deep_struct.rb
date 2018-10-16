@@ -35,6 +35,5 @@ module Phobos
         v
       end
     end
-    protected :to_deep_struct
   end
 end
