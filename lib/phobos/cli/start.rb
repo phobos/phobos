@@ -31,12 +31,14 @@ module Phobos
 
       attr_reader :config_file, :boot_file, :listeners_file
 
+      # rubocop:disable Style/GuardClause
       def validate_config_file!
         unless File.exist?(config_file)
           Phobos::CLI.logger.error { Hash(message: "Config file not found (#{config_file})") }
           exit(1)
         end
       end
+      # rubocop:enable Style/GuardClause
 
       def validate_listeners!
         Phobos.config.listeners.each do |listener|

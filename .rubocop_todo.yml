@@ -93,10 +93,3 @@ Style/GlobalVars:
   Exclude:
     - 'spec/fixtures/boot_test.rb'
     - 'spec/lib/phobos/cli/start_spec.rb'
-
-# Offense count: 2
-# Configuration parameters: MinBodyLength.
-Style/GuardClause:
-  Exclude:
-    - 'lib/phobos/cli/start.rb'
-    - 'phobos.gemspec'
