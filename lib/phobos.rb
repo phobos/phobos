@@ -63,27 +63,31 @@ module Phobos
 
     # :nodoc:
     def configure_logger
-      ruby_kafka = config.logger.ruby_kafka
-
       Logging.backtrace(true)
       Logging.logger.root.level = silence_log ? :fatal : config.logger.level
-      appenders = logger_appenders
 
-      @ruby_kafka_logger = nil
+      configure_ruby_kafka_logger
+      configure_phobos_logger
+    end
 
-      if config.custom_kafka_logger
-        @ruby_kafka_logger = config.custom_kafka_logger
-      elsif ruby_kafka
-        @ruby_kafka_logger = Logging.logger['RubyKafka']
-        @ruby_kafka_logger.appenders = appenders
-        @ruby_kafka_logger.level = silence_log ? :fatal : ruby_kafka.level
-      end
-
+    def configure_phobos_logger
       if config.custom_logger
         @logger = config.custom_logger
       else
         @logger = Logging.logger[self]
-        @logger.appenders = appenders
+        @logger.appenders = logger_appenders
+      end
+    end
+
+    def configure_ruby_kafka_logger
+      if config.custom_kafka_logger
+        @ruby_kafka_logger = config.custom_kafka_logger
+      elsif config.logger.ruby_kafka.level
+        @ruby_kafka_logger = Logging.logger['RubyKafka']
+        @ruby_kafka_logger.appenders = logger_appenders
+        @ruby_kafka_logger.level = silence_log ? :fatal : config.logger.ruby_kafka.level
+      else
+        @ruby_kafka_logger = nil
       end
     end
 
