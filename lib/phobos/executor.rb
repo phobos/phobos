@@ -37,6 +37,7 @@ module Phobos
 
     def stop
       return if @signal_to_stop
+
       instrument('executor.stop') do
         @signal_to_stop = true
         @listeners.each(&:stop)

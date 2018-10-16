@@ -54,13 +54,11 @@ RSpec.describe Phobos do
         expect(Phobos.logger).to eq(logger)
 
         expect(Kafka).to receive(:new).with(
-          {
-            client_id: 'client_id',
-            logger: kafka_logger
-          })
+          client_id: 'client_id',
+          logger: kafka_logger
+        )
         Phobos.create_kafka_client
       end
-
     end
   end
 

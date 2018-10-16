@@ -11,7 +11,7 @@ RSpec.describe Phobos::Actions::ProcessMessage do
   class TestHandler2 < Phobos::EchoHandler
     include Phobos::Handler
 
-    def self.around_consume(payload, metadata)
+    def self.around_consume(_payload, _metadata)
       yield
     end
   end
@@ -98,7 +98,6 @@ RSpec.describe Phobos::Actions::ProcessMessage do
 
       subject.execute
     end
-
   end
 
   context 'with encoding' do

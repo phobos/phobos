@@ -28,6 +28,7 @@ module KafkaHelpers
   def events_for(name, ignore_errors: true)
     events = @@subscription_events[name]
     raise "Not subscribed to event '#{name}'" if events.nil?
+
     # removing events with errors inside
     if ignore_errors
       events.reject { |event| event.payload[:exception] }

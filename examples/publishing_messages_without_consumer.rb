@@ -33,6 +33,7 @@ Thread.new do
 
   loop do
     break if @stop
+
     key = SecureRandom.uuid
     payload = Time.now.utc.to_json
 

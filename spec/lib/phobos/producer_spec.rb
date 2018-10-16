@@ -67,9 +67,9 @@ RSpec.describe Phobos::Producer do
         expect(kafka_client).to_not receive(:close)
 
         subject.producer.publish_list([
-          { payload: 'message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1' },
-          { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
-        ])
+                                        { payload: 'message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1' },
+                                        { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+                                      ])
       end
     end
 
@@ -98,9 +98,9 @@ RSpec.describe Phobos::Producer do
         expect(kafka_client).to_not receive(:close)
 
         subject.producer.publish_list([
-          { payload: 'message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1' },
-          { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
-        ])
+                                        { payload: 'message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1' },
+                                        { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+                                      ])
       end
     end
   end

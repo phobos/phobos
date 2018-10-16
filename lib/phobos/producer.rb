@@ -15,11 +15,11 @@ module Phobos
         @host_obj = host_obj
       end
 
-      def publish(topic, payload, key=nil, partition_key=nil)
+      def publish(topic, payload, key = nil, partition_key = nil)
         class_producer.publish(topic, payload, key, partition_key)
       end
 
-      def async_publish(topic, payload, key=nil, partition_key=nil)
+      def async_publish(topic, payload, key = nil, partition_key = nil)
         class_producer.async_publish(topic, payload, key, partition_key)
       end
 
@@ -67,7 +67,7 @@ module Phobos
           producer_store[:kafka_client]
         end
 
-        def publish(topic, payload, key=nil, partition_key=nil)
+        def publish(topic, payload, key = nil, partition_key = nil)
           publish_list([{ topic: topic, payload: payload, key: key,
                           partition_key: partition_key }])
         end
@@ -91,7 +91,7 @@ module Phobos
           producer_store[:async_producer]
         end
 
-        def async_publish(topic, payload, key=nil, partition_key=nil)
+        def async_publish(topic, payload, key = nil, partition_key = nil)
           async_publish_list([{ topic: topic, payload: payload, key: key,
                                 partition_key: partition_key }])
         end

@@ -118,6 +118,7 @@ module Phobos
 
     def stop
       return if should_stop?
+
       instrument('listener.stopping', listener_metadata) do
         Phobos.logger.info { Hash(message: 'Listener stopping').merge(listener_metadata) }
         @consumer&.stop
@@ -135,6 +136,7 @@ module Phobos
 
     def send_heartbeat_if_necessary
       raise Phobos::AbortError if should_stop?
+
       @consumer&.send_heartbeat_if_necessary
     end
 

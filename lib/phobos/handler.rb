@@ -6,7 +6,7 @@ module Phobos
       base.extend(ClassMethods)
     end
 
-    def before_consume(payload, metadata)
+    def before_consume(payload, _metadata)
       payload
     end
 
@@ -14,7 +14,7 @@ module Phobos
       raise NotImplementedError
     end
 
-    def around_consume(payload, metadata)
+    def around_consume(_payload, _metadata)
       yield
     end
 
