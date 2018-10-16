@@ -66,11 +66,3 @@ Metrics/ParameterLists:
 # Offense count: 1
 Metrics/PerceivedComplexity:
   Max: 8
-
-# Offense count: 2
-# Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
-# AllowedNames: io, id, to, by, on, in, at, ip, db
-Naming/UncommunicativeMethodParamName:
-  Exclude:
-    - 'lib/phobos/deep_struct.rb'
-    - 'lib/phobos/executor.rb'

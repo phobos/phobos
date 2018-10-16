@@ -11,10 +11,10 @@ module Phobos
       @table = {}
       @hash_table = {}
 
-      hash&.each_pair do |k, v|
-        k = k.to_sym
-        @table[k] = to_deep_struct(v)
-        @hash_table[k] = v
+      hash&.each_pair do |key, value|
+        key = key.to_sym
+        @table[key] = to_deep_struct(value)
+        @hash_table[key] = value
       end
     end
 
@@ -25,14 +25,14 @@ module Phobos
 
     private
 
-    def to_deep_struct(v)
-      case v
+    def to_deep_struct(value)
+      case value
       when Hash
-        self.class.new(v)
+        self.class.new(value)
       when Enumerable
-        v.map { |el| to_deep_struct(el) }
+        value.map { |el| to_deep_struct(el) }
       else
-        v
+        value
       end
     end
   end

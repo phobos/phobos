@@ -56,11 +56,11 @@ module Phobos
 
     private
 
-    def error_metadata(e)
+    def error_metadata(exception)
       {
-        exception_class: e.class.name,
-        exception_message: e.message,
-        backtrace: e.backtrace
+        exception_class: exception.class.name,
+        exception_message: exception.message,
+        backtrace: exception.backtrace
       }
     end
 
