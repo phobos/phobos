@@ -3,6 +3,7 @@
 module Phobos
   class Listener
     include Phobos::Instrumentation
+    include Phobos::Log
 
     DEFAULT_MAX_BYTES_PER_PARTITION = 1_048_576 # 1 MB
     DELIVERY_OPTS = %w[batch message].freeze
@@ -54,7 +55,7 @@ module Phobos
         instrument('listener.start_handler', listener_metadata) do
           @handler_class.start(@kafka_client)
         end
-        log_info('Listener started')
+        log_info('Listener started', listener_metadata)
       end
 
       begin
@@ -67,7 +68,7 @@ module Phobos
       #
       rescue Kafka::ProcessingError, Phobos::AbortError
         instrument('listener.retry_aborted', listener_metadata) do
-          log_info('Retry loop aborted, listener is shutting down')
+          log_info('Retry loop aborted, listener is shutting down', listener_metadata)
         end
       end
     ensure
@@ -82,7 +83,7 @@ module Phobos
         end
 
         @kafka_client.close
-        log_info('Listener stopped') if should_stop?
+        log_info('Listener stopped', listener_metadata) if should_stop?
       end
     end
 
@@ -118,7 +119,7 @@ module Phobos
       return if should_stop?
 
       instrument('listener.stopping', listener_metadata) do
-        log_info('Listener stopping')
+        log_info('Listener stopping', listener_metadata)
         @consumer&.stop
         @signal_to_stop = true
       end
@@ -154,14 +155,6 @@ module Phobos
 
     def compact(hash)
       hash.delete_if { |_, v| v.nil? }
-    end
-
-    def log_info(msg)
-      Phobos.logger.info(Hash(message: msg).merge(listener_metadata))
-    end
-
-    def log_debug(msg, metadata)
-      Phobos.logger.debug(Hash(message: msg).merge(metadata))
     end
   end
 end

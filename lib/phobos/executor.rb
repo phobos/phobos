@@ -3,7 +3,7 @@
 module Phobos
   class Executor
     include Phobos::Instrumentation
-    LISTENER_OPTS = [:handler, :group_id, :topic, :min_bytes, :max_wait_time, :force_encoding, :start_from_beginning, :max_bytes_per_partition, :backoff, :delivery, :session_timeout, :offset_commit_interval, :offset_commit_threshold, :heartbeat_interval, :offset_retention_time].freeze
+    include Phobos::Log
 
     def initialize
       @threads = Concurrent::Array.new
@@ -12,7 +12,7 @@ module Phobos
         listener_configs = config.to_hash.deep_symbolize_keys
         max_concurrency = listener_configs[:max_concurrency] || 1
         Array.new(max_concurrency).map do
-          configs = listener_configs.select { |k| LISTENER_OPTS.include?(k) }
+          configs = listener_configs.select { |k| Constants::LISTENER_OPTS.include?(k) }
           Phobos::Listener.new(configs.merge(handler: handler_class))
         end
       end
@@ -82,7 +82,7 @@ module Phobos
         }.merge(error_metadata(e))
 
         instrument('executor.retry_listener_error', metadata) do
-          Phobos.logger.error { Hash(message: "Listener crashed, waiting #{interval}s (#{e.message})").merge(metadata) }
+          log_error("Listener crashed, waiting #{interval}s (#{e.message})", metadata)
           sleep interval
         end
 
@@ -90,7 +90,7 @@ module Phobos
         retry unless @signal_to_stop
       end
     rescue Exception => e
-      Phobos.logger.error { Hash(message: "Failed to run listener (#{e.message})").merge(error_metadata(e)) }
+      log_error("Failed to run listener (#{e.message})", error_metadata(e))
       raise e
     end
   end
