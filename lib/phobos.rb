@@ -61,6 +61,10 @@ module Phobos
       ExponentialBackoff.new(min, max).tap { |backoff| backoff.randomize_factor = rand }
     end
 
+    def deprecate(message)
+      warn "DEPRECATION WARNING: #{message} #{Kernel.caller.first}"
+    end
+
     # :nodoc:
     def configure_logger
       Logging.backtrace(true)
@@ -68,6 +72,21 @@ module Phobos
 
       configure_ruby_kafka_logger
       configure_phobos_logger
+    end
+
+    private
+
+    def fetch_settings(configuration)
+      return configuration.to_h if configuration.respond_to?(:to_h)
+
+      YAML.safe_load(
+        ERB.new(
+          File.read(File.expand_path(configuration))
+        ).result,
+        [Symbol],
+        [],
+        true
+      )
     end
 
     def configure_phobos_logger
@@ -92,6 +111,10 @@ module Phobos
     end
 
     def logger_appenders
+      @logger_appenders ||= fetch_logger_appenders
+    end
+
+    def fetch_logger_appenders
       date_pattern = '%Y-%m-%dT%H:%M:%S:%L%zZ'
       json_layout = Logging.layouts.json(date_pattern: date_pattern)
       log_file = config.logger.file
@@ -107,26 +130,8 @@ module Phobos
         FileUtils.mkdir_p(File.dirname(log_file))
         appenders << Logging.appenders.file(log_file, layout: json_layout)
       end
+
       appenders
-    end
-
-    def deprecate(message)
-      warn "DEPRECATION WARNING: #{message} #{Kernel.caller.first}"
-    end
-
-    private
-
-    def fetch_settings(configuration)
-      return configuration.to_h if configuration.respond_to?(:to_h)
-
-      YAML.safe_load(
-        ERB.new(
-          File.read(File.expand_path(configuration))
-        ).result,
-        [Symbol],
-        [],
-        true
-      )
     end
   end
 end
