@@ -64,13 +64,14 @@ module Phobos
       }
     end
 
+    # rubocop:disable Lint/RescueException
     def run_listener(listener)
       retry_count = 0
       backoff = listener.create_exponential_backoff
 
       begin
         listener.start
-      rescue StandardError => e
+      rescue Exception => e
         #
         # When "listener#start" is interrupted it's safe to assume that the consumer
         # and the kafka client were properly stopped, it's safe to call start
@@ -91,9 +92,10 @@ module Phobos
         retry_count += 1
         retry unless @signal_to_stop
       end
-    rescue StandardError => e
+    rescue Exception => e
       log_error("Failed to run listener (#{e.message})", error_metadata(e))
       raise e
     end
+    # rubocop:enable Lint/RescueException
   end
 end
