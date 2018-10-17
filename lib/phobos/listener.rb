@@ -12,6 +12,7 @@ module Phobos
     attr_reader :group_id, :topic, :id
     attr_reader :handler_class, :encoding
 
+    # rubocop:disable Metrics/MethodLength
     def initialize(handler:, group_id:, topic:, min_bytes: nil, max_wait_time: nil,
                    force_encoding: nil, start_from_beginning: true, backoff: nil,
                    delivery: 'batch', max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION,
@@ -37,6 +38,7 @@ module Phobos
       @kafka_client = Phobos.create_kafka_client
       @producer_enabled = @handler_class.ancestors.include?(Phobos::Producer)
     end
+    # rubocop:enable Metrics/MethodLength
 
     def start
       @signal_to_stop = false

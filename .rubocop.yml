@@ -26,3 +26,6 @@ AllCops:
     - spec/**/*
     - examples/**/*
   TargetRubyVersion: 2.3
+
+Metrics/MethodLength:
+  Max: 15
