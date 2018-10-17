@@ -67,28 +67,11 @@ module Phobos
     # rubocop:disable Lint/RescueException
     def run_listener(listener)
       retry_count = 0
-      backoff = listener.create_exponential_backoff
 
       begin
         listener.start
       rescue Exception => e
-        #
-        # When "listener#start" is interrupted it's safe to assume that the consumer
-        # and the kafka client were properly stopped, it's safe to call start
-        # again
-        #
-        interval = backoff.interval_at(retry_count).round(2)
-        metadata = {
-          listener_id: listener.id,
-          retry_count: retry_count,
-          waiting_time: interval
-        }.merge(error_metadata(e))
-
-        instrument('executor.retry_listener_error', metadata) do
-          log_error("Listener crashed, waiting #{interval}s (#{e.message})", metadata)
-          sleep interval
-        end
-
+        handle_crashed_listener(listener, e, retry_count)
         retry_count += 1
         retry unless @signal_to_stop
       end
@@ -97,5 +80,24 @@ module Phobos
       raise e
     end
     # rubocop:enable Lint/RescueException
+
+    # When "listener#start" is interrupted it's safe to assume that the consumer
+    # and the kafka client were properly stopped, it's safe to call start
+    # again
+    def handle_crashed_listener(listener, error, retry_count)
+      backoff = listener.create_exponential_backoff
+      interval = backoff.interval_at(retry_count).round(2)
+
+      metadata = {
+        listener_id: listener.id,
+        retry_count: retry_count,
+        waiting_time: interval
+      }.merge(error_metadata(error))
+
+      instrument('executor.retry_listener_error', metadata) do
+        log_error("Listener crashed, waiting #{interval}s (#{error.message})", metadata)
+        sleep interval
+      end
+    end
   end
 end
