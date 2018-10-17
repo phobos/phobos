@@ -17,11 +17,6 @@ Lint/AmbiguousRegexpLiteral:
   Exclude:
     - 'spec/lib/phobos_spec.rb'
 
-# Offense count: 2
-Lint/NonLocalExitFromIterator:
-  Exclude:
-    - 'lib/phobos/listener.rb'
-
 # Offense count: 10
 Metrics/AbcSize:
   Max: 42

@@ -98,7 +98,7 @@ module Phobos
 
         batch_processor.execute
         log_debug('Committed offset', batch_processor.metadata)
-        return if should_stop?
+        return nil if should_stop?
       end
     end
 
@@ -112,7 +112,7 @@ module Phobos
 
         message_processor.execute
         log_debug('Committed offset', message_processor.metadata)
-        return if should_stop?
+        return nil if should_stop?
       end
     end
 
