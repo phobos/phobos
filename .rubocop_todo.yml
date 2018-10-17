@@ -27,11 +27,6 @@ Lint/RescueException:
   Exclude:
     - 'lib/phobos/executor.rb'
 
-# Offense count: 1
-Lint/ShadowingOuterLocalVariable:
-  Exclude:
-    - 'lib/phobos/instrumentation.rb'
-
 # Offense count: 2
 Lint/UselessAssignment:
   Exclude:

@@ -2,6 +2,8 @@
 
 module Phobos
   module Constants
+    LOG_DATE_PATTERN = '%Y-%m-%dT%H:%M:%S:%L%zZ'
+
     KAFKA_CONSUMER_OPTS = [
       :session_timeout,
       :offset_commit_interval,

@@ -111,17 +111,12 @@ module Phobos
     end
 
     def logger_appenders
-      @logger_appenders ||= fetch_logger_appenders
-    end
-
-    def fetch_logger_appenders
-      date_pattern = '%Y-%m-%dT%H:%M:%S:%L%zZ'
-      json_layout = Logging.layouts.json(date_pattern: date_pattern)
+      json_layout = Logging.layouts.json(date_pattern: Constants::LOG_DATE_PATTERN)
       log_file = config.logger.file
       stdout_layout = if config.logger.stdout_json == true
                         json_layout
                       else
-                        Logging.layouts.pattern(date_pattern: date_pattern)
+                        Logging.layouts.pattern(date_pattern: Constants::LOG_DATE_PATTERN)
                       end
 
       appenders = [Logging.appenders.stdout(layout: stdout_layout)]
