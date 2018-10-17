@@ -78,7 +78,7 @@ module Phobos
           preprocessed_payload =
             begin
               handler.before_consume(payload, @metadata)
-            rescue ArgumentError => e
+            rescue ArgumentError
               Phobos.deprecate('before_consume now expects metadata as second argument, '\
                 'please update your consumer. This will not be backwards compatible in the future.')
               handler.before_consume(payload)

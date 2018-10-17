@@ -22,12 +22,6 @@ Lint/NonLocalExitFromIterator:
   Exclude:
     - 'lib/phobos/listener.rb'
 
-# Offense count: 2
-Lint/UselessAssignment:
-  Exclude:
-    - 'examples/publishing_messages_without_consumer.rb'
-    - 'lib/phobos/actions/process_message.rb'
-
 # Offense count: 10
 Metrics/AbcSize:
   Max: 42
