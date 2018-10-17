@@ -35,18 +35,15 @@ module Phobos
     attr_accessor :silence_log
 
     def configure(configuration)
-      @config = DeepStruct.new(fetch_settings(configuration))
+      @config = fetch_configuration(configuration)
       @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash }
       @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
       @config.listeners ||= []
       configure_logger
-      logger.info do
-        Hash(message: 'Phobos configured', env: ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'N/A')
-      end
     end
 
-    def add_listeners(listeners_configuration)
-      listeners_config = DeepStruct.new(fetch_settings(listeners_configuration))
+    def add_listeners(configuration)
+      listeners_config = fetch_configuration(configuration)
       @config.listeners += listeners_config.listeners
     end
 
@@ -72,11 +69,19 @@ module Phobos
 
       configure_ruby_kafka_logger
       configure_phobos_logger
+
+      logger.info do
+        Hash(message: 'Phobos configured', env: ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'N/A')
+      end
     end
 
     private
 
-    def fetch_settings(configuration)
+    def fetch_configuration(configuration)
+      DeepStruct.new(read_configuration(configuration))
+    end
+
+    def read_configuration(configuration)
       return configuration.to_h if configuration.respond_to?(:to_h)
 
       YAML.safe_load(
@@ -111,14 +116,6 @@ module Phobos
     end
 
     def logger_appenders
-      json_layout = Logging.layouts.json(date_pattern: Constants::LOG_DATE_PATTERN)
-      log_file = config.logger.file
-      stdout_layout = if config.logger.stdout_json == true
-                        json_layout
-                      else
-                        Logging.layouts.pattern(date_pattern: Constants::LOG_DATE_PATTERN)
-                      end
-
       appenders = [Logging.appenders.stdout(layout: stdout_layout)]
 
       if log_file
@@ -127,6 +124,22 @@ module Phobos
       end
 
       appenders
+    end
+
+    def log_file
+      config.logger.file
+    end
+
+    def json_layout
+      Logging.layouts.json(date_pattern: Constants::LOG_DATE_PATTERN)
+    end
+
+    def stdout_layout
+      if config.logger.stdout_json == true
+        json_layout
+      else
+        Logging.layouts.pattern(date_pattern: Constants::LOG_DATE_PATTERN)
+      end
     end
   end
 end

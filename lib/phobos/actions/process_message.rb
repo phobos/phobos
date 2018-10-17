@@ -26,25 +26,7 @@ module Phobos
         begin
           process_message(payload)
         rescue StandardError => e
-          error = {
-            waiting_time: backoff_interval,
-            exception_class: e.class.name,
-            exception_message: e.message,
-            backtrace: e.backtrace
-          }
-
-          instrument('listener.retry_handler_error', error.merge(@metadata)) do
-            Phobos.logger.error do
-              { message: "error processing message, waiting #{backoff_interval}s" }
-                .merge(error)
-                .merge(@metadata)
-            end
-
-            snooze(backoff_interval)
-          end
-
-          increment_retry_count
-
+          handle_error(e)
           retry
         end
       end
@@ -91,6 +73,27 @@ module Phobos
             handler.around_consume(preprocessed_payload, @metadata, &consume_block)
           end
         end
+      end
+
+      def handle_error(error)
+        error_hash = {
+          waiting_time: backoff_interval,
+          exception_class: error.class.name,
+          exception_message: error.message,
+          backtrace: error.backtrace
+        }
+
+        instrument('listener.retry_handler_error', error_hash.merge(@metadata)) do
+          Phobos.logger.error do
+            { message: "error processing message, waiting #{backoff_interval}s" }
+              .merge(error_hash)
+              .merge(@metadata)
+          end
+
+          snooze(backoff_interval)
+        end
+
+        increment_retry_count
       end
 
       def retry_count
