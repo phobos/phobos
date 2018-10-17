@@ -21,17 +21,13 @@ module Phobos
       end
 
       def execute
-        backoff = @listener.create_exponential_backoff
         payload = force_encoding(@message.value)
 
         begin
           process_message(payload)
         rescue StandardError => e
-          retry_count = @metadata[:retry_count]
-          interval = backoff.interval_at(retry_count).round(2)
-
           error = {
-            waiting_time: interval,
+            waiting_time: backoff_interval,
             exception_class: e.class.name,
             exception_message: e.message,
             backtrace: e.backtrace
@@ -39,15 +35,15 @@ module Phobos
 
           instrument('listener.retry_handler_error', error.merge(@metadata)) do
             Phobos.logger.error do
-              { message: "error processing message, waiting #{interval}s" }
+              { message: "error processing message, waiting #{backoff_interval}s" }
                 .merge(error)
                 .merge(@metadata)
             end
 
-            snooze(interval)
+            snooze(backoff_interval)
           end
 
-          @metadata[:retry_count] = retry_count + 1
+          increment_retry_count
 
           retry
         end
@@ -95,6 +91,22 @@ module Phobos
             handler.around_consume(preprocessed_payload, @metadata, &consume_block)
           end
         end
+      end
+
+      def retry_count
+        @metadata[:retry_count]
+      end
+
+      def increment_retry_count
+        @metadata[:retry_count] = retry_count + 1
+      end
+
+      def backoff
+        @backoff ||= @listener.create_exponential_backoff
+      end
+
+      def backoff_interval
+        backoff.interval_at(retry_count).round(2)
       end
     end
   end
