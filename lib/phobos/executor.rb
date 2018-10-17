@@ -70,7 +70,7 @@ module Phobos
 
       begin
         listener.start
-      rescue Exception => e
+      rescue StandardError => e
         #
         # When "listener#start" is interrupted it's safe to assume that the consumer
         # and the kafka client were properly stopped, it's safe to call start
@@ -91,7 +91,7 @@ module Phobos
         retry_count += 1
         retry unless @signal_to_stop
       end
-    rescue Exception => e
+    rescue StandardError => e
       log_error("Failed to run listener (#{e.message})", error_metadata(e))
       raise e
     end

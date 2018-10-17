@@ -23,11 +23,6 @@ Lint/NonLocalExitFromIterator:
     - 'lib/phobos/listener.rb'
 
 # Offense count: 2
-Lint/RescueException:
-  Exclude:
-    - 'lib/phobos/executor.rb'
-
-# Offense count: 2
 Lint/UselessAssignment:
   Exclude:
     - 'examples/publishing_messages_without_consumer.rb'
