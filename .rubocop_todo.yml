@@ -6,20 +6,9 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 3
-Lint/AmbiguousBlockAssociation:
-  Exclude:
-    - 'spec/lib/phobos/listener_spec.rb'
-    - 'spec/support/kafka_helpers.rb'
-
-# Offense count: 1
-Lint/AmbiguousRegexpLiteral:
-  Exclude:
-    - 'spec/lib/phobos_spec.rb'
-
 # Offense count: 10
 Metrics/AbcSize:
-  Max: 42
+  Max: 20
 
 # Offense count: 13
 # Configuration parameters: CountComments, ExcludedMethods.

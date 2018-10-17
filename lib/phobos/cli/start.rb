@@ -42,14 +42,9 @@ module Phobos
 
       def validate_listeners!
         Phobos.config.listeners.each do |listener|
-          handler_class = listener.handler
+          handler = listener.handler
 
-          begin
-            handler_class.constantize
-          rescue NameError
-            Phobos::CLI.logger.error { Hash(message: "Handler '#{handler_class}' not defined") }
-            exit(1)
-          end
+          Object.const_defined?(handler) || error_exit("Handler '#{handler}' not defined")
 
           delivery = listener.delivery
           if delivery.nil?
@@ -58,13 +53,15 @@ module Phobos
                 ' - specify this option to silence this message')
             end
           elsif !Listener::DELIVERY_OPTS.include?(delivery)
-            Phobos::CLI.logger.error do
-              Hash(message: "Invalid delivery option '#{delivery}'. Please specify one of: "\
-                "#{Listener::DELIVERY_OPTS.join(', ')}")
-            end
-            exit(1)
+            error_exit("Invalid delivery option '#{delivery}'. Please specify one of: "\
+              "#{Listener::DELIVERY_OPTS.join(', ')}")
           end
         end
+      end
+
+      def error_exit(msg)
+        Phobos::CLI.logger.error { Hash(message: msg) }
+        exit(1)
       end
 
       def load_boot_file
