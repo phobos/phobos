@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Phobos
   module Producer
     def self.included(base)
@@ -13,11 +15,11 @@ module Phobos
         @host_obj = host_obj
       end
 
-      def publish(topic, payload, key=nil, partition_key=nil)
+      def publish(topic, payload, key = nil, partition_key = nil)
         class_producer.publish(topic, payload, key, partition_key)
       end
 
-      def async_publish(topic, payload, key=nil, partition_key=nil)
+      def async_publish(topic, payload, key = nil, partition_key = nil)
         class_producer.async_publish(topic, payload, key, partition_key)
       end
 
@@ -49,7 +51,7 @@ module Phobos
 
       class PublicAPI
         NAMESPACE = :phobos_producer_store
-        ASYNC_PRODUCER_PARAMS = %i(max_queue_size delivery_threshold delivery_interval).freeze
+        ASYNC_PRODUCER_PARAMS = [:max_queue_size, :delivery_threshold, :delivery_interval].freeze
 
         # This method configures the kafka client used with publish operations
         # performed by the host class
@@ -65,7 +67,7 @@ module Phobos
           producer_store[:kafka_client]
         end
 
-        def publish(topic, payload, key=nil, partition_key=nil)
+        def publish(topic, payload, key = nil, partition_key = nil)
           publish_list([{ topic: topic, payload: payload, key: key,
                           partition_key: partition_key }])
         end
@@ -89,7 +91,7 @@ module Phobos
           producer_store[:async_producer]
         end
 
-        def async_publish(topic, payload, key=nil, partition_key=nil)
+        def async_publish(topic, payload, key = nil, partition_key = nil)
           async_publish_list([{ topic: topic, payload: payload, key: key,
                                 partition_key: partition_key }])
         end
@@ -107,7 +109,7 @@ module Phobos
         end
 
         def regular_configs
-          Phobos.config.producer_hash.reject { |k, _| ASYNC_PRODUCER_PARAMS.include?(k)}
+          Phobos.config.producer_hash.reject { |k, _| ASYNC_PRODUCER_PARAMS.include?(k) }
         end
 
         def async_configs
@@ -126,8 +128,8 @@ module Phobos
         end
 
         def async_automatic_delivery?
-          async_configs.fetch(:delivery_threshold, 0) > 0 ||
-            async_configs.fetch(:delivery_interval, 0) > 0
+          async_configs.fetch(:delivery_threshold, 0).positive? ||
+            async_configs.fetch(:delivery_interval, 0).positive?
         end
 
         def producer_store

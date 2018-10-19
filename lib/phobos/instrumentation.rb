@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_support/notifications'
 
 module Phobos
@@ -15,8 +17,8 @@ module Phobos
     end
 
     def instrument(event, extra = {})
-      ActiveSupport::Notifications.instrument("#{NAMESPACE}.#{event}", extra) do |extra|
-        yield(extra) if block_given?
+      ActiveSupport::Notifications.instrument("#{NAMESPACE}.#{event}", extra) do |args|
+        yield(args) if block_given?
       end
     end
   end

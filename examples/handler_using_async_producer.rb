@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # This example assumes you want to process the event and publish another
 # one to kafka. A new event is always published thus we want to use the async producer
@@ -9,7 +11,7 @@ class HandlerUsingAsyncProducer
 
   PUBLISH_TO 'another-topic'
 
-  def consume(payload, metadata)
+  def consume(payload, _metadata)
     producer.async_publish(PUBLISH_TO, "#{payload}-#{rand}")
   end
 end

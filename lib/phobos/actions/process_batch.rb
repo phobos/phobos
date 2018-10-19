@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Phobos
   module Actions
     class ProcessBatch
@@ -17,7 +19,7 @@ module Phobos
       end
 
       def execute
-        instrument('listener.process_batch', @metadata) do |metadata|
+        instrument('listener.process_batch', @metadata) do |_metadata|
           @batch.messages.each do |message|
             Phobos::Actions::ProcessMessage.new(
               listener: @listener,

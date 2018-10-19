@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ostruct'
 require 'securerandom'
 require 'yaml'
@@ -13,6 +15,8 @@ require 'erb'
 
 require 'phobos/deep_struct'
 require 'phobos/version'
+require 'phobos/constants'
+require 'phobos/log'
 require 'phobos/instrumentation'
 require 'phobos/errors'
 require 'phobos/listener'
@@ -31,16 +35,15 @@ module Phobos
     attr_accessor :silence_log
 
     def configure(configuration)
-      @config = DeepStruct.new(fetch_settings(configuration))
+      @config = fetch_configuration(configuration)
       @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash }
       @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
       @config.listeners ||= []
       configure_logger
-      logger.info { Hash(message: 'Phobos configured', env: ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'N/A') }
     end
 
-    def add_listeners(listeners_configuration)
-      listeners_config = DeepStruct.new(fetch_settings(listeners_configuration))
+    def add_listeners(configuration)
+      listeners_config = fetch_configuration(configuration)
       @config.listeners += listeners_config.listeners
     end
 
@@ -55,61 +58,88 @@ module Phobos
       ExponentialBackoff.new(min, max).tap { |backoff| backoff.randomize_factor = rand }
     end
 
+    def deprecate(message)
+      warn "DEPRECATION WARNING: #{message} #{Kernel.caller.first}"
+    end
+
     # :nodoc:
     def configure_logger
-      ruby_kafka = config.logger.ruby_kafka
-
       Logging.backtrace(true)
       Logging.logger.root.level = silence_log ? :fatal : config.logger.level
-      appenders = logger_appenders
 
-      @ruby_kafka_logger = nil
+      configure_ruby_kafka_logger
+      configure_phobos_logger
 
-      if config.custom_kafka_logger
-        @ruby_kafka_logger = config.custom_kafka_logger
-      elsif ruby_kafka
-        @ruby_kafka_logger = Logging.logger['RubyKafka']
-        @ruby_kafka_logger.appenders = appenders
-        @ruby_kafka_logger.level = silence_log ? :fatal : ruby_kafka.level
+      logger.info do
+        Hash(message: 'Phobos configured', env: ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'N/A')
       end
+    end
 
+    private
+
+    def fetch_configuration(configuration)
+      DeepStruct.new(read_configuration(configuration))
+    end
+
+    def read_configuration(configuration)
+      return configuration.to_h if configuration.respond_to?(:to_h)
+
+      YAML.safe_load(
+        ERB.new(
+          File.read(File.expand_path(configuration))
+        ).result,
+        [Symbol],
+        [],
+        true
+      )
+    end
+
+    def configure_phobos_logger
       if config.custom_logger
         @logger = config.custom_logger
       else
         @logger = Logging.logger[self]
-        @logger.appenders = appenders
+        @logger.appenders = logger_appenders
+      end
+    end
+
+    def configure_ruby_kafka_logger
+      if config.custom_kafka_logger
+        @ruby_kafka_logger = config.custom_kafka_logger
+      elsif config.logger.ruby_kafka
+        @ruby_kafka_logger = Logging.logger['RubyKafka']
+        @ruby_kafka_logger.appenders = logger_appenders
+        @ruby_kafka_logger.level = silence_log ? :fatal : config.logger.ruby_kafka.level
+      else
+        @ruby_kafka_logger = nil
       end
     end
 
     def logger_appenders
-      date_pattern = '%Y-%m-%dT%H:%M:%S:%L%zZ'
-      json_layout = Logging.layouts.json(date_pattern: date_pattern)
-      log_file = config.logger.file
-      stdout_layout = if config.logger.stdout_json == true
-                        json_layout
-                      else
-                        Logging.layouts.pattern(date_pattern: date_pattern)
-                      end
-
       appenders = [Logging.appenders.stdout(layout: stdout_layout)]
 
       if log_file
         FileUtils.mkdir_p(File.dirname(log_file))
         appenders << Logging.appenders.file(log_file, layout: json_layout)
       end
+
       appenders
     end
 
-    def deprecate(message)
-      warn "DEPRECATION WARNING: #{message} #{Kernel.caller.first}"
+    def log_file
+      config.logger.file
     end
 
-    private
+    def json_layout
+      Logging.layouts.json(date_pattern: Constants::LOG_DATE_PATTERN)
+    end
 
-    def fetch_settings(configuration)
-      return configuration.to_h if configuration.respond_to?(:to_h)
-
-      YAML.load(ERB.new(File.read(File.expand_path(configuration))).result)
+    def stdout_layout
+      if config.logger.stdout_json == true
+        json_layout
+      else
+        Logging.layouts.pattern(date_pattern: Constants::LOG_DATE_PATTERN)
+      end
     end
   end
 end

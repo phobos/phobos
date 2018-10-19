@@ -1,11 +1,13 @@
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 Thread.abort_on_exception = true
 
 require 'simplecov'
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
-  SimpleCov::Formatter::HTMLFormatter
-])
+                                                                 SimpleCov::Formatter::HTMLFormatter
+                                                               ])
 
 SimpleCov.start do
   add_filter '/spec/'
@@ -40,9 +42,7 @@ RSpec.configure do |config|
   config.warnings = false
   config.expose_dsl_globally = true
 
-  if config.files_to_run.one?
-    config.default_formatter = 'doc'
-  end
+  config.default_formatter = 'doc' if config.files_to_run.one?
 
   config.before(:each) do
     Phobos.silence_log = true

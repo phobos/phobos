@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'securerandom'
 require 'timeout'
 
@@ -8,7 +10,7 @@ module KafkaHelpers
   @@subscription_events = Concurrent::Hash.new
 
   def random
-    %w(a b c d e f g h i j k l m n o p q r s t u v w x y z).sample(6).join
+    %w[a b c d e f g h i j k l m n o p q r s t u v w x y z].sample(6).join
   end
 
   def random_topic(namespace = 'test')
@@ -26,6 +28,7 @@ module KafkaHelpers
   def events_for(name, ignore_errors: true)
     events = @@subscription_events[name]
     raise "Not subscribed to event '#{name}'" if events.nil?
+
     # removing events with errors inside
     if ignore_errors
       events.reject { |event| event.payload[:exception] }
@@ -55,12 +58,11 @@ module KafkaHelpers
 
   def wait_for_event(name, amount: 1, amount_gte: nil, ignore_errors: true, show_events_on_error: false, timeout: DEFAULT_TIMEOUT)
     operation = amount_gte ? :>= : :==
-    amount = amount_gte ? amount_gte : amount
+    amount = amount_gte || amount
 
     wait(timeout) do
       events_for(name, ignore_errors: ignore_errors).size.public_send(operation, amount)
     end
-
   rescue Timeout::Error
     label = amount > 1 ? 'events' : 'event'
     total = events_for(name, ignore_errors: ignore_errors).size

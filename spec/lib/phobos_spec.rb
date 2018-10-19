@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Phobos do
@@ -52,13 +54,11 @@ RSpec.describe Phobos do
         expect(Phobos.logger).to eq(logger)
 
         expect(Kafka).to receive(:new).with(
-          {
-            client_id: 'client_id',
-            logger: kafka_logger
-          })
+          client_id: 'client_id',
+          logger: kafka_logger
+        )
         Phobos.create_kafka_client
       end
-
     end
   end
 
@@ -68,7 +68,7 @@ RSpec.describe Phobos do
       {
         listeners: [
           {
-            handler: "ListenerTestHandler"
+            handler: 'ListenerTestHandler'
           }
         ]
       }
@@ -78,9 +78,9 @@ RSpec.describe Phobos do
       Phobos.add_listeners(new_listeners)
       # Listener config loaded from phobos main config has not been
       # overwritten:
-      expect(Phobos.config.listeners).to include(have_attributes(handler: "Phobos::EchoHandler"))
+      expect(Phobos.config.listeners).to include(have_attributes(handler: 'Phobos::EchoHandler'))
       # Listener config passed in has been added:
-      expect(Phobos.config.listeners).to include(have_attributes(handler: "ListenerTestHandler"))
+      expect(Phobos.config.listeners).to include(have_attributes(handler: 'ListenerTestHandler'))
     end
   end
 
@@ -106,9 +106,10 @@ RSpec.describe Phobos do
       end
 
       it 'configures "logger"' do
+        expected = Phobos.config.kafka.to_hash.merge(logger: instance_of(Logging::Logger))
         expect(Kafka)
           .to receive(:new)
-          .with(hash_including(Phobos.config.kafka.to_hash.merge(logger: instance_of(Logging::Logger))))
+          .with(hash_including(expected))
 
         Phobos.create_kafka_client
       end
@@ -121,7 +122,7 @@ RSpec.describe Phobos do
     end
 
     it 'allows backoff times to be overridden' do
-      backoff = Phobos.create_exponential_backoff(min_ms: 1234000, max_ms: 5678000)
+      backoff = Phobos.create_exponential_backoff(min_ms: 1_234_000, max_ms: 5_678_000)
       expect(backoff).to be_a(ExponentialBackoff)
       expect(backoff.instance_variable_get(:@minimal_interval)).to eq(1234)
       expect(backoff.instance_variable_get(:@maximum_elapsed_time)).to eq(5678)

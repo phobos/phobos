@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'phobos/test/helper'
 
@@ -6,7 +8,7 @@ RSpec.describe Phobos::Test::Helper do
     include Phobos::Handler
     CONSUME_VISITED = 'consume was visited'
 
-    def before_consume(payload, metadata)
+    def before_consume(payload, _metadata)
       payload
     end
 

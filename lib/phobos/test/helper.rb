@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Phobos
   module Test
     module Helper
@@ -8,14 +10,12 @@ module Phobos
         listener = Phobos::Listener.new(
           handler: handler,
           group_id: GROUP,
-          topic: TOPIC,
-          force_encoding: force_encoding
+          topic: TOPIC, force_encoding: force_encoding
         )
 
         message = Kafka::FetchedMessage.new(
           message: Kafka::Protocol::Message.new(value: payload, key: nil, offset: 13),
-          topic: TOPIC,
-          partition: 0
+          topic: TOPIC, partition: 0
         )
 
         Phobos::Actions::ProcessMessage.new(

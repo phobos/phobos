@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # This example assumes you want to create a threaded kafka generator which
 # publish a stream of kafka messages without consuming them. It also shows
@@ -19,9 +21,9 @@ end
 # Trapping signals to properly stop this generator
 #
 @stop = false
-%i( INT TERM QUIT ).each do |signal|
+[:INT, :TERM, :QUIT].each do |signal|
   Signal.trap(signal) do
-    puts "Stopping"
+    puts 'Stopping'
     @stop = true
   end
 end
@@ -32,6 +34,7 @@ Thread.new do
 
     loop do
       break if @stop
+
       key = SecureRandom.uuid
       payload = Time.now.utc.to_json
 
@@ -50,7 +53,7 @@ Thread.new do
       # the producer can write to Kafka. Eventually we'll get some buffer overflows
       #
       rescue Kafka::BufferOverflow => e
-        puts "| waiting"
+        puts '| waiting'
         sleep(1)
         retry
       end
@@ -67,7 +70,8 @@ Thread.new do
       .async_producer_shutdown
 
     #
-    # Since no client was configured (we can do this with `MyProducer.producer.configure_kafka_client`)
+    # Since no client was configured (we can do this with
+    #   `MyProducer.producer.configure_kafka_client`)
     # we must get the auto generated one and close it properly
     #
     MyProducer

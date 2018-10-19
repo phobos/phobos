@@ -338,21 +338,21 @@ The configuration file is organized in 6 sections. Take a look at the example fi
 
 The file will be parsed through ERB so ERB syntax/file extension is supported beside the YML format.
 
-__logger__ configures the logger for all Phobos components. It automatically 
+__logger__ configures the logger for all Phobos components. It automatically
 outputs to `STDOUT` and it saves the log in the configured file.
 
-__kafka__ provides configurations for every `Kafka::Client` created over the application. 
+__kafka__ provides configurations for every `Kafka::Client` created over the application.
 All [options supported by  `ruby-kafka`][ruby-kafka-client] can be provided.
 
-__producer__ provides configurations for all producers created over the application, 
-the options are the same for regular and async producers. 
+__producer__ provides configurations for all producers created over the application,
+the options are the same for regular and async producers.
 All [options supported by  `ruby-kafka`][ruby-kafka-producer] can be provided.
 
-__consumer__ provides configurations for all consumer groups created over the application. 
+__consumer__ provides configurations for all consumer groups created over the application.
 All [options supported by  `ruby-kafka`][ruby-kafka-consumer] can be provided.
 
-__backoff__ Phobos provides automatic retries for your handlers. If an exception 
-is raised, the listener will retry following the back off configured here. 
+__backoff__ Phobos provides automatic retries for your handlers. If an exception
+is raised, the listener will retry following the back off configured here.
 Backoff can also be configured per listener.
 
 __listeners__ is the list of listeners configured. Each listener represents a consumer group.
@@ -536,6 +536,10 @@ end
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/klarna/phobos.
+
+## Linting
+
+Phobos projects Rubocop to lint the code, and in addition all projects use [Rubocop Rules](https://github.com/klippx/rubocop_rules) to maintain a shared rubocop configuration. Updates to the shared configurations are done in [phobos/shared](https://github.com/phobos/shared) repo, where you can also find instructions on how to apply the new settings to the Phobos projects.
 
 ## Acknowledgements
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # This example assumes that you want to save all events in your database for
 # recovery purposes. The consumer will process the message and perform other
@@ -10,7 +12,7 @@ class HandlerSavingEventsDatabase
   include Phobos::Handler
   include Phobos::Producer
 
-  def self.around_consume(payload, metadata)
+  def self.around_consume(payload, _metadata)
     #
     # Let's assume `::from_message` will initialize our object with `payload`
     #
@@ -39,7 +41,7 @@ class HandlerSavingEventsDatabase
     end
   end
 
-  def consume(payload, metadata)
+  def consume(payload, _metadata)
     #
     # Process the event, it might index it to elasticsearch or notify other
     # system, you should process your message inside this method.

@@ -1,17 +1,15 @@
+# frozen_string_literal: true
+
 require 'phobos/cli/runner'
 
 module Phobos
   module CLI
     class Start
       def initialize(options)
-        unless options[:skip_config]
-          @config_file = File.expand_path(options[:config])
-        end
+        @config_file = File.expand_path(options[:config]) unless options[:skip_config]
         @boot_file = File.expand_path(options[:boot])
 
-        if options[:listeners]
-          @listeners_file = File.expand_path(options[:listeners])
-        end
+        @listeners_file = File.expand_path(options[:listeners]) if options[:listeners]
       end
 
       def execute
@@ -22,9 +20,7 @@ module Phobos
           Phobos.configure(config_file)
         end
 
-        if listeners_file
-          Phobos.add_listeners(listeners_file)
-        end
+        Phobos.add_listeners(listeners_file) if listeners_file
 
         validate_listeners!
 
@@ -36,35 +32,31 @@ module Phobos
       attr_reader :config_file, :boot_file, :listeners_file
 
       def validate_config_file!
-        unless File.exist?(config_file)
-          Phobos::CLI.logger.error { Hash(message: "Config file not found (#{config_file})") }
-          exit(1)
-        end
+        File.exist?(config_file) || error_exit("Config file not found (#{config_file})")
       end
 
       def validate_listeners!
         Phobos.config.listeners.each do |listener|
-          handler_class = listener.handler
+          handler = listener.handler
 
-          begin
-            handler_class.constantize
-          rescue NameError
-            Phobos::CLI.logger.error { Hash(message: "Handler '#{handler_class}' not defined") }
-            exit(1)
-          end
+          Object.const_defined?(handler) || error_exit("Handler '#{handler}' not defined")
 
           delivery = listener.delivery
           if delivery.nil?
             Phobos::CLI.logger.warn do
-              Hash(message: "Delivery option should be specified, defaulting to 'batch' - specify this option to silence this message")
+              Hash(message: "Delivery option should be specified, defaulting to 'batch'"\
+                ' - specify this option to silence this message')
             end
           elsif !Listener::DELIVERY_OPTS.include?(delivery)
-            Phobos::CLI.logger.error do
-              Hash(message: "Invalid delivery option '#{delivery}'. Please specify one of: #{Listener::DELIVERY_OPTS.join(', ')}")
-            end
-            exit(1)
+            error_exit("Invalid delivery option '#{delivery}'. Please specify one of: "\
+              "#{Listener::DELIVERY_OPTS.join(', ')}")
           end
         end
+      end
+
+      def error_exit(msg)
+        Phobos::CLI.logger.error { Hash(message: msg) }
+        exit(1)
       end
 
       def load_boot_file

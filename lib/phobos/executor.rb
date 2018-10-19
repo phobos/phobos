@@ -1,23 +1,9 @@
+# frozen_string_literal: true
+
 module Phobos
   class Executor
     include Phobos::Instrumentation
-    LISTENER_OPTS = %i(
-      handler
-      group_id
-      topic
-      min_bytes
-      max_wait_time
-      force_encoding
-      start_from_beginning
-      max_bytes_per_partition
-      backoff
-      delivery
-      session_timeout
-      offset_commit_interval
-      offset_commit_threshold
-      heartbeat_interval
-      offset_retention_time
-    ).freeze
+    include Phobos::Log
 
     def initialize
       @threads = Concurrent::Array.new
@@ -26,7 +12,7 @@ module Phobos
         listener_configs = config.to_hash.deep_symbolize_keys
         max_concurrency = listener_configs[:max_concurrency] || 1
         Array.new(max_concurrency).map do
-          configs = listener_configs.select { |k| LISTENER_OPTS.include?(k) }
+          configs = listener_configs.select { |k| Constants::LISTENER_OPTS.include?(k) }
           Phobos::Listener.new(configs.merge(handler: handler_class))
         end
       end
@@ -51,10 +37,17 @@ module Phobos
 
     def stop
       return if @signal_to_stop
+
       instrument('executor.stop') do
         @signal_to_stop = true
         @listeners.each(&:stop)
-        @threads.select(&:alive?).each { |thread| thread.wakeup rescue nil }
+        @threads.select(&:alive?).each do |thread|
+          begin
+            thread.wakeup
+          rescue StandardError
+            nil
+          end
+        end
         @thread_pool&.shutdown
         @thread_pool&.wait_for_termination
         Phobos.logger.info { Hash(message: 'Executor stopped') }
@@ -63,44 +56,48 @@ module Phobos
 
     private
 
-    def error_metadata(e)
+    def error_metadata(exception)
       {
-        exception_class: e.class.name,
-        exception_message: e.message,
-        backtrace: e.backtrace
+        exception_class: exception.class.name,
+        exception_message: exception.message,
+        backtrace: exception.backtrace
       }
     end
 
+    # rubocop:disable Lint/RescueException
     def run_listener(listener)
       retry_count = 0
-      backoff = listener.create_exponential_backoff
 
       begin
         listener.start
       rescue Exception => e
-        #
-        # When "listener#start" is interrupted it's safe to assume that the consumer
-        # and the kafka client were properly stopped, it's safe to call start
-        # again
-        #
-        interval = backoff.interval_at(retry_count).round(2)
-        metadata = {
-          listener_id: listener.id,
-          retry_count: retry_count,
-          waiting_time: interval
-        }.merge(error_metadata(e))
-
-        instrument('executor.retry_listener_error', metadata) do
-          Phobos.logger.error { Hash(message: "Listener crashed, waiting #{interval}s (#{e.message})").merge(metadata)}
-          sleep interval
-        end
-
+        handle_crashed_listener(listener, e, retry_count)
         retry_count += 1
         retry unless @signal_to_stop
       end
     rescue Exception => e
-      Phobos.logger.error { Hash(message: "Failed to run listener (#{e.message})").merge(error_metadata(e)) }
+      log_error("Failed to run listener (#{e.message})", error_metadata(e))
       raise e
+    end
+    # rubocop:enable Lint/RescueException
+
+    # When "listener#start" is interrupted it's safe to assume that the consumer
+    # and the kafka client were properly stopped, it's safe to call start
+    # again
+    def handle_crashed_listener(listener, error, retry_count)
+      backoff = listener.create_exponential_backoff
+      interval = backoff.interval_at(retry_count).round(2)
+
+      metadata = {
+        listener_id: listener.id,
+        retry_count: retry_count,
+        waiting_time: interval
+      }.merge(error_metadata(error))
+
+      instrument('executor.retry_listener_error', metadata) do
+        log_error("Listener crashed, waiting #{interval}s (#{error.message})", metadata)
+        sleep interval
+      end
     end
   end
 end

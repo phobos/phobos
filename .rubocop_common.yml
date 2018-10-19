@@ -1,0 +1,23 @@
+##############
+# Global rules
+AllCops:
+  Exclude:
+    - db/**/*
+  TargetRubyVersion: 2.5
+
+Rails:
+  Enabled: false
+
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Metrics/LineLength:
+  Max: 100
+
+Metrics/BlockLength:
+  Exclude:
+   - '*.gemspec'
+   - 'spec/**/*.rb'
+
+Documentation:
+  Enabled: false
