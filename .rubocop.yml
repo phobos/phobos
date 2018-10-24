@@ -1,7 +1,3 @@
-inherit_from:
-  - .rubocop_todo.yml
-  - .rubocop_common.yml
-
 ###########################
 # Configuration for rubocop
 # in .rubocop.yml
@@ -13,7 +9,9 @@ inherit_from:
 ##############
 # Inherit default rules first, and then override those rules with
 # our violation whitelist.
-
+inherit_from:
+  - .rubocop_common.yml
+  - .rubocop_todo.yml
 
 ##############
 # Project specific overrides here, example:
@@ -26,9 +24,3 @@ AllCops:
     - spec/**/*
     - examples/**/*
   TargetRubyVersion: 2.3
-
-Metrics/MethodLength:
-  Max: 15
-
-Metrics/AbcSize:
-  Max: 17

@@ -3,7 +3,7 @@
 AllCops:
   Exclude:
     - db/**/*
-  TargetRubyVersion: 2.5
+  TargetRubyVersion: 2.3
 
 Rails:
   Enabled: false
@@ -21,3 +21,9 @@ Metrics/BlockLength:
 
 Documentation:
   Enabled: false
+
+Metrics/MethodLength:
+  Max: 15
+
+Metrics/AbcSize:
+  Max: 17
