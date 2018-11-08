@@ -60,7 +60,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'activesupport', '>= 3.0.0'
   spec.add_dependency 'concurrent-ruby', '>= 1.0.2'
-  spec.add_dependency 'concurrent-ruby-ext', '>= 1.0.2'
+  spec.add_dependency 'concurrent-ruby-ext', '1.1.3'
   spec.add_dependency 'exponential-backoff'
   spec.add_dependency 'logging'
   spec.add_dependency 'ruby-kafka'
