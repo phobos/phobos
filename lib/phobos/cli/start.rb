@@ -39,7 +39,11 @@ module Phobos
         Phobos.config.listeners.each do |listener|
           handler = listener.handler
 
-          Object.const_defined?(handler) || error_exit("Handler '#{handler}' not defined")
+          begin
+            handler.constantize
+          rescue NameError
+            error_exit("Handler '#{handler}' not defined")
+          end
 
           delivery = listener.delivery
           if delivery.nil?
