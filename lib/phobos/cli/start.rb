@@ -35,7 +35,7 @@ module Phobos
         File.exist?(config_file) || error_exit("Config file not found (#{config_file})")
       end
 
-      def validate_listeners!
+      def validate_listeners! # rubocop:disable Metrics/MethodLength
         Phobos.config.listeners.each do |listener|
           handler = listener.handler
 
