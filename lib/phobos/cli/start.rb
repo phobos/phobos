@@ -35,11 +35,15 @@ module Phobos
         File.exist?(config_file) || error_exit("Config file not found (#{config_file})")
       end
 
-      def validate_listeners!
+      def validate_listeners! # rubocop:disable Metrics/MethodLength
         Phobos.config.listeners.each do |listener|
           handler = listener.handler
 
-          Object.const_defined?(handler) || error_exit("Handler '#{handler}' not defined")
+          begin
+            handler.constantize
+          rescue NameError
+            error_exit("Handler '#{handler}' not defined")
+          end
 
           delivery = listener.delivery
           if delivery.nil?
