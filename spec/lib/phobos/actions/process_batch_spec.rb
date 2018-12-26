@@ -7,6 +7,13 @@ RSpec.describe Phobos::Actions::ProcessBatch do
     include Phobos::Handler
   end
 
+  class TestBatchHandler
+    include Phobos::BatchHandler
+    def consume_batch(payloads, metadata)
+      Phobos.logger.info { Hash(payloads: payloads).merge(metadata) }
+    end
+  end
+
   let(:listener_metadata) { Hash(foo: 'bar') }
   let(:topic) { 'test-topic' }
   let(:listener) do
@@ -14,6 +21,13 @@ RSpec.describe Phobos::Actions::ProcessBatch do
       handler: TestHandler,
       group_id: 'test-group',
       topic: topic
+    )
+  end
+  let(:batch_listener) do
+    Phobos::Listener.new(
+                      handler: TestBatchHandler,
+                      group_id: 'test-group',
+                      topic: topic
     )
   end
   let(:message1) do
@@ -56,5 +70,25 @@ RSpec.describe Phobos::Actions::ProcessBatch do
     ).once.ordered.and_call_original
 
     subject.execute
+  end
+
+  context 'batch handling' do
+    subject { described_class.new(listener: batch_listener,
+                                  batch: batch,
+                                  listener_metadata: listener_metadata) }
+
+    it 'calls Phobos::Actions::ProcessMessageBatch' do
+      metadata = listener_metadata.merge(
+          batch_size: batch.messages.count,
+          partition: batch.partition,
+          offset_lag: batch.offset_lag
+        )
+      expect(Phobos::Actions::ProcessMessageBatch).to receive(:new).with(
+        listener: batch_listener,
+        batch: batch,
+        metadata: metadata
+      ).once.ordered.and_call_original
+      subject.execute
+    end
   end
 end

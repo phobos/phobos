@@ -123,7 +123,14 @@ module Phobos
     end
 
     def start_consumer_loop
-      @delivery == 'batch' ? consume_each_batch : consume_each_message
+      # validate batch handling
+      if @delivery == 'batch'
+        consume_each_batch
+      elsif handler_class.method_defined?(:consume)
+        consume_each_message
+      else
+        raise Phobos::InvalidHandlerError, 'Cannot use a batch handler in single-message mode!'
+      end
     end
 
     def consume_each_batch

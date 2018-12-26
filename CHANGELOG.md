@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
 
+- Added `BatchHandler` to consume messages in batches on the business
+  layer.
+
 ## [1.8.1] - 2018-11-23
 ### Added
 - Added ability to send partition keys separate from messsage keys.

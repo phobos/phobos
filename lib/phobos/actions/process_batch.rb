@@ -20,14 +20,30 @@ module Phobos
 
       def execute
         instrument('listener.process_batch', @metadata) do |_metadata|
-          @batch.messages.each do |message|
-            Phobos::Actions::ProcessMessage.new(
-              listener: @listener,
-              message: message,
-              listener_metadata: @listener_metadata
-            ).execute
+          if @listener.handler_class.method_defined?(:consume_batch)
+            process_batch_inline
+          else
+            process_messages
           end
         end
+      end
+
+      def process_messages
+        @batch.messages.each do |message|
+          Phobos::Actions::ProcessMessage.new(
+            listener: @listener,
+            message: message,
+            listener_metadata: @listener_metadata
+          ).execute
+        end
+      end
+
+      def process_batch_inline
+        Phobos::Actions::ProcessMessageBatch.new(
+          listener: @listener,
+          batch: @batch,
+          metadata: @metadata
+        ).execute
       end
     end
   end

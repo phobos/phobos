@@ -13,6 +13,10 @@ RSpec.describe Phobos::Listener do
     include Phobos::Producer
   end
 
+  class TestBatchListenerHandler
+    include Phobos::BatchHandler
+  end
+
   let!(:topic) { random_topic }
   let!(:group_id) { random_group_id }
 
@@ -116,6 +120,16 @@ RSpec.describe Phobos::Listener do
       wait_for_event('listener.stop')
 
       self.class.producer.async_producer_shutdown
+    end
+  end
+
+  describe 'errors with invalid handlers' do
+    let(:handler_class) { TestBatchListenerHandler }
+    let(:delivery) { 'message' }
+
+    it 'should raise an error if given batch handler in single message mode' do
+      expect { listener.start }.to raise_error(Phobos::InvalidHandlerError,
+                                               'Cannot use a batch handler in single-message mode!')
     end
   end
 

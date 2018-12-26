@@ -214,6 +214,38 @@ The hander life cycle can be illustrated as:
 or optionally,
 
   `.start` -> `#before_consume` -> `#around_consume` [ `#consume` ] -> `.stop`
+  
+#### Batch Consumption
+
+In addition to the regular handler, Phobos provides a `BatchHandler`. The
+basic ideas are identical, except that instead of being passed a single message
+at a time, the `BatchHandler` is passed a batch of messages. All methods
+follow the same pattern as the regular handler except that they each
+end in `_batch` and are passed an array of `Phobos::BatchMessage`s instead
+of a single payload.
+
+```ruby
+class MyBatchHandler
+  includes Phobos::BatchHandler
+  
+  def before_consume_batch(payloads, metadata)
+    payloads.each do |p|
+      p.payload[:timestamp] = Time.zone.now
+    end
+  end
+  
+  def around_consume_batch(payloads, metadata)
+    yield
+  end
+  
+  def consume_batch(payloads, metadata)
+    payloads.each do |p|
+      logger.info("Got payload #{p.payload}, #{p.partition}, #{p.offset}, #{p.key}")
+    end
+  end
+  
+end
+```
 
 ### <a name="usage-producing-messages-to-kafka"></a> Producing messages to Kafka
 
