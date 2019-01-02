@@ -54,6 +54,10 @@ RSpec.describe Phobos::Actions::ProcessBatch do
     )
   end
 
+  before do
+    allow(subject).to receive(:sleep) # Prevent sleeping in tests
+  end
+
   subject { described_class.new(listener: listener, batch: batch, listener_metadata: listener_metadata) }
 
   it 'calls Phobos::Actions::ProcessMessage with each Kafka message in the batch' do
@@ -75,7 +79,9 @@ RSpec.describe Phobos::Actions::ProcessBatch do
   context 'batch handling' do
     subject { described_class.new(listener: batch_listener,
                                   batch: batch,
-                                  listener_metadata: listener_metadata) }
+                                  listener_metadata: listener_metadata,
+                                  inline: true
+                                  ) }
 
     it 'calls Phobos::Actions::ProcessMessageBatch' do
       metadata = listener_metadata.merge(

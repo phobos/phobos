@@ -7,7 +7,7 @@ module Phobos
 
       attr_reader :metadata
 
-      def initialize(listener:, batch:, listener_metadata:)
+      def initialize(listener:, batch:, listener_metadata:, inline: false)
         @listener = listener
         @batch = batch
         @listener_metadata = listener_metadata
@@ -16,11 +16,12 @@ module Phobos
           partition: batch.partition,
           offset_lag: batch.offset_lag
         )
+        @inline = inline
       end
 
       def execute
         instrument('listener.process_batch', @metadata) do |_metadata|
-          if @listener.handler_class.method_defined?(:consume_batch)
+          if @inline
             process_batch_inline
           else
             process_messages

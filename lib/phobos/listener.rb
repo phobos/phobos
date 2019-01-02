@@ -7,7 +7,7 @@ module Phobos
     include Phobos::Log
 
     DEFAULT_MAX_BYTES_PER_PARTITION = 1_048_576 # 1 MB
-    DELIVERY_OPTS = %w[batch message].freeze
+    DELIVERY_OPTS = %w[batch message inline_batch].freeze
 
     attr_reader :group_id, :topic, :id
     attr_reader :handler_class, :encoding
@@ -124,21 +124,23 @@ module Phobos
 
     def start_consumer_loop
       # validate batch handling
-      if @delivery == 'batch'
+      case @delivery
+      when 'batch'
         consume_each_batch
-      elsif handler_class.method_defined?(:consume)
-        consume_each_message
+      when 'inline_batch'
+        consume_each_batch(inline: true)
       else
-        raise Phobos::InvalidHandlerError, 'Cannot use a batch handler in single-message mode!'
+        consume_each_message
       end
     end
 
-    def consume_each_batch
+    def consume_each_batch(inline: false)
       @consumer.each_batch(@message_processing_opts) do |batch|
         batch_processor = Phobos::Actions::ProcessBatch.new(
           listener: self,
           batch: batch,
-          listener_metadata: listener_metadata
+          listener_metadata: listener_metadata,
+          inline: inline
         )
 
         batch_processor.execute

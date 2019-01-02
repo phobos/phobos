@@ -15,6 +15,8 @@ RSpec.describe Phobos::Listener do
 
   class TestBatchListenerHandler
     include Phobos::BatchHandler
+    def consume_batch(payloads, metadata)
+    end
   end
 
   let!(:topic) { random_topic }
@@ -109,7 +111,8 @@ RSpec.describe Phobos::Listener do
         .with(
           listener: listener,
           batch: Kafka::FetchedBatch,
-          listener_metadata: hash_including(group_id: group_id, topic: topic, listener_id: listener.id)
+          listener_metadata: hash_including(group_id: group_id, topic: topic, listener_id: listener.id),
+          inline: false
         )
         .and_call_original
 
@@ -121,16 +124,34 @@ RSpec.describe Phobos::Listener do
 
       self.class.producer.async_producer_shutdown
     end
-  end
 
-  describe 'errors with invalid handlers' do
-    let(:handler_class) { TestBatchListenerHandler }
-    let(:delivery) { 'message' }
+    context 'inline_batch delivery' do
+      let(:delivery) { 'inline_batch' }
+      let(:handler_class) { TestBatchListenerHandler }
+      it 'calls Phobos::Actions::ProcessBatch with inline: true for inline_batch delivery' do
+        subscribe_to(*LISTENER_EVENTS) { thread }
+        wait_for_event('listener.start')
 
-    it 'should raise an error if given batch handler in single message mode' do
-      expect { listener.start }.to raise_error(Phobos::InvalidHandlerError,
-                                               'Cannot use a batch handler in single-message mode!')
+        expect(Phobos::Actions::ProcessBatch)
+          .to receive(:new)
+          .with(
+            listener: listener,
+            batch: Kafka::FetchedBatch,
+            listener_metadata: hash_including(group_id: group_id, topic: topic, listener_id: listener.id),
+            inline: true
+          )
+          .and_call_original
+
+        producer.async_publish(topic, 'message-1')
+        wait_for_event('listener.process_batch')
+
+        listener.stop
+        wait_for_event('listener.stop')
+
+        self.class.producer.async_producer_shutdown
+      end
     end
+
   end
 
   context 'consuming individual messages' do

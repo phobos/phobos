@@ -59,7 +59,7 @@ RSpec.describe Phobos::Actions::ProcessMessageBatch do
 
   it 'processes the message by calling around consume, before consume and consume of the handler' do
     payloads = batch.messages.map do |message|
-      Phobos::Actions::BatchMessage.new(
+      Phobos::BatchMessage.new(
         key: message.key,
         partition: message.partition,
         offset: message.offset,

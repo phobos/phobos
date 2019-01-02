@@ -1,25 +1,14 @@
 # frozen_string_literal: true
 
+require 'phobos/batch_message'
+
 module Phobos
   module Actions
-    class BatchMessage
-      attr_accessor :key, :partition, :offset, :payload
+    class ProcessMessageBatch
+      include Phobos::Actions::Processor
 
-      def initialize(key:, partition:, offset:, payload:)
-        @key = key
-        @partition = partition
-        @offset = offset
-        @payload = payload
-      end
+      attr_reader :metadata
 
-      def ==(other)
-        [:key, :partition, :offset, :payload].all? do |s|
-          send(s) == other.send(s)
-        end
-      end
-    end
-
-    class ProcessMessageBatch < ProcessMessage
       def initialize(listener:, batch:, metadata:)
         @listener = listener
         @batch = batch
@@ -30,7 +19,7 @@ module Phobos
 
       def execute
         payloads = @batch.messages.map do |message|
-          BatchMessage.new(
+          Phobos::BatchMessage.new(
             key: message.key,
             partition: message.partition,
             offset: message.offset,
@@ -41,7 +30,8 @@ module Phobos
         begin
           process_batch(payloads)
         rescue StandardError => e
-          handle_error(e)
+          handle_error(e, 'listener.retry_handler_error_batch',
+                       "error processing inline batch, waiting #{backoff_interval}s")
           retry
         end
       end

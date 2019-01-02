@@ -224,6 +224,9 @@ follow the same pattern as the regular handler except that they each
 end in `_batch` and are passed an array of `Phobos::BatchMessage`s instead
 of a single payload.
 
+To enable handling of batches on the consumer side, you must specify
+a delivery method of `inline_batch` in [phobos.yml](config/phobos.yml.example).
+
 ```ruby
 class MyBatchHandler
   includes Phobos::BatchHandler
@@ -240,12 +243,17 @@ class MyBatchHandler
   
   def consume_batch(payloads, metadata)
     payloads.each do |p|
-      logger.info("Got payload #{p.payload}, #{p.partition}, #{p.offset}, #{p.key}")
+      logger.info("Got payload #{p.payload}, #{p.partition}, #{p.offset}, #{p.key}, #{p.payload[:timestamp]}")
     end
   end
   
 end
 ```
+
+Note that retry logic will happen on the *batch* level in this case. If you are
+processing messages individually and an error happens in the middle, Phobos's
+retry logic will retry the entire batch. If this is not the behavior you want,
+consider using `batch` instead of `inline_batch`.
 
 ### <a name="usage-producing-messages-to-kafka"></a> Producing messages to Kafka
 

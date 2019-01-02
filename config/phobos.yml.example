@@ -107,7 +107,11 @@ listeners:
     #  - `batch` will yield batches from Ruby Kafka using `each_batch`, and commit/heartbeat at every consumed batch.
     #     Due to implementation in Ruby Kafka, it should be noted that when configuring large batch sizes in combination with taking long time to consume messages,
     #     your consumers might get kicked from the Kafka cluster for not sending a heartbeat within the expected interval.
-    #     Take this into consideration when determining your configuration.
+    #     Take this into consideration when determining your configuration. You can send heartbeats manually while
+    #     processing your messages if necessary.
+    #   - `inline_batch` will use Phobos::BatchHandler instead of Phobos::Handler to pass the entire batch to your application
+    #     at once, as opposed to `batch` which will still use the standard `Phobos::Handler` to process each message
+    #     individually.
     # Note: Ultimately commit/heartbeart will depend on the offset commit options and the heartbeat interval.
     delivery: batch
     # Use this if custom backoff is required for a listener
