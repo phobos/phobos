@@ -476,7 +476,7 @@ end
     * partition
     * offset_lag
     * highwater_mark_offset
-  * `listener.process_message` is sent after process a message. It includes the following payload:
+  * `listener.process_message` is sent after processing a message. It includes the following payload:
     * listener_id
     * group_id
     * topic
@@ -485,7 +485,16 @@ end
     * partition
     * offset
     * retry_count
-  * `listener.retry_handler_error` is sent after waited for `handler#consume` retry. It includes the following payload:
+  * `listener.process_batch_inline` is sent after processing a batch with `batch_inline` mode. It includes the following payload:
+    * listener_id
+    * group_id
+    * topic
+    * handler
+    * batch_size
+    * partition
+    * offset_lag
+    * retry_count
+  * `listener.retry_handler_error` is sent after waiting for `handler#consume` retry. It includes the following payload:
     * listener_id
     * group_id
     * topic
@@ -498,22 +507,35 @@ end
     * exception_class
     * exception_message
     * backtrace
+  * `listener.retry_handler_error_batch` is sent after waiting for `handler#consume_batch` retry. It includes the following payload:
+    * listener_id
+    * group_id
+    * topic
+    * handler
+    * batch_size
+    * partition
+    * offset_lag
+    * retry_count
+    * waiting_time
+    * exception_class
+    * exception_message
+    * backtrace
   * `listener.retry_aborted` is sent after waiting for a retry but the listener was stopped before the retry happened. It includes the following payload:
     * listener_id
     * group_id
     * topic
     * handler
-  * `listener.stopping` is sent when the listener receives signal to stop
+  * `listener.stopping` is sent when the listener receives signal to stop.
     * listener_id
     * group_id
     * topic
     * handler
-  * `listener.stop_handler` is sent after stopping the handler
+  * `listener.stop_handler` is sent after stopping the handler.
     * listener_id
     * group_id
     * topic
     * handler
-  * `listener.stop` is send after stopping the listener
+  * `listener.stop` is send after stopping the listener.
     * listener_id
     * group_id
     * topic

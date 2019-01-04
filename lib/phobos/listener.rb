@@ -128,19 +128,32 @@ module Phobos
       when 'batch'
         consume_each_batch
       when 'inline_batch'
-        consume_each_batch(inline: true)
+        consume_each_batch_inline
       else
         consume_each_message
       end
     end
 
-    def consume_each_batch(inline: false)
+    def consume_each_batch
       @consumer.each_batch(@message_processing_opts) do |batch|
         batch_processor = Phobos::Actions::ProcessBatch.new(
           listener: self,
           batch: batch,
-          listener_metadata: listener_metadata,
-          inline: inline
+          listener_metadata: listener_metadata
+        )
+
+        batch_processor.execute
+        log_debug('Committed offset', batch_processor.metadata)
+        return nil if should_stop?
+      end
+    end
+
+    def consume_each_batch_inline
+      @consumer.each_batch(@message_processing_opts) do |batch|
+        batch_processor = Phobos::Actions::ProcessBatchInline.new(
+          listener: self,
+          batch: batch,
+          metadata: listener_metadata
         )
 
         batch_processor.execute

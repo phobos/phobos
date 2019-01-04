@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Phobos::Actions::ProcessMessageBatch do
+RSpec.describe Phobos::Actions::ProcessBatchInline do
   class TestBatchHandler
     include Phobos::BatchHandler
     def consume_batch(payloads, metadata)

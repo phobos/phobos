@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_relative 'processor'
+require 'phobos/processor'
 
 module Phobos
   module Actions
     class ProcessMessage
-      include Phobos::Actions::Processor
+      include Phobos::Processor
 
       attr_reader :metadata
 

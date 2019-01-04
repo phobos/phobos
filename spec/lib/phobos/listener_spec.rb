@@ -111,8 +111,7 @@ RSpec.describe Phobos::Listener do
         .with(
           listener: listener,
           batch: Kafka::FetchedBatch,
-          listener_metadata: hash_including(group_id: group_id, topic: topic, listener_id: listener.id),
-          inline: false
+          listener_metadata: hash_including(group_id: group_id, topic: topic, listener_id: listener.id)
         )
         .and_call_original
 
@@ -128,22 +127,21 @@ RSpec.describe Phobos::Listener do
     context 'inline_batch delivery' do
       let(:delivery) { 'inline_batch' }
       let(:handler_class) { TestBatchListenerHandler }
-      it 'calls Phobos::Actions::ProcessBatch with inline: true for inline_batch delivery' do
+      it 'calls Phobos::Actions::ProcessBatchInline for inline_batch delivery' do
         subscribe_to(*LISTENER_EVENTS) { thread }
         wait_for_event('listener.start')
 
-        expect(Phobos::Actions::ProcessBatch)
+        expect(Phobos::Actions::ProcessBatchInline)
           .to receive(:new)
           .with(
             listener: listener,
             batch: Kafka::FetchedBatch,
-            listener_metadata: hash_including(group_id: group_id, topic: topic, listener_id: listener.id),
-            inline: true
+            metadata: hash_including(group_id: group_id, topic: topic, listener_id: listener.id),
           )
           .and_call_original
 
         producer.async_publish(topic, 'message-1')
-        wait_for_event('listener.process_batch')
+        wait_for_event('listener.process_batch_inline')
 
         listener.stop
         wait_for_event('listener.stop')

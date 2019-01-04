@@ -1,18 +1,24 @@
 # frozen_string_literal: true
 
 require 'phobos/batch_message'
+require 'phobos/processor'
 
 module Phobos
   module Actions
-    class ProcessMessageBatch
-      include Phobos::Actions::Processor
+    class ProcessBatchInline
+      include Phobos::Processor
 
       attr_reader :metadata
 
       def initialize(listener:, batch:, metadata:)
         @listener = listener
         @batch = batch
+        @listener = listener
+        @batch = batch
         @metadata = metadata.merge(
+          batch_size: batch.messages.count,
+          partition: batch.partition,
+          offset_lag: batch.offset_lag,
           retry_count: 0
         )
       end
@@ -39,12 +45,14 @@ module Phobos
       private
 
       def process_batch(payloads)
-        handler = @listener.handler_class.new
+        instrument('listener.process_batch_inline', @metadata) do |_metadata|
+          handler = @listener.handler_class.new
 
-        preprocessed_payloads = before_consume(handler, payloads)
-        consume_block = proc { handler.consume_batch(preprocessed_payloads, @metadata) }
+          preprocessed_payloads = before_consume(handler, payloads)
+          consume_block = proc { handler.consume_batch(preprocessed_payloads, @metadata) }
 
-        handler.around_consume_batch(preprocessed_payloads, @metadata, &consume_block)
+          handler.around_consume_batch(preprocessed_payloads, @metadata, &consume_block)
+        end
       end
 
       def before_consume(handler, payloads)
