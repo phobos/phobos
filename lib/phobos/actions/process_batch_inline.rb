@@ -48,15 +48,11 @@ module Phobos
         instrument('listener.process_batch_inline', @metadata) do |_metadata|
           handler = @listener.handler_class.new
 
-          preprocessed_payloads = before_consume(handler, payloads)
+          preprocessed_payloads = handler.before_consume_batch(payloads, @metadata)
           consume_block = proc { handler.consume_batch(preprocessed_payloads, @metadata) }
 
           handler.around_consume_batch(preprocessed_payloads, @metadata, &consume_block)
         end
-      end
-
-      def before_consume(handler, payloads)
-        handler.before_consume_batch(payloads, @metadata)
       end
     end
   end
