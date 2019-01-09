@@ -225,7 +225,10 @@ end in `_batch` and are passed an array of `Phobos::BatchMessage`s instead
 of a single payload.
 
 To enable handling of batches on the consumer side, you must specify
-a delivery method of `inline_batch` in [phobos.yml](config/phobos.yml.example).
+a delivery method of `inline_batch` in [phobos.yml](config/phobos.yml.example),
+and your handler must include `BatchHandler`. Using a delivery method of `batch`
+assumes that you are still processing the messages one at a time and should
+use `Handler`.
 
 ```ruby
 class MyBatchHandler

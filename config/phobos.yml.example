@@ -109,9 +109,9 @@ listeners:
     #     your consumers might get kicked from the Kafka cluster for not sending a heartbeat within the expected interval.
     #     Take this into consideration when determining your configuration. You can send heartbeats manually while
     #     processing your messages if necessary.
-    #   - `inline_batch` will use Phobos::BatchHandler instead of Phobos::Handler to pass the entire batch to your application
-    #     at once, as opposed to `batch` which will still use the standard `Phobos::Handler` to process each message
-    #     individually.
+    #   - `inline_batch` also uses `each_batch`, but will pass the entire batch to your handler instead
+    #     of one message at a time. To use this method, you should include Phobos::BatchHandler
+    #     instead of Phobos::Handler so that you can make use of the `consume_batch` etc. methods.
     # Note: Ultimately commit/heartbeart will depend on the offset commit options and the heartbeat interval.
     delivery: batch
     # Use this if custom backoff is required for a listener
