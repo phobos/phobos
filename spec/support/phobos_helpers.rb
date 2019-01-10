@@ -4,8 +4,10 @@ module PhobosHelpers
   LISTENER_EVENTS = %w[
     listener.retry_aborted
     listener.retry_handler_error
+    listener.retry_handler_error_batch
     listener.process_message
     listener.process_batch
+    listener.process_batch_inline
     listener.stopping
     listener.stop
     listener.stop_handler

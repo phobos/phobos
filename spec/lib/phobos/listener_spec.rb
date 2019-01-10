@@ -13,6 +13,12 @@ RSpec.describe Phobos::Listener do
     include Phobos::Producer
   end
 
+  class TestBatchListenerHandler
+    include Phobos::BatchHandler
+    def consume_batch(payloads, metadata)
+    end
+  end
+
   let!(:topic) { random_topic }
   let!(:group_id) { random_group_id }
 
@@ -117,6 +123,33 @@ RSpec.describe Phobos::Listener do
 
       self.class.producer.async_producer_shutdown
     end
+
+    context 'inline_batch delivery' do
+      let(:delivery) { 'inline_batch' }
+      let(:handler_class) { TestBatchListenerHandler }
+      it 'calls Phobos::Actions::ProcessBatchInline for inline_batch delivery' do
+        subscribe_to(*LISTENER_EVENTS) { thread }
+        wait_for_event('listener.start')
+
+        expect(Phobos::Actions::ProcessBatchInline)
+          .to receive(:new)
+          .with(
+            listener: listener,
+            batch: Kafka::FetchedBatch,
+            metadata: hash_including(group_id: group_id, topic: topic, listener_id: listener.id),
+          )
+          .and_call_original
+
+        producer.async_publish(topic, 'message-1')
+        wait_for_event('listener.process_batch_inline')
+
+        listener.stop
+        wait_for_event('listener.stop')
+
+        self.class.producer.async_producer_shutdown
+      end
+    end
+
   end
 
   context 'consuming individual messages' do

@@ -7,7 +7,7 @@ module Phobos
     include Phobos::Log
 
     DEFAULT_MAX_BYTES_PER_PARTITION = 1_048_576 # 1 MB
-    DELIVERY_OPTS = %w[batch message].freeze
+    DELIVERY_OPTS = %w[batch message inline_batch].freeze
 
     attr_reader :group_id, :topic, :id
     attr_reader :handler_class, :encoding
@@ -123,7 +123,15 @@ module Phobos
     end
 
     def start_consumer_loop
-      @delivery == 'batch' ? consume_each_batch : consume_each_message
+      # validate batch handling
+      case @delivery
+      when 'batch'
+        consume_each_batch
+      when 'inline_batch'
+        consume_each_batch_inline
+      else
+        consume_each_message
+      end
     end
 
     def consume_each_batch
@@ -132,6 +140,20 @@ module Phobos
           listener: self,
           batch: batch,
           listener_metadata: listener_metadata
+        )
+
+        batch_processor.execute
+        log_debug('Committed offset', batch_processor.metadata)
+        return nil if should_stop?
+      end
+    end
+
+    def consume_each_batch_inline
+      @consumer.each_batch(@message_processing_opts) do |batch|
+        batch_processor = Phobos::Actions::ProcessBatchInline.new(
+          listener: self,
+          batch: batch,
+          metadata: listener_metadata
         )
 
         batch_processor.execute
