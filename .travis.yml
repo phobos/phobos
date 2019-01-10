@@ -11,7 +11,7 @@ services:
 env:
   global:
     - DEFAULT_TIMEOUT=20
-    - CC_TEST_REPORTER_ID=ce08ec7297e0161c25b6b0c86e7bd4b9eb85b15de9e2a17fe419b8439aa40def
+    - CC_TEST_REPORTER_ID=a990fd40ff4421e8b28167232242a1d6c6638f9907fc0b80eb90f82f88fcfd81
 
 before_install:
   - env
