@@ -67,18 +67,33 @@ module Phobos
           producer_store[:kafka_client]
         end
 
+        def create_sync_producer
+          client = kafka_client || configure_kafka_client(Phobos.create_kafka_client)
+          sync_producer = client.producer(regular_configs)
+          producer_store[:sync_producer] = sync_producer if Phobos.config.cache_sync_producer
+          sync_producer
+        end
+
+        def sync_producer
+          producer_store[:sync_producer]
+        end
+
+        def sync_producer_shutdown
+          sync_producer&.shutdown
+          producer_store[:sync_producer] = nil
+        end
+
         def publish(topic, payload, key = nil, partition_key = nil)
           publish_list([{ topic: topic, payload: payload, key: key,
                           partition_key: partition_key }])
         end
 
         def publish_list(messages)
-          client = kafka_client || configure_kafka_client(Phobos.create_kafka_client)
-          producer = client.producer(regular_configs)
+          producer = sync_producer || create_sync_producer
           produce_messages(producer, messages)
           producer.deliver_messages
         ensure
-          producer&.shutdown
+          producer&.shutdown unless Phobos.config.cache_sync_producer
         end
 
         def create_async_producer

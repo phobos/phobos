@@ -31,6 +31,21 @@ require 'phobos/executor'
 
 Thread.abort_on_exception = true
 
+# Monkey patch to fix this issue: https://github.com/zendesk/ruby-kafka/pull/732
+module Logging
+  # :nodoc:
+  class Logger
+    # :nodoc:
+    def formatter=(*args); end
+
+    # :nodoc:
+    def push_tags(*args); end
+
+    # :nodoc:
+    def pop_tags(*args); end
+  end
+end
+
 module Phobos
   class << self
     attr_reader :config, :logger
@@ -38,10 +53,20 @@ module Phobos
 
     def configure(configuration)
       @config = fetch_configuration(configuration)
-      @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash }
-      @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
+      config_define_methods
       @config.listeners ||= []
       configure_logger
+    end
+
+    def config_define_methods # rubocop:disable Metrics/AbcSize
+      @config.class.send(:define_method, :cache_sync_producer) do
+        hash = Phobos.config.producer&.to_hash
+        hash[:cache_sync_producer]
+      end
+      @config.class.send(:define_method, :producer_hash) do
+        Phobos.config.producer&.to_hash&.except(:cache_sync_producer)
+      end
+      @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
     end
 
     def add_listeners(configuration)

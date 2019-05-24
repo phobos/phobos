@@ -314,13 +314,15 @@ end
 
 Since the handler life cycle is managed by the Listener, it will make sure the producer is properly closed before it stops. When calling the producer outside a handler remember, you need to shutdown them manually before you close the application. Use the class method `async_producer_shutdown` to safely shutdown the producer.
 
+By default, regular producers will automatically shut themselves down after every `publish` call. You can change this behavior (which increases speed) by setting the `cache_sync_producer` config in `phobos.yml`. When set, regular producers behave identically to async producers and will also need to be shutdown manually using the `sync_producer_shutdown` method.
+
 Without configuring the Kafka client, the producers will create a new one when needed (once per thread). To disconnect from kafka call `kafka_client.close`.
 
 ```ruby
 # This method will block until everything is safely closed
 MyProducer
   .producer
-  .async_producer_shutdown
+  .async_producer_shutdown # and/or sync_producer_shutdown if regular producers are cached
 
 MyProducer
   .producer

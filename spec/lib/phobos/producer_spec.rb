@@ -48,29 +48,69 @@ RSpec.describe Phobos::Producer do
         expect(Phobos).to_not receive(:create_kafka_client)
       end
 
-      it 'publishes and delivers a list of messages' do
-        expect(kafka_client)
-          .to receive(:producer)
-          .with(TestProducer1.producer.regular_configs)
-          .and_return(producer)
+      context 'without cached producer' do
+        it 'publishes and delivers a list of messages' do
+          expect(kafka_client)
+            .to receive(:producer)
+            .with(TestProducer1.producer.regular_configs)
+            .and_return(producer)
 
-        expect(producer)
-          .to receive(:produce)
-          .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1')
+          expect(producer)
+            .to receive(:produce)
+            .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1')
 
-        expect(producer)
-          .to receive(:produce)
-          .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2')
+          expect(producer)
+            .to receive(:produce)
+            .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2')
 
-        expect(producer).to receive(:deliver_messages)
-        expect(producer).to receive(:shutdown)
-        expect(kafka_client).to_not receive(:close)
+          expect(producer).to receive(:deliver_messages)
+          expect(producer).to receive(:shutdown)
+          expect(kafka_client).to_not receive(:close)
 
-        subject.producer.publish_list([
-                                        { payload: 'message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1' },
-                                        { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
-                                      ])
+          subject.producer.publish_list([
+                                          { payload: 'message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1' },
+                                          { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+                                        ])
+        end
       end
+
+      context 'with cached producer' do
+        it 'publishes and delivers a list of messages twice' do
+          allow(Phobos.config).to receive(:cache_sync_producer).and_return(true)
+          allow(producer).to receive(:shutdown)
+          expect(kafka_client)
+            .to receive(:producer)
+            .once
+            .with(TestProducer1.producer.regular_configs)
+            .and_return(producer)
+
+          expect(producer)
+            .to receive(:produce)
+            .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1')
+
+          expect(producer)
+            .to receive(:produce)
+            .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2')
+
+          expect(producer)
+            .to receive(:produce)
+            .with('message-3', topic: 'topic-3', key: 'key-3', partition_key: 'part-key-3')
+
+          expect(producer).to receive(:deliver_messages).twice
+          expect(producer).to_not have_received(:shutdown)
+          expect(kafka_client).to_not receive(:close)
+
+          subject.producer.publish_list([
+                                          { payload: 'message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1' },
+                                          { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+                                        ])
+          subject.producer.publish_list([
+                                          { payload: 'message-3', topic: 'topic-3', key: 'key-3', partition_key: 'part-key-3' }
+                                        ])
+          TestProducer1.producer.sync_producer_shutdown
+        end
+      end
+
     end
 
     describe 'without a configured client' do
@@ -277,6 +317,26 @@ RSpec.describe Phobos::Producer do
           TestProducer1.producer.create_async_producer
         end.join
       end
+    end
+  end
+
+  describe '.sync_producer_shutdown' do
+    let(:producer) { double('Kafka::RegularProducer', produce: true, deliver_messages: true) }
+    let(:kafka_client) { double('Kafka::Client', producer: producer, close: true) }
+
+    it 'calls shutdown in the configured client and cleans up producer' do
+      allow(Phobos.config).to receive(:cache_sync_producer).and_return(true)
+      expect(producer).to receive(:shutdown)
+
+      Thread.new do
+        TestProducer1.producer.configure_kafka_client(kafka_client)
+
+        TestProducer1.producer.create_sync_producer
+        expect(TestProducer1.producer.sync_producer).to_not be_nil
+
+        TestProducer1.producer.sync_producer_shutdown
+        expect(TestProducer1.producer.sync_producer).to be_nil
+      end.join
     end
   end
 
