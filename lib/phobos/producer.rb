@@ -71,7 +71,9 @@ module Phobos
         def create_sync_producer
           client = kafka_client || configure_kafka_client(Phobos.create_kafka_client)
           sync_producer = client.producer(regular_configs)
-          producer_store[:sync_producer] = sync_producer if Phobos.config.persistent_connections
+          if Phobos.config.producer_hash[:persistent_connections]
+            producer_store[:sync_producer] = sync_producer
+          end
           sync_producer
         end
 
@@ -94,7 +96,7 @@ module Phobos
           produce_messages(producer, messages)
           producer.deliver_messages
         ensure
-          producer&.shutdown unless Phobos.config.persistent_connections
+          producer&.shutdown unless Phobos.config.producer_hash[:persistent_connections]
         end
 
         def create_async_producer

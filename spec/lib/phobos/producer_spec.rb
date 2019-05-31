@@ -76,7 +76,9 @@ RSpec.describe Phobos::Producer do
 
       context 'with cached producer' do
         it 'publishes and delivers a list of messages twice' do
-          allow(Phobos.config).to receive(:persistent_connections).and_return(true)
+          original_hash = Phobos.config.producer_hash
+          allow(Phobos.config).to receive(:producer_hash)
+                                    .and_return(original_hash.merge(:persistent_connections => true))
           allow(producer).to receive(:shutdown)
           expect(kafka_client)
             .to receive(:producer)
@@ -169,7 +171,11 @@ RSpec.describe Phobos::Producer do
       end
 
       describe 'with a delivery interval set' do
-        let(:config_hash) { Phobos.config.producer_hash.merge(delivery_interval: 10) }
+        let(:config_hash) do
+          hash = Phobos.config.producer_hash.merge(delivery_threshold: 10)
+          hash.delete(:persistent_connections)
+          hash
+        end
 
         before do
           allow_any_instance_of(Phobos::Producer::ClassMethods::PublicAPI)
@@ -191,7 +197,11 @@ RSpec.describe Phobos::Producer do
       end
 
       describe 'with a delivery threshold set' do
-        let(:config_hash) { Phobos.config.producer_hash.merge(delivery_threshold: 10) }
+        let(:config_hash) do
+          hash = Phobos.config.producer_hash.merge(delivery_threshold: 10)
+          hash.delete(:persistent_connections)
+          hash
+        end
 
         before do
           allow_any_instance_of(Phobos::Producer::ClassMethods::PublicAPI)
@@ -325,7 +335,9 @@ RSpec.describe Phobos::Producer do
     let(:kafka_client) { double('Kafka::Client', producer: producer, close: true) }
 
     it 'calls shutdown in the configured client and cleans up producer' do
-      allow(Phobos.config).to receive(:persistent_connections).and_return(true)
+      original_hash = Phobos.config.producer_hash
+      allow(Phobos.config).to receive(:producer_hash)
+                                .and_return(original_hash.merge(:persistent_connections => true))
       expect(producer).to receive(:shutdown)
 
       Thread.new do
