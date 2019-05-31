@@ -60,11 +60,11 @@ producer:
   # if greater than zero, the number of seconds between automatic message
   # deliveries. Only used for async_producer
   delivery_interval: 0
-  # Set this to true to cache the sync producer between publish calls.
+  # Set this to true to keep the producer connection between publish calls.
   # This can speed up subsequent messages by around 30%, but it does mean
   # that you need to manually call sync_producer_shutdown before exiting,
   # similar to async_producer_shutdown.
-  cache_sync_producer: false
+  persistent_connections: false
 
 consumer:
   # number of seconds after which, if a client hasn't contacted the Kafka cluster,

@@ -76,7 +76,7 @@ RSpec.describe Phobos::Producer do
 
       context 'with cached producer' do
         it 'publishes and delivers a list of messages twice' do
-          allow(Phobos.config).to receive(:cache_sync_producer).and_return(true)
+          allow(Phobos.config).to receive(:persistent_connections).and_return(true)
           allow(producer).to receive(:shutdown)
           expect(kafka_client)
             .to receive(:producer)
@@ -325,7 +325,7 @@ RSpec.describe Phobos::Producer do
     let(:kafka_client) { double('Kafka::Client', producer: producer, close: true) }
 
     it 'calls shutdown in the configured client and cleans up producer' do
-      allow(Phobos.config).to receive(:cache_sync_producer).and_return(true)
+      allow(Phobos.config).to receive(:persistent_connections).and_return(true)
       expect(producer).to receive(:shutdown)
 
       Thread.new do

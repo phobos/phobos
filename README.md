@@ -21,6 +21,7 @@ With Phobos by your side, all this becomes smooth sailing.
 ## Table of Contents
 
 1. [Installation](#installation)
+  1. [Upgrade Notes](#upgrade-notes)
 1. [Usage](#usage)
   1. [Standalone apps](#usage-standalone-apps)
   1. [Consuming messages from Kafka](#usage-consuming-messages-from-kafka)
@@ -51,6 +52,14 @@ Or install it yourself as:
 ```sh
 $ gem install phobos
 ```
+
+### <a name="upgrade-notes"></a> Upgrade Notes
+
+Version 1.8.2 introduced a new `persistent_connections` setting for
+regular producers. This reduces the number of connections used to
+produce messages and you should consider setting it to true. This does
+require a manual shutdown call - 
+please see [Producers with persistent connections](#persistent-connection).
 
 ## <a name="usage"></a> Usage
 
@@ -291,7 +300,7 @@ MyProducer
 
 There are two flavors of producers: __regular__ producers and __async__ producers.
 
-Regular producers will deliver the messages synchronously and disconnect, it doesn't matter if you use `publish` or `publish_list` after the messages get delivered the producer will disconnect.
+Regular producers will deliver the messages synchronously and disconnect, it doesn't matter if you use `publish` or `publish_list`; by default, after the messages get delivered the producer will disconnect.
 
 Async producers will accept your messages without blocking, use the methods `async_publish` and `async_publish_list` to use async producers.
 
@@ -310,11 +319,9 @@ class MyHandler
 end
 ```
 
-#### Note about configuring producers
+#### <a name="producer-config"></a> Note about configuring producers
 
 Since the handler life cycle is managed by the Listener, it will make sure the producer is properly closed before it stops. When calling the producer outside a handler remember, you need to shutdown them manually before you close the application. Use the class method `async_producer_shutdown` to safely shutdown the producer.
-
-By default, regular producers will automatically shut themselves down after every `publish` call. You can change this behavior (which increases speed) by setting the `cache_sync_producer` config in `phobos.yml`. When set, regular producers behave identically to async producers and will also need to be shutdown manually using the `sync_producer_shutdown` method.
 
 Without configuring the Kafka client, the producers will create a new one when needed (once per thread). To disconnect from kafka call `kafka_client.close`.
 
@@ -322,12 +329,24 @@ Without configuring the Kafka client, the producers will create a new one when n
 # This method will block until everything is safely closed
 MyProducer
   .producer
-  .async_producer_shutdown # and/or sync_producer_shutdown if regular producers are cached
+  .async_producer_shutdown
 
 MyProducer
   .producer
   .kafka_client
   .close
+```
+
+### <a name="persistent-connection"></a> Note about producers with persistent connections
+
+By default, regular producers will automatically disconnect after every `publish` call. You can change this behavior (which reduces connection overhead, TLS etc - which increases speed significantly) by setting the `persistent_connections` config in `phobos.yml`. When set, regular producers behave identically to async producers and will also need to be shutdown manually using the `sync_producer_shutdown` method.
+
+Since regular producers with persistent connections have open connections, you need to manually disconnect from Kafka when ending your producers' life cycle:
+
+```ruby
+MyProducer
+  .producer
+  .sync_producer_shutdown
 ```
 
 ### <a name="usage-as-library"></a> Phobos as a library in an existing project

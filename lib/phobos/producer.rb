@@ -52,6 +52,7 @@ module Phobos
       class PublicAPI
         NAMESPACE = :phobos_producer_store
         ASYNC_PRODUCER_PARAMS = [:max_queue_size, :delivery_threshold, :delivery_interval].freeze
+        INTERNAL_PRODUCER_PARAMS = [:persistent_connections].freeze
 
         # This method configures the kafka client used with publish operations
         # performed by the host class
@@ -70,7 +71,7 @@ module Phobos
         def create_sync_producer
           client = kafka_client || configure_kafka_client(Phobos.create_kafka_client)
           sync_producer = client.producer(regular_configs)
-          producer_store[:sync_producer] = sync_producer if Phobos.config.cache_sync_producer
+          producer_store[:sync_producer] = sync_producer if Phobos.config.persistent_connections
           sync_producer
         end
 
@@ -93,7 +94,7 @@ module Phobos
           produce_messages(producer, messages)
           producer.deliver_messages
         ensure
-          producer&.shutdown unless Phobos.config.cache_sync_producer
+          producer&.shutdown unless Phobos.config.persistent_connections
         end
 
         def create_async_producer
@@ -124,11 +125,14 @@ module Phobos
         end
 
         def regular_configs
-          Phobos.config.producer_hash.reject { |k, _| ASYNC_PRODUCER_PARAMS.include?(k) }
+          Phobos.config.producer_hash
+                .reject { |k, _| ASYNC_PRODUCER_PARAMS.include?(k) }
+                .reject { |k, _| INTERNAL_PRODUCER_PARAMS.include?(k) }
         end
 
         def async_configs
           Phobos.config.producer_hash
+                .reject { |k, _| INTERNAL_PRODUCER_PARAMS.include?(k) }
         end
 
         private

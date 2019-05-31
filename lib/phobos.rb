@@ -55,20 +55,10 @@ module Phobos
 
     def configure(configuration)
       @config = fetch_configuration(configuration)
-      config_define_methods
+      @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash }
+      @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
       @config.listeners ||= []
       configure_logger
-    end
-
-    def config_define_methods # rubocop:disable Metrics/AbcSize
-      @config.class.send(:define_method, :cache_sync_producer) do
-        hash = Phobos.config.producer&.to_hash
-        hash[:cache_sync_producer]
-      end
-      @config.class.send(:define_method, :producer_hash) do
-        Phobos.config.producer&.to_hash&.except(:cache_sync_producer)
-      end
-      @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
     end
 
     def add_listeners(configuration)
