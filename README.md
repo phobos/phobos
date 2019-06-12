@@ -55,11 +55,7 @@ $ gem install phobos
 
 ### <a name="upgrade-notes"></a> Upgrade Notes
 
-Version 1.8.2 introduced a new `persistent_connections` setting for
-regular producers. This reduces the number of connections used to
-produce messages and you should consider setting it to true. This does
-require a manual shutdown call - 
-please see [Producers with persistent connections](#persistent-connection).
+Version 1.8.2 introduced a new `persistent_connections` setting for regular producers. This reduces the number of connections used to produce messages and you should consider setting it to true. This does require a manual shutdown call -  please see [Producers with persistent connections](#persistent-connection).
 
 ## <a name="usage"></a> Usage
 

@@ -274,9 +274,10 @@ RSpec.describe Phobos::Producer do
 
     describe 'without a kafka_client configured' do
       it 'creates a new client and an async_producer bound to the current thread' do
+        config = Phobos.config.producer_hash.reject { |k, _| %i(persistent_connections).include?(k) }
         expect(kafka_client)
           .to receive(:async_producer)
-          .with(Phobos.config.producer_hash)
+          .with(config)
           .and_return(:async1, :async2)
 
         expect(Phobos)
