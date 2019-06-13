@@ -10,6 +10,7 @@ RSpec.describe Phobos::Producer do
   before { TestProducer1.producer.configure_kafka_client(nil) }
   after { TestProducer1.producer.configure_kafka_client(nil) }
   subject { TestProducer1.new }
+  let(:internal_params) { Phobos::Producer::ClassMethods::PublicAPI::INTERNAL_PRODUCER_PARAMS }
 
   describe '#publish' do
     it 'publishes a single message using "publish_list"' do
@@ -75,10 +76,12 @@ RSpec.describe Phobos::Producer do
       end
 
       context 'with cached producer' do
+        let(:config) { Phobos.config.producer_hash.merge(persistent_connections: true) }
+        before(:each) do
+          allow(Phobos.config).to receive(:producer_hash).and_return(config)
+        end
+
         it 'publishes and delivers a list of messages twice' do
-          original_hash = Phobos.config.producer_hash
-          allow(Phobos.config).to receive(:producer_hash)
-                                    .and_return(original_hash.merge(:persistent_connections => true))
           allow(producer).to receive(:shutdown)
           expect(kafka_client)
             .to receive(:producer)
@@ -172,9 +175,8 @@ RSpec.describe Phobos::Producer do
 
       describe 'with a delivery interval set' do
         let(:config_hash) do
-          hash = Phobos.config.producer_hash.merge(delivery_threshold: 10)
-          hash.delete(:persistent_connections)
-          hash
+          Phobos.config.producer_hash.merge(delivery_threshold: 10).
+            reject { |k, _| internal_params.include?(k) }
         end
 
         before do
@@ -198,9 +200,8 @@ RSpec.describe Phobos::Producer do
 
       describe 'with a delivery threshold set' do
         let(:config_hash) do
-          hash = Phobos.config.producer_hash.merge(delivery_threshold: 10)
-          hash.delete(:persistent_connections)
-          hash
+          Phobos.config.producer_hash.merge(delivery_threshold: 10)
+            .reject { |k, _| internal_params.include?(k) }
         end
 
         before do
@@ -274,7 +275,8 @@ RSpec.describe Phobos::Producer do
 
     describe 'without a kafka_client configured' do
       it 'creates a new client and an async_producer bound to the current thread' do
-        config = Phobos.config.producer_hash.reject { |k, _| %i(persistent_connections).include?(k) }
+        config = Phobos.config.producer_hash.reject { |k, _| internal_params.include?(k) }
+
         expect(kafka_client)
           .to receive(:async_producer)
           .with(config)
@@ -334,11 +336,12 @@ RSpec.describe Phobos::Producer do
   describe '.sync_producer_shutdown' do
     let(:producer) { double('Kafka::RegularProducer', produce: true, deliver_messages: true) }
     let(:kafka_client) { double('Kafka::Client', producer: producer, close: true) }
+    let(:config) { Phobos.config.producer_hash.merge(persistent_connections: true) }
+    before(:each) do
+      allow(Phobos.config).to receive(:producer_hash).and_return(config)
+    end
 
     it 'calls shutdown in the configured client and cleans up producer' do
-      original_hash = Phobos.config.producer_hash
-      allow(Phobos.config).to receive(:producer_hash)
-                                .and_return(original_hash.merge(:persistent_connections => true))
       expect(producer).to receive(:shutdown)
 
       Thread.new do
