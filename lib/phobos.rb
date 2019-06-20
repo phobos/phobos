@@ -31,6 +31,23 @@ require 'phobos/executor'
 
 Thread.abort_on_exception = true
 
+Logging.init :debug, :info, :warn, :error, :fatal
+
+# Monkey patch to fix this issue: https://github.com/zendesk/ruby-kafka/pull/732
+module Logging
+  # :nodoc:
+  class Logger
+    # :nodoc:
+    def formatter=(*args); end
+
+    # :nodoc:
+    def push_tags(*args); end
+
+    # :nodoc:
+    def pop_tags(*args); end
+  end
+end
+
 module Phobos
   class << self
     attr_reader :config, :logger
