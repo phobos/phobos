@@ -14,7 +14,8 @@ Gem::Specification.new do |spec|
     'Thiago R. Colucci',
     'Martin Svalin',
     'Francisco Juan',
-    'Tommy Gustafsson'
+    'Tommy Gustafsson',
+    'Daniel Orner'
   ]
   spec.email = [
     'ornelas.tulio@gmail.com',
@@ -23,7 +24,8 @@ Gem::Specification.new do |spec|
     'ticolucci@gmail.com',
     'martin@lite.nu',
     'francisco.juan@gmail.com',
-    'tommydgustafsson@gmail.com'
+    'tommydgustafsson@gmail.com',
+    'dmorner@gmail.com'
   ]
 
   spec.summary       = 'Simplifying Kafka for ruby apps'

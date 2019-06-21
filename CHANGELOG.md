@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
 
+## [1.8.2-beta2] - 2019-06-21
+- Added the `persistent_connections` setting and the corresponding
+  `sync_producer_shutdown` method to enable reusing the connection
+  for regular (sync) producers.
+
+## [1.8.2-beta1] - 2019-03-13
+
 - Added `BatchHandler` to consume messages in batches on the business
   layer.
 
