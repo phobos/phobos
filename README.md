@@ -217,7 +217,7 @@ The hander life cycle can be illustrated as:
 or optionally,
 
   `.start` -> `#before_consume` -> `#around_consume` [ `#consume` ] -> `.stop`
-  
+
 #### Batch Consumption
 
 In addition to the regular handler, Phobos provides a `BatchHandler`. The
@@ -235,24 +235,24 @@ use `Handler`.
 
 ```ruby
 class MyBatchHandler
-  includes Phobos::BatchHandler
-  
+  include Phobos::BatchHandler
+
   def before_consume_batch(payloads, metadata)
     payloads.each do |p|
       p.payload[:timestamp] = Time.zone.now
     end
   end
-  
+
   def around_consume_batch(payloads, metadata)
     yield
   end
-  
+
   def consume_batch(payloads, metadata)
     payloads.each do |p|
       logger.info("Got payload #{p.payload}, #{p.partition}, #{p.offset}, #{p.key}, #{p.payload[:timestamp]}")
     end
   end
-  
+
 end
 ```
 
