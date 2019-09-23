@@ -24,17 +24,10 @@ module Phobos
       end
 
       def execute
-        payloads = @batch.messages.map do |message|
-          Phobos::BatchMessage.new(
-            key: message.key,
-            partition: message.partition,
-            offset: message.offset,
-            payload: force_encoding(message.value)
-          )
-        end
+        batch = @batch.messages.map { |message| instantiate_batch_message(message) }
 
         begin
-          process_batch(payloads)
+          process_batch(batch)
         rescue StandardError => e
           handle_error(e, 'listener.retry_handler_error_batch',
                        "error processing inline batch, waiting #{backoff_interval}s")
@@ -44,14 +37,24 @@ module Phobos
 
       private
 
-      def process_batch(payloads)
+      def instantiate_batch_message(message)
+        Phobos::BatchMessage.new(
+          key: message.key,
+          partition: message.partition,
+          offset: message.offset,
+          payload: force_encoding(message.value),
+          headers: message.headers
+        )
+      end
+
+      def process_batch(batch)
         instrument('listener.process_batch_inline', @metadata) do |_metadata|
           handler = @listener.handler_class.new
 
-          preprocessed_payloads = handler.before_consume_batch(payloads, @metadata)
-          consume_block = proc { handler.consume_batch(preprocessed_payloads, @metadata) }
+          preprocessed_batch = handler.before_consume_batch(batch, @metadata)
+          consume_block = proc { handler.consume_batch(preprocessed_batch, @metadata) }
 
-          handler.around_consume_batch(preprocessed_payloads, @metadata, &consume_block)
+          handler.around_consume_batch(preprocessed_batch, @metadata, &consume_block)
         end
       end
     end

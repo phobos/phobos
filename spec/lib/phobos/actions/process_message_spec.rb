@@ -26,9 +26,10 @@ RSpec.describe Phobos::Actions::ProcessMessage do
 
   let(:payload) { 'message-1234' }
   let(:topic) { 'test-topic' }
+  let(:headers) { { header_1: '1', header_2: '2' } }
   let(:message) do
     Kafka::FetchedMessage.new(
-      message: Kafka::Protocol::Message.new(value: payload, key: 'key-1', offset: 2),
+      message: Kafka::Protocol::Record.new(value: payload, key: 'key-1', offset: 2, headers: headers),
       topic: topic,
       partition: 1
     )
@@ -59,6 +60,11 @@ RSpec.describe Phobos::Actions::ProcessMessage do
     expect_any_instance_of(TestHandler).to receive(:before_consume).with(payload, subject.metadata).once.and_call_original
     expect_any_instance_of(TestHandler).to receive(:consume).with(payload, subject.metadata).once.and_call_original
 
+    subject.execute
+  end
+
+  it "merges the message's headers into the metadata that's passed to the handler" do
+    expect_any_instance_of(TestHandler).to receive(:consume).with(payload, hash_including(headers: headers)).once.and_call_original
     subject.execute
   end
 
