@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
 
+## [1.8.3] - 2019-09-24
+- Version bump for official release.
+
 ## [1.8.2-beta2] - 2019-06-21
 - Added the `persistent_connections` setting and the corresponding
   `sync_producer_shutdown` method to enable reusing the connection
