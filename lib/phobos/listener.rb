@@ -10,7 +10,7 @@ module Phobos
     DELIVERY_OPTS = %w[batch message inline_batch].freeze
 
     attr_reader :group_id, :topic, :id
-    attr_reader :handler_class, :encoding
+    attr_reader :handler_class, :encoding, :consumer
 
     # rubocop:disable Metrics/MethodLength
     def initialize(handler:, group_id:, topic:, min_bytes: nil, max_wait_time: nil,

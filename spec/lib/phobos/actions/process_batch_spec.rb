@@ -55,6 +55,8 @@ RSpec.describe Phobos::Actions::ProcessBatch do
       listener_metadata: listener_metadata
     ).once.ordered.and_call_original
 
+    expect(listener.consumer).to receive(:trigger_heartbeat).twice
+
     subject.execute
   end
 end

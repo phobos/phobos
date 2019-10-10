@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
+- Automatically heartbeat after every message if necessary in batch 
+  mode.
 
 ## [1.8.2-beta2] - 2019-06-21
 - Added the `persistent_connections` setting and the corresponding
