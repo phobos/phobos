@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
 
-## [1.8.3] - 2019-09-24
+## [1.8.2] - 2019-10-23
 - Version bump for official release.
 
 ## [1.8.2-beta2] - 2019-06-21
