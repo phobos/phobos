@@ -26,6 +26,7 @@ module Phobos
               message: message,
               listener_metadata: @listener_metadata
             ).execute
+            @listener.consumer.trigger_heartbeat
           end
         end
       end
