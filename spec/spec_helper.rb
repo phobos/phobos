@@ -18,6 +18,8 @@ require 'phobos'
 require 'pry-byebug'
 require 'timecop'
 require 'phobos/test'
+require 'active_support/core_ext'
+require 'active_support/json'
 
 Dir.entries('./spec/support').select { |f| f =~ /\.rb$/ }.each do |f|
   load "./spec/support/#{f}"
