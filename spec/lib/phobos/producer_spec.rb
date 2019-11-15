@@ -19,7 +19,7 @@ RSpec.describe Phobos::Producer do
 
       expect(TestProducer1.producer)
         .to receive(:publish_list)
-        .with([{ topic: 'topic', payload: 'message', key: 'key', partition_key: nil }])
+        .with([{ topic: 'topic', payload: 'message', key: 'key', partition_key: nil, headers: nil }])
 
       subject.producer.publish('topic', 'message', 'key')
     end
@@ -32,10 +32,10 @@ RSpec.describe Phobos::Producer do
 
       expect(TestProducer1.producer)
         .to receive(:async_publish_list)
-        .with([{ topic: 'topic', payload: 'message', key: 'key', partition_key: 'partition_key' }])
+        .with([{ topic: 'topic', payload: 'message', key: 'key', partition_key: 'partition_key', headers: { foo: 'bar' } }])
 
       TestProducer1.producer.create_async_producer
-      subject.producer.async_publish('topic', 'message', 'key', 'partition_key')
+      subject.producer.async_publish('topic', 'message', 'key', 'partition_key', foo: 'bar')
     end
   end
 
@@ -58,11 +58,11 @@ RSpec.describe Phobos::Producer do
 
           expect(producer)
             .to receive(:produce)
-            .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1')
+            .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1', headers: nil)
 
           expect(producer)
             .to receive(:produce)
-            .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2')
+            .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2', headers: { foo: 'bar' })
 
           expect(producer).to receive(:deliver_messages)
           expect(producer).to receive(:shutdown)
@@ -70,7 +70,7 @@ RSpec.describe Phobos::Producer do
 
           subject.producer.publish_list([
                                           { payload: 'message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1' },
-                                          { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+                                          { payload: 'message-2', topic: 'topic-2', key: 'key-2', headers: { foo: 'bar' } }
                                         ])
         end
       end
@@ -91,15 +91,15 @@ RSpec.describe Phobos::Producer do
 
           expect(producer)
             .to receive(:produce)
-            .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1')
+            .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1', headers: nil)
 
           expect(producer)
             .to receive(:produce)
-            .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2')
+            .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2', headers: { foo: 'bar' })
 
           expect(producer)
             .to receive(:produce)
-            .with('message-3', topic: 'topic-3', key: 'key-3', partition_key: 'part-key-3')
+            .with('message-3', topic: 'topic-3', key: 'key-3', partition_key: 'part-key-3', headers: nil)
 
           expect(producer).to receive(:deliver_messages).twice
           expect(producer).to_not have_received(:shutdown)
@@ -107,7 +107,7 @@ RSpec.describe Phobos::Producer do
 
           subject.producer.publish_list([
                                           { payload: 'message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1' },
-                                          { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
+                                          { payload: 'message-2', topic: 'topic-2', key: 'key-2', headers: { foo: 'bar' } }
                                         ])
           subject.producer.publish_list([
                                           { payload: 'message-3', topic: 'topic-3', key: 'key-3', partition_key: 'part-key-3' }
@@ -132,18 +132,18 @@ RSpec.describe Phobos::Producer do
 
         expect(producer)
           .to receive(:produce)
-          .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1')
+          .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1', headers: { foo: 'bar' })
 
         expect(producer)
           .to receive(:produce)
-          .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2')
+          .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2', headers: nil)
 
         expect(producer).to receive(:deliver_messages)
         expect(producer).to receive(:shutdown)
         expect(kafka_client).to_not receive(:close)
 
         subject.producer.publish_list([
-                                        { payload: 'message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1' },
+                                        { payload: 'message-1', topic: 'topic-1', key: 'key-1', partition_key: 'part-key-1', headers: { foo: 'bar' } },
                                         { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
                                       ])
       end
@@ -164,11 +164,11 @@ RSpec.describe Phobos::Producer do
 
         expect(producer)
           .to receive(:produce)
-          .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'key-1')
+          .with('message-1', topic: 'topic-1', key: 'key-1', partition_key: 'key-1', headers: { foo: 'bar' })
 
         expect(producer)
           .to receive(:produce)
-          .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2')
+          .with('message-2', topic: 'topic-2', key: 'key-2', partition_key: 'key-2', headers: nil)
 
         expect(producer).to_not receive(:close)
       end
@@ -191,7 +191,7 @@ RSpec.describe Phobos::Producer do
             TestProducer1.producer.configure_kafka_client(kafka_client)
 
             subject.producer.async_publish_list([
-                                                  { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
+                                                  { payload: 'message-1', topic: 'topic-1', key: 'key-1', headers: { foo: 'bar' } },
                                                   { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
                                                 ])
           end.join
@@ -216,7 +216,7 @@ RSpec.describe Phobos::Producer do
             TestProducer1.producer.configure_kafka_client(kafka_client)
 
             subject.producer.async_publish_list([
-                                                  { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
+                                                  { payload: 'message-1', topic: 'topic-1', key: 'key-1', headers: { foo: 'bar' } },
                                                   { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
                                                 ])
           end.join
@@ -234,7 +234,7 @@ RSpec.describe Phobos::Producer do
             TestProducer1.producer.configure_kafka_client(kafka_client)
 
             subject.producer.async_publish_list([
-                                                  { payload: 'message-1', topic: 'topic-1', key: 'key-1' },
+                                                  { payload: 'message-1', topic: 'topic-1', key: 'key-1', headers: { foo: 'bar' } },
                                                   { payload: 'message-2', topic: 'topic-2', key: 'key-2' }
                                                 ])
           end.join

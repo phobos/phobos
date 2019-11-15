@@ -139,6 +139,8 @@ A handler is required to implement the method `#consume(payload, metadata)`.
 
 Instances of your handler will be created for every message, so keep a constructor without arguments. If `consume` raises an exception, Phobos will retry the message indefinitely, applying the back off configuration presented in the configuration file. The `metadata` hash will contain a key called `retry_count` with the current number of retries for this message. To skip a message, simply return from `#consume`.
 
+The `metadata` hash will also contain a key called `headers` with the headers of the consumed message.
+
 When the listener starts, the class method `.start` will be called with the `kafka_client` used by the listener. Use this hook as a chance to setup necessary code for your handler. The class method `.stop` will be called during listener shutdown.
 
 ```ruby
@@ -233,6 +235,9 @@ and your handler must include `BatchHandler`. Using a delivery method of `batch`
 assumes that you are still processing the messages one at a time and should
 use `Handler`.
 
+When using `inline_batch`, each instance of `Phobos::BatchMessage` will contain an
+instance method `headers` with the headers for that message.
+
 ```ruby
 class MyBatchHandler
   include Phobos::BatchHandler
@@ -282,6 +287,19 @@ my.producer.publish('topic', 'message-payload', 'partition and message key')
 MyProducer.producer.publish('topic', 'message-payload', 'partition and message key')
 ```
 
+The signature for the `publish` method is as follows:
+
+```ruby
+def publish(topic, payload, key = nil, partition_key = nil, headers = nil)
+```
+
+To produce messages with headers, 5 arguments will have to be passed to `publish`:
+
+```ruby
+my = MyProducer.new
+my.producer.publish('topic', 'message-payload', 'partition and message key', nil, { header_1: 'value 1' })
+```
+
 It is also possible to publish several messages at once:
 
 ```ruby
@@ -290,7 +308,7 @@ MyProducer
   .publish_list([
     { topic: 'A', payload: 'message-1', key: '1' },
     { topic: 'B', payload: 'message-2', key: '2' },
-    { topic: 'B', payload: 'message-3', key: '3' }
+    { topic: 'B', payload: 'message-3', key: '3', headers: { header_1: 'value 1', header_2: 'value 2' } }
   ])
 ```
 

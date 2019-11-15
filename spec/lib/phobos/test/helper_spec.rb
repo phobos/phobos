@@ -23,7 +23,7 @@ RSpec.describe Phobos::Test::Helper do
 
   let(:payload) { 'foo' }
   let(:metadata) { Hash(foo: 'bar') }
-  let(:listener_metadata) { Hash(key: nil, partition: 0, offset: 13, retry_count: 0) }
+  let(:listener_metadata) { Hash(key: nil, partition: 0, offset: 13, retry_count: 0, headers: {}) }
   let(:topic) { Phobos::Test::Helper::Topic }
   let(:group_id) { Phobos::Test::Helper::Group }
 

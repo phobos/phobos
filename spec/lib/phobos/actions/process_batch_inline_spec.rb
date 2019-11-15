@@ -5,6 +5,7 @@ require 'spec_helper'
 RSpec.describe Phobos::Actions::ProcessBatchInline do
   class TestBatchHandler
     include Phobos::BatchHandler
+
     def consume_batch(payloads, metadata)
       Phobos.logger.info { Hash(payloads: payloads).merge(metadata) }
     end
@@ -14,14 +15,14 @@ RSpec.describe Phobos::Actions::ProcessBatchInline do
   let(:topic) { 'test-topic' }
   let(:message1) do
     Kafka::FetchedMessage.new(
-      message: Kafka::Protocol::Message.new(value: 'value-1', key: 'key-1', offset: 2),
+      message: Kafka::Protocol::Record.new(value: 'value-1', key: 'key-1', offset: 2),
       topic: topic,
       partition: 1
     )
   end
   let(:message2) do
     Kafka::FetchedMessage.new(
-      message: Kafka::Protocol::Message.new(value: 'value-2', key: 'key-2', offset: 4),
+      message: Kafka::Protocol::Record.new(value: 'value-2', key: 'key-2', offset: 4),
       topic: topic,
       partition: 3
     )
@@ -63,7 +64,8 @@ RSpec.describe Phobos::Actions::ProcessBatchInline do
         key: message.key,
         partition: message.partition,
         offset: message.offset,
-        payload: message.value
+        payload: message.value,
+        headers: message.headers
       )
     end
 

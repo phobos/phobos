@@ -15,18 +15,18 @@ module Phobos
         @host_obj = host_obj
       end
 
-      def publish(topic, payload, key = nil, partition_key = nil)
-        class_producer.publish(topic, payload, key, partition_key)
+      def publish(topic, payload, key = nil, partition_key = nil, headers = nil)
+        class_producer.publish(topic, payload, key, partition_key, headers)
       end
 
-      def async_publish(topic, payload, key = nil, partition_key = nil)
-        class_producer.async_publish(topic, payload, key, partition_key)
+      def async_publish(topic, payload, key = nil, partition_key = nil, headers = nil)
+        class_producer.async_publish(topic, payload, key, partition_key, headers)
       end
 
-      # @param messages [Array(Hash(:topic, :payload, :key))]
+      # @param messages [Array(Hash(:topic, :payload, :key, :headers))]
       #        e.g.: [
-      #          { topic: 'A', payload: 'message-1', key: '1' },
-      #          { topic: 'B', payload: 'message-2', key: '2' }
+      #          { topic: 'A', payload: 'message-1', key: '1', headers: { foo: 'bar' } },
+      #          { topic: 'B', payload: 'message-2', key: '2', headers: { foo: 'bar' } }
       #        ]
       #
       def publish_list(messages)
@@ -86,9 +86,9 @@ module Phobos
           producer_store[:sync_producer] = nil
         end
 
-        def publish(topic, payload, key = nil, partition_key = nil)
+        def publish(topic, payload, key = nil, partition_key = nil, headers = nil)
           publish_list([{ topic: topic, payload: payload, key: key,
-                          partition_key: partition_key }])
+                          partition_key: partition_key, headers: headers }])
         end
 
         def publish_list(messages)
@@ -109,9 +109,9 @@ module Phobos
           producer_store[:async_producer]
         end
 
-        def async_publish(topic, payload, key = nil, partition_key = nil)
+        def async_publish(topic, payload, key = nil, partition_key = nil, headers = nil)
           async_publish_list([{ topic: topic, payload: payload, key: key,
-                                partition_key: partition_key }])
+                                partition_key: partition_key, headers: headers }])
         end
 
         def async_publish_list(messages)
@@ -144,6 +144,7 @@ module Phobos
             partition_key = message[:partition_key] || message[:key]
             producer.produce(message[:payload], topic: message[:topic],
                                                 key: message[:key],
+                                                headers: message[:headers],
                                                 partition_key: partition_key)
           end
         end
