@@ -3,8 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
-
+``
 ## UNRELEASED
+
+## [1.8.3-beta2] - 2019-11-15
+- Add support for message headers in both produced and consumed
+  messages and batches.
 
 ## [1.8.3-beta1] - 2019-11-11
 - Automatically heartbeat after every message if necessary in batch 
