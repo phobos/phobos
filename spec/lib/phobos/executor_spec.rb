@@ -64,8 +64,8 @@ RSpec.describe Phobos::Executor do
       .and_raise(Exception, 'not retryable error')
 
     # publish event to both consumers
-    producer.publish(topics.first, 'message-1')
-    producer.publish(topics.last, 'message-1')
+    producer.publish(topic: topics.first, payload: 'message-1')
+    producer.publish(topic: topics.last, payload: 'message-1')
 
     wait_for_event('executor.retry_listener_error', amount_gte: 1)
 
@@ -153,7 +153,7 @@ RSpec.describe Phobos::Executor do
         .to receive(:consume)
         .and_raise(Exception, 'not retryable error')
 
-      producer.publish(topics.first, 'message-1')
+      producer.publish(topic: topics.first, payload: 'message-1')
       wait_for_event('executor.retry_listener_error', amount: 1)
       wait_for_event('listener.start', amount_gte: 1)
 
@@ -178,7 +178,7 @@ RSpec.describe Phobos::Executor do
           .to receive(:consume)
           .and_raise(Exception, 'not retryable error')
 
-        producer.publish(topics.last, 'message-1')
+        producer.publish(topic: topics.last, payload: 'message-1')
         wait_for_event('executor.retry_listener_error', amount: 1)
         wait_for_event('listener.start', amount_gte: 1)
 

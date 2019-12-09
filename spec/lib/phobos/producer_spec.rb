@@ -7,35 +7,59 @@ RSpec.describe Phobos::Producer do
     include Phobos::Producer
   end
 
-  before { TestProducer1.producer.configure_kafka_client(nil) }
+  before do
+    TestProducer1.producer.configure_kafka_client(nil)
+    allow(Phobos::Producer::ClassMethods::PublicAPI).to receive(:new).and_return(public_api)
+  end
+
   after { TestProducer1.producer.configure_kafka_client(nil) }
   subject { TestProducer1.new }
   let(:internal_params) { Phobos::Producer::ClassMethods::PublicAPI::INTERNAL_PRODUCER_PARAMS }
+  let(:public_api) { Phobos::Producer::ClassMethods::PublicAPI.new }
 
   describe '#publish' do
-    it 'publishes a single message using "publish_list"' do
-      public_api = Phobos::Producer::ClassMethods::PublicAPI.new
-      allow(Phobos::Producer::ClassMethods::PublicAPI).to receive(:new).and_return(public_api)
-
+    it 'publishes a single message using "publish_list" when called with positional arguments' do
       expect(TestProducer1.producer)
         .to receive(:publish_list)
-        .with([{ topic: 'topic', payload: 'message', key: 'key', partition_key: nil, headers: nil }])
+        .with([{ topic: 'topic', payload: 'message', key: 'key', partition_key: nil, headers: {}}])
 
       subject.producer.publish('topic', 'message', 'key')
+    end
+
+    it 'publishes a single message using "publish_list" when called with keyword arguments' do
+      expect(TestProducer1.producer)
+        .to receive(:publish_list)
+        .with([{ topic: 'topic', payload: 'message', key: 'key', partition_key: 'partition_key', headers: { foo: 'bar', fizz: 'buzz' } }])
+
+      subject.producer.publish(topic: 'topic', payload: 'message', key: 'key', partition_key: 'partition_key', foo: 'bar', fizz: 'buzz')
+    end
+
+    it 'raises an error if any of the required arguments is not provided' do
+      expect { subject.producer.publish }.to raise_error(described_class::PublicAPI::MissingRequiredArgumentsError)
     end
   end
 
   describe '#async_publish' do
-    it 'publishes a single message using "async_publish"' do
-      public_api = Phobos::Producer::ClassMethods::PublicAPI.new
-      allow(Phobos::Producer::ClassMethods::PublicAPI).to receive(:new).and_return(public_api)
+    it 'publishes a single message using "async_publish" when called with positional arguments' do
+      expect(TestProducer1.producer)
+        .to receive(:async_publish_list)
+        .with([{ topic: 'topic', payload: 'message', key: 'key', partition_key: nil, headers: { foo: 'bar', fizz: 'buzz' } }])
 
+      TestProducer1.producer.create_async_producer
+      subject.producer.async_publish('topic', 'message', 'key', nil, foo: 'bar', fizz: 'buzz')
+    end
+
+    it 'publishes a single message using "async_publish" when called with keyword arguments' do
       expect(TestProducer1.producer)
         .to receive(:async_publish_list)
         .with([{ topic: 'topic', payload: 'message', key: 'key', partition_key: 'partition_key', headers: { foo: 'bar' } }])
 
       TestProducer1.producer.create_async_producer
-      subject.producer.async_publish('topic', 'message', 'key', 'partition_key', foo: 'bar')
+      subject.producer.async_publish(topic: 'topic', payload: 'message', key: 'key', partition_key: 'partition_key', headers: { foo: 'bar' })
+    end
+
+    it 'raises an error if any of the required arguments is not provided' do
+      expect { subject.producer.async_publish }.to raise_error(described_class::PublicAPI::MissingRequiredArgumentsError)
     end
   end
 
