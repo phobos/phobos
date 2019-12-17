@@ -300,7 +300,7 @@ my = MyProducer.new
 my.producer.publish(topic: 'topic', payload: 'message-payload', key: 'partition and message key', headers: { header_1: 'value 1' })
 ```
 
-Older versions of Phobos provided a `publish` method that accepted positional arguments. This version is still supported but it's soon to be deprecated in favour of the keyword arguments version.
+Older versions of Phobos provided a `publish` method that accepted positional arguments. That version is still supported but it's soon to be deprecated in favour of the keyword arguments version.
 
 It is also possible to publish several messages at once:
 

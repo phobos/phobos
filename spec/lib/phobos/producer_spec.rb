@@ -26,6 +26,14 @@ RSpec.describe Phobos::Producer do
       subject.producer.publish('topic', 'message', 'key')
     end
 
+    it 'logs a deprecation message when called with positional arguments' do
+      expect(Phobos).to receive(:deprecate).with(
+        /The `publish` method should now receive keyword arguments rather than positional ones/
+      )
+
+      subject.producer.publish('topic', 'message', 'key')
+    end
+
     it 'publishes a single message using "publish_list" when called with keyword arguments' do
       expect(TestProducer1.producer)
         .to receive(:publish_list)
@@ -47,6 +55,14 @@ RSpec.describe Phobos::Producer do
 
       TestProducer1.producer.create_async_producer
       subject.producer.async_publish('topic', 'message', 'key', nil, foo: 'bar', fizz: 'buzz')
+    end
+
+    it 'logs a deprecation message when called with positional arguments' do
+      expect(Phobos).to receive(:deprecate).with(
+        /The `async_publish` method should now receive keyword arguments rather than positional ones/
+      )
+
+      subject.producer.async_publish('topic', 'message', 'key')
     end
 
     it 'publishes a single message using "async_publish" when called with keyword arguments' do

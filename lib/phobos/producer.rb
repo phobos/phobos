@@ -22,14 +22,16 @@ module Phobos
       end
 
       def publish(*args, **kwargs)
-        args = normalize_arguments(*args, **kwargs)
+        Phobos.deprecate(deprecate_positional_args_message('publish')) if kwargs.empty?
 
+        args = normalize_arguments(*args, **kwargs)
         class_producer.publish(**args)
       end
 
       def async_publish(*args, **kwargs)
-        args = normalize_arguments(*args, **kwargs)
+        Phobos.deprecate(deprecate_positional_args_message('async_publish')) if kwargs.empty?
 
+        args = normalize_arguments(*args, **kwargs)
         class_producer.async_publish(**args)
       end
 
@@ -76,6 +78,12 @@ module Phobos
         end
       end
       # rubocop:enable Metrics/ParameterLists
+
+      def deprecate_positional_args_message(method_name)
+        "The `#{method_name}` method should now receive keyword arguments " \
+          'rather than positional ones. Please update your publishers. This will ' \
+          'not be backwards compatible in the future.'
+      end
     end
 
     module ClassMethods

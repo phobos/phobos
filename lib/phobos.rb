@@ -78,7 +78,8 @@ module Phobos
     end
 
     def deprecate(message)
-      warn "DEPRECATION WARNING: #{message} #{Kernel.caller.first}"
+      location = caller.find { |line| line !~ %r{/phobos/} }
+      warn "DEPRECATION WARNING: #{message}: #{location}"
     end
 
     # :nodoc:

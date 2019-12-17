@@ -44,8 +44,8 @@ module Phobos
 
           if @listener.handler_class.respond_to?(:around_consume)
             # around_consume class method implementation
-            Phobos.deprecate('around_consume has been moved to instance method, '\
-              'please update your consumer. This will not be backwards compatible in the future.')
+            Phobos.deprecate('around_consume has been moved to instance method, please update '\
+                             'your consumer. This will not be backwards compatible in the future.')
             @listener.handler_class.around_consume(preprocessed_payload, @metadata, &consume_block)
           else
             # around_consume instance method implementation
@@ -57,8 +57,9 @@ module Phobos
       def before_consume(handler, payload)
         handler.before_consume(payload, @metadata)
       rescue ArgumentError
-        Phobos.deprecate('before_consume now expects metadata as second argument, '\
-          'please update your consumer. This will not be backwards compatible in the future.')
+        Phobos.deprecate('before_consume now expects metadata as second argument, please update '\
+                         'your consumer. This will not be backwards compatible in the future.')
+
         handler.before_consume(payload)
       end
     end
