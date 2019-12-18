@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+## [1.9.0-beta1] - 2019-12-18
+- Update `publish` and `async_publish` to use keyword arguments
+  instead of positional ones. Deprecate positional arguments
+  in anticipation of removing them with 2.0.
+
 ## [1.8.3-beta2] - 2019-11-15
 - Add support for message headers in both produced and consumed
   messages and batches.
