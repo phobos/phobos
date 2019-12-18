@@ -45,7 +45,7 @@ Thread.new do
         #
         MyProducer
           .producer
-          .async_publish(TOPIC, payload, key)
+          .async_publish(topic: TOPIC, payload: payload, key: key)
 
         puts "produced #{key}, total: #{total}"
 

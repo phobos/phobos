@@ -281,24 +281,26 @@ The producer module doesn't pollute your classes with a thousand methods, it inc
 
 ```ruby
 my = MyProducer.new
-my.producer.publish('topic', 'message-payload', 'partition and message key')
+my.producer.publish(topic: 'topic', payload: 'message-payload', key: 'partition and message key')
 
 # The code above has the same effect of this code:
-MyProducer.producer.publish('topic', 'message-payload', 'partition and message key')
+MyProducer.producer.publish(topic: 'topic', payload: 'message-payload', key: 'partition and message key')
 ```
 
 The signature for the `publish` method is as follows:
 
 ```ruby
-def publish(topic, payload, key = nil, partition_key = nil, headers = nil)
+def publish(topic: topic, payload: payload, key: nil, partition_key: nil, headers: nil)
 ```
 
-To produce messages with headers, 5 arguments will have to be passed to `publish`:
+When publishing a message with headers, the `headers` argument must be a hash:
 
 ```ruby
 my = MyProducer.new
-my.producer.publish('topic', 'message-payload', 'partition and message key', nil, { header_1: 'value 1' })
+my.producer.publish(topic: 'topic', payload: 'message-payload', key: 'partition and message key', headers: { header_1: 'value 1' })
 ```
+
+Older versions of Phobos provided a `publish` method that accepted positional arguments. That version is still supported but it's soon to be deprecated in favour of the keyword arguments version.
 
 It is also possible to publish several messages at once:
 
@@ -328,7 +330,7 @@ class MyHandler
   PUBLISH_TO = 'topic2'
 
   def consume(payload, metadata)
-    producer.async_publish(PUBLISH_TO, {key: 'value'}.to_json)
+    producer.async_publish(topic: PUBLISH_TO, payload: {key: 'value'}.to_json)
   end
 end
 ```

@@ -87,7 +87,7 @@ RSpec.describe Phobos::Listener do
           .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
           .once { Timecop.freeze(now + 0.1) }
 
-      producer.publish(topic, 'message-1')
+      producer.publish(topic: topic, payload: 'message-1')
 
       wait_for_event('listener.process_message')
       event = events_for('listener.process_message').first
@@ -115,7 +115,7 @@ RSpec.describe Phobos::Listener do
         )
         .and_call_original
 
-      producer.async_publish(topic, 'message-1')
+      producer.async_publish(topic: topic, payload: 'message-1')
       wait_for_event('listener.process_batch')
 
       listener.stop
@@ -140,7 +140,7 @@ RSpec.describe Phobos::Listener do
           )
           .and_call_original
 
-        producer.async_publish(topic, 'message-1')
+        producer.async_publish(topic: topic, payload: 'message-1')
         wait_for_event('listener.process_batch_inline')
 
         listener.stop
@@ -172,7 +172,7 @@ RSpec.describe Phobos::Listener do
           .with('message-1', hash_including(group_id: group_id, topic: topic, listener_id: listener.id))
           .once { Timecop.freeze(now + 0.1) }
 
-      producer.publish(topic, 'message-1')
+      producer.publish(topic: topic, payload: 'message-1')
 
       wait_for_event('listener.process_message')
       event = events_for('listener.process_message').first
@@ -196,7 +196,7 @@ RSpec.describe Phobos::Listener do
         )
         .and_call_original
 
-      producer.async_publish(topic, 'message-1')
+      producer.async_publish(topic: topic, payload: 'message-1')
       wait_for_event('listener.process_message')
 
       listener.stop
@@ -346,7 +346,7 @@ RSpec.describe Phobos::Listener do
       .to receive(:consume)
       .with('message-1', hash_including(retry_count: kind_of(Numeric)))
 
-    producer.publish(topic, 'message-1')
+    producer.publish(topic: topic, payload: 'message-1')
     wait_for_event('listener.process_batch')
 
     listener.stop
@@ -366,7 +366,7 @@ RSpec.describe Phobos::Listener do
       .to receive(:consume)
       .and_raise('handler exception')
 
-    producer.publish(topic, 'message-1')
+    producer.publish(topic: topic, payload: 'message-1')
     wait_for_event('listener.retry_handler_error', amount: 1, ignore_errors: false)
 
     listener.stop
@@ -480,7 +480,7 @@ RSpec.describe Phobos::Listener do
     subscribe_to(*LISTENER_EVENTS) { thread }
     wait_for_event('listener.start')
 
-    producer.publish(topic, 'message-1')
+    producer.publish(topic: topic, payload: 'message-1')
     wait_for_event('listener.process_message')
 
     listener.stop
