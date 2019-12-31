@@ -35,32 +35,49 @@ module Phobos
 
       private
 
+      def preprocess(payload, handler)
+        if handler.respond_to?(:before_consume)
+          Phobos.deprecate('before_consume is deprecated and will be removed in 2.0. \
+                            Use around_consume and yield payload and metadata objects.')
+          begin
+            handler.before_consume(payload, @metadata)
+          rescue ArgumentError
+            handler.before_consume(payload)
+          end
+        else
+          payload
+        end
+      end
+
+      def consume_block(payload, handler)
+        proc { |around_payload, around_metadata|
+          if around_payload
+            handler.consume(around_payload, around_metadata)
+          else
+            Phobos.deprecate('Calling around_consume without yielding payload and metadata \
+                              is deprecated and will be removed in 2.0.')
+            handler.consume(payload, @metadata)
+          end
+        }
+      end
+
       def process_message(payload)
         instrument('listener.process_message', @metadata) do
           handler = @listener.handler_class.new
 
-          preprocessed_payload = before_consume(handler, payload)
-          consume_block = proc { handler.consume(preprocessed_payload, @metadata) }
+          preprocessed_payload = preprocess(payload, handler)
+          block = consume_block(preprocessed_payload, handler)
 
           if @listener.handler_class.respond_to?(:around_consume)
             # around_consume class method implementation
             Phobos.deprecate('around_consume has been moved to instance method, please update '\
                              'your consumer. This will not be backwards compatible in the future.')
-            @listener.handler_class.around_consume(preprocessed_payload, @metadata, &consume_block)
+            @listener.handler_class.around_consume(preprocessed_payload, @metadata, &block)
           else
             # around_consume instance method implementation
-            handler.around_consume(preprocessed_payload, @metadata, &consume_block)
+            handler.around_consume(preprocessed_payload, @metadata, &block)
           end
         end
-      end
-
-      def before_consume(handler, payload)
-        handler.before_consume(payload, @metadata)
-      rescue ArgumentError
-        Phobos.deprecate('before_consume now expects metadata as second argument, please update '\
-                         'your consumer. This will not be backwards compatible in the future.')
-
-        handler.before_consume(payload)
       end
     end
   end

@@ -18,11 +18,7 @@ RSpec.describe Phobos::BatchHandler do
 
   it 'includes default "#around_consume_batch"' do
     expect { |block| TestIncludeBatchHandler.new.around_consume_batch('batch', {}, &block) }
-      .to yield_with_no_args
-  end
-
-  it 'includes default "#before_consume_batch"' do
-    expect(TestIncludeBatchHandler.new.before_consume_batch('payloads', {})).to eq('payloads')
+      .to yield_with_args('batch', {})
   end
 
   describe '#consume_batch' do

@@ -6,16 +6,12 @@ module Phobos
       base.extend(ClassMethods)
     end
 
-    def before_consume_batch(payloads, _metadata)
-      payloads
-    end
-
     def consume_batch(_payloads, _metadata)
       raise NotImplementedError
     end
 
-    def around_consume_batch(_payloads, _metadata)
-      yield
+    def around_consume_batch(payloads, metadata)
+      yield payloads, metadata
     end
 
     module ClassMethods
