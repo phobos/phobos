@@ -11,6 +11,22 @@ RSpec.describe Phobos::Actions::ProcessBatchInline do
     end
   end
 
+  # for backwards compatibility
+  class TestBatchHandler2 < TestBatchHandler
+
+    def around_consume_batch(payloads, metadata)
+      yield
+    end
+  end
+
+  class TestBatchHandler3 < TestBatchHandler
+
+    def before_consume_batch(payloads, metadata)
+      payloads
+    end
+
+  end
+
   let(:payload) { 'message-1234' }
   let(:topic) { 'test-topic' }
   let(:message1) do
@@ -45,6 +61,18 @@ RSpec.describe Phobos::Actions::ProcessBatchInline do
     )
   end
 
+  let(:payloads) do
+    batch.messages.map do |message|
+          Phobos::BatchMessage.new(
+            key: message.key,
+            partition: message.partition,
+            offset: message.offset,
+            payload: message.value,
+            headers: message.headers
+          )
+        end
+  end
+
   subject do
     described_class.new(
       listener: listener,
@@ -59,25 +87,56 @@ RSpec.describe Phobos::Actions::ProcessBatchInline do
   end
 
   it 'processes the message by calling around consume, before consume and consume of the handler' do
-    payloads = batch.messages.map do |message|
-      Phobos::BatchMessage.new(
-        key: message.key,
-        partition: message.partition,
-        offset: message.offset,
-        payload: message.value,
-        headers: message.headers
-      )
-    end
-
     expect(subject).to receive(:force_encoding).twice { |p| p }
     expect_any_instance_of(TestBatchHandler).to receive(:around_consume_batch).
-      with(payloads, subject.metadata).once.and_call_original
-    expect_any_instance_of(TestBatchHandler).to receive(:before_consume_batch).
       with(payloads, subject.metadata).once.and_call_original
     expect_any_instance_of(TestBatchHandler).to receive(:consume_batch).
       with(payloads, subject.metadata).once.and_call_original
 
     subject.execute
+  end
+
+  context 'deprecated around_consume_batch yielding no arguments' do
+    let(:listener) do
+      Phobos::Listener.new(
+        handler: TestBatchHandler2,
+        group_id: 'test-group',
+        topic: topic
+      )
+    end
+
+    it 'supports the method and logs a deprecation message' do
+      expect(Phobos).to receive(:deprecate).once
+      expect_any_instance_of(TestBatchHandler2).to receive(:around_consume_batch).
+        with(payloads, subject.metadata).once.and_call_original
+      expect_any_instance_of(TestBatchHandler2).to receive(:consume_batch).
+        with(payloads, subject.metadata).once.and_call_original
+
+      subject.execute
+    end
+  end
+
+  context 'with deprecated before_consume_batch' do
+    let(:listener) do
+      Phobos::Listener.new(
+        handler: TestBatchHandler3,
+        group_id: 'test-group',
+        topic: topic
+      )
+    end
+
+    it 'calls before_consume and deprecates' do
+      expect_any_instance_of(TestBatchHandler3).to receive(:around_consume_batch).
+        with(payloads, subject.metadata).once.and_call_original
+      expect(Phobos).to receive(:deprecate).once
+      expect_any_instance_of(TestBatchHandler3).to receive(:before_consume_batch).
+        with(payloads, subject.metadata).once.and_call_original
+      expect_any_instance_of(TestBatchHandler3).to receive(:consume_batch).
+        with(payloads, subject.metadata).once.and_call_original
+
+      subject.execute
+    end
+
   end
 
   context 'when processing fails' do

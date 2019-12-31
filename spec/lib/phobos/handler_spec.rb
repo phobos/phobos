@@ -18,7 +18,7 @@ RSpec.describe Phobos::Handler do
 
   it 'includes default "#around_consume"' do
     expect { |block| TestIncludeHandler.new.around_consume('payload', {}, &block) }
-      .to yield_with_no_args
+      .to yield_with_args('payload', {})
   end
 
   describe '#consume' do

@@ -169,7 +169,7 @@ class MyHandler
 
   def around_consume(payload, metadata)
     Phobos.logger.info "consuming..."
-    output = yield
+    output = yield payload, metadata
     Phobos.logger.info "done, output: #{output}"
   end
 
@@ -187,7 +187,7 @@ class MyHandler
 
   def self.around_consume(payload, metadata)
     Phobos.logger.info "consuming..."
-    output = yield
+    output = yield payload, metadata
     Phobos.logger.info "done, output: #{output}"
   end
 
@@ -197,18 +197,7 @@ class MyHandler
 end
 ```
 
-Finally, it is also possible to preprocess the message payload before consuming it using the `before_consume` hook which is invoked before `#around_consume` and `#consume`. The result of this operation will be assigned to payload, so it is important to return the modified payload. This can be very useful, for example if you want a single point of decoding Avro messages and want the payload as a hash instead of a binary.
-
-```ruby
-class MyHandler
-  include Phobos::Handler
-
-  def before_consume(payload, metadata)
-    # optionally preprocess payload
-    payload
-  end
-end
-```
+Note: Previous versions used a `before_consume` method to pre-process the payload. This is still supported, but deprecated. Going forward, `around_consume` should yield the payload and metadata back to the calling code, allowing it to act as a pre-processor, e.g. by decoding Avro messages into Ruby hashes.
 
 Take a look at the examples folder for some ideas.
 
@@ -218,7 +207,7 @@ The hander life cycle can be illustrated as:
 
 or optionally,
 
-  `.start` -> `#before_consume` -> `#around_consume` [ `#consume` ] -> `.stop`
+  `.start` -> `#around_consume` [ `#consume` ] -> `.stop`
 
 #### Batch Consumption
 
@@ -242,14 +231,12 @@ instance method `headers` with the headers for that message.
 class MyBatchHandler
   include Phobos::BatchHandler
 
-  def before_consume_batch(payloads, metadata)
+  def around_consume_batch(payloads, metadata)
     payloads.each do |p|
       p.payload[:timestamp] = Time.zone.now
     end
-  end
 
-  def around_consume_batch(payloads, metadata)
-    yield
+    yield payloads, metadata
   end
 
   def consume_batch(payloads, metadata)
@@ -625,7 +612,6 @@ describe MyConsumer do
 
   it 'consumes my message' do
     expect_any_instance_of(described_class).to receive(:around_consume).with(payload, metadata).once.and_call_original
-    expect_any_instance_of(described_class).to receive(:before_consume).with(payload, metadata).once.and_call_original
     expect_any_instance_of(described_class).to receive(:consume).with(payload, metadata).once.and_call_original
 
     process_message(handler: described_class, payload: payload, metadata: metadata)

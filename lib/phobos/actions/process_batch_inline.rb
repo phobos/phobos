@@ -47,12 +47,30 @@ module Phobos
         )
       end
 
+      def preprocess(batch, handler)
+        if handler.respond_to?(:before_consume_batch)
+          Phobos.deprecate('before_consume_batch is deprecated and will be removed in 2.0. \
+                            Use around_consume_batch and yield payloads and metadata objects.')
+          handler.before_consume_batch(batch, @metadata)
+        else
+          batch
+        end
+      end
+
       def process_batch(batch)
         instrument('listener.process_batch_inline', @metadata) do |_metadata|
           handler = @listener.handler_class.new
 
-          preprocessed_batch = handler.before_consume_batch(batch, @metadata)
-          consume_block = proc { handler.consume_batch(preprocessed_batch, @metadata) }
+          preprocessed_batch = preprocess(batch, handler)
+          consume_block = proc { |around_batch, around_metadata|
+            if around_batch
+              handler.consume_batch(around_batch, around_metadata)
+            else
+              Phobos.deprecate('Calling around_consume_batch without yielding payloads \
+                                and metadata is deprecated and will be removed in 2.0.')
+              handler.consume_batch(preprocessed_batch, @metadata)
+            end
+          }
 
           handler.around_consume_batch(preprocessed_batch, @metadata, &consume_block)
         end

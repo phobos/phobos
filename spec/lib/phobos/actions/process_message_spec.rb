@@ -11,8 +11,12 @@ RSpec.describe Phobos::Actions::ProcessMessage do
   class TestHandler2 < Phobos::EchoHandler
     include Phobos::Handler
 
-    def self.around_consume(_payload, _metadata)
-      yield
+    def before_consume(payload, _metadata)
+      payload
+    end
+
+    def self.around_consume(payload, metadata)
+      yield payload, metadata
     end
   end
 
@@ -21,6 +25,14 @@ RSpec.describe Phobos::Actions::ProcessMessage do
 
     def before_consume(payload)
       payload
+    end
+  end
+
+  class TestHandler4 < Phobos::EchoHandler
+    include Phobos::Handler
+
+    def around_consume(payload, metadata)
+      yield
     end
   end
 
@@ -57,7 +69,6 @@ RSpec.describe Phobos::Actions::ProcessMessage do
 
   it 'processes the message by calling around consume, before consume and consume of the handler' do
     expect_any_instance_of(TestHandler).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
-    expect_any_instance_of(TestHandler).to receive(:before_consume).with(payload, subject.metadata).once.and_call_original
     expect_any_instance_of(TestHandler).to receive(:consume).with(payload, subject.metadata).once.and_call_original
 
     subject.execute
@@ -79,9 +90,27 @@ RSpec.describe Phobos::Actions::ProcessMessage do
 
     it 'supports and prefers around_consume if defined as a class method' do
       expect(TestHandler2).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
-      expect(Phobos).to receive(:deprecate).once
+      expect(Phobos).to receive(:deprecate).twice # before_consume and around_consume as class method
       expect_any_instance_of(TestHandler2).to receive(:before_consume).with(payload, subject.metadata).once.and_call_original
       expect_any_instance_of(TestHandler2).to receive(:consume).with(payload, subject.metadata).once.and_call_original
+
+      subject.execute
+    end
+  end
+
+  context '#around_consume that does not yield arguments' do
+    let(:listener) do
+      Phobos::Listener.new(
+        handler: TestHandler4,
+        group_id: 'test-group',
+        topic: topic
+      )
+    end
+
+    it 'supports the method and logs a deprecation message' do
+      expect(Phobos).to receive(:deprecate).once
+      expect_any_instance_of(TestHandler4).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
+      expect_any_instance_of(TestHandler4).to receive(:consume).with(payload, subject.metadata).once.and_call_original
 
       subject.execute
     end
