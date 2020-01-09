@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+## [1.9.0-beta2] - 2020-01-09
+
+- Allow `around_consume` to yield payload and metadata, and deprecate
+  `before_consume` and `around_consume` that does not yield anything.
+
 ## [1.9.0-beta1] - 2019-12-18
 - Update `publish` and `async_publish` to use keyword arguments
   instead of positional ones. Deprecate positional arguments
