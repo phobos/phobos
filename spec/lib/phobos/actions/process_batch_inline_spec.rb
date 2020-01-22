@@ -104,39 +104,6 @@ RSpec.describe Phobos::Actions::ProcessBatchInline do
         topic: topic
       )
     end
-
-    it 'supports the method and logs a deprecation message' do
-      expect(Phobos).to receive(:deprecate).once
-      expect_any_instance_of(TestBatchHandler2).to receive(:around_consume_batch).
-        with(payloads, subject.metadata).once.and_call_original
-      expect_any_instance_of(TestBatchHandler2).to receive(:consume_batch).
-        with(payloads, subject.metadata).once.and_call_original
-
-      subject.execute
-    end
-  end
-
-  context 'with deprecated before_consume_batch' do
-    let(:listener) do
-      Phobos::Listener.new(
-        handler: TestBatchHandler3,
-        group_id: 'test-group',
-        topic: topic
-      )
-    end
-
-    it 'calls before_consume and deprecates' do
-      expect_any_instance_of(TestBatchHandler3).to receive(:around_consume_batch).
-        with(payloads, subject.metadata).once.and_call_original
-      expect(Phobos).to receive(:deprecate).once
-      expect_any_instance_of(TestBatchHandler3).to receive(:before_consume_batch).
-        with(payloads, subject.metadata).once.and_call_original
-      expect_any_instance_of(TestBatchHandler3).to receive(:consume_batch).
-        with(payloads, subject.metadata).once.and_call_original
-
-      subject.execute
-    end
-
   end
 
   context 'when processing fails' do

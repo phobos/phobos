@@ -36,11 +36,6 @@ RSpec.describe Phobos::Test::Helper do
       process_message(handler: TestHelperHandler, payload: payload)
     end
 
-    it 'invokes handler before_consume with payload' do
-      expect_any_instance_of(TestHelperHandler).to receive(:before_consume).with(payload, listener_metadata)
-      process_message(handler: TestHelperHandler, payload: payload)
-    end
-
     it 'invokes handler consume with payload and metadata' do
       expect_any_instance_of(TestHelperHandler).to receive(:consume).with(payload, hash_including(metadata))
       process_message(handler: TestHelperHandler, payload: payload, metadata: metadata)

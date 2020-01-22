@@ -80,20 +80,6 @@ RSpec.describe Phobos::Actions::ProcessMessage do
     subject.execute
   end
 
-  context '.around_consumed defined' do
-    let(:listener) do
-      Phobos::Listener.new(
-        handler: TestHandler2,
-        group_id: 'test-group',
-        topic: topic
-      )
-    end
-
-    it 'supports and prefers around_consume if defined as a class method' do
-      expect(TestHandler2).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
-      expect(Phobos).to receive(:deprecate).twice # before_consume and around_consume as class method
-      expect_any_instance_of(TestHandler2).to receive(:before_consume).with(payload, subject.metadata).once.and_call_original
-      expect_any_instance_of(TestHandler2).to receive(:consume).with(payload, subject.metadata).once.and_call_original
 
       subject.execute
     end
@@ -106,48 +92,6 @@ RSpec.describe Phobos::Actions::ProcessMessage do
       expect(Phobos).not_to receive(:deprecate)
       expect_any_instance_of(TestHandler).to receive(:around_consume).with(nil, subject.metadata).once.and_call_original
       expect_any_instance_of(TestHandler).to receive(:consume).with(nil, subject.metadata).once.and_call_original
-
-      subject.execute
-    end
-  end
-
-  context '#around_consume that does not yield arguments' do
-    let(:listener) do
-      Phobos::Listener.new(
-        handler: TestHandler4,
-        group_id: 'test-group',
-        topic: topic
-      )
-    end
-
-    it 'supports the method and logs a deprecation message' do
-      expect(Phobos).to receive(:deprecate).once
-      expect_any_instance_of(TestHandler4).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
-      expect_any_instance_of(TestHandler4).to receive(:consume).with(payload, subject.metadata).once.and_call_original
-
-      subject.execute
-    end
-  end
-
-  context '#before_consume defined with 1 argument' do
-    let(:listener) do
-      Phobos::Listener.new(
-        handler: TestHandler3,
-        group_id: 'test-group',
-        topic: topic
-      )
-    end
-
-    it 'supports the method and logs a deprecation message' do
-      expect(Phobos).to receive(:deprecate).once
-      expect_any_instance_of(TestHandler3).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
-      expect_any_instance_of(TestHandler3).to receive(:before_consume).with(payload).once.and_call_original
-      expect_any_instance_of(TestHandler3).to receive(:consume).with(payload, subject.metadata).once.and_call_original
-
-      subject.execute
-    end
-  end
-
   context 'with encoding' do
     let(:handler) { TestHandler.new }
     let(:force_encoding) { 'UTF-8' }

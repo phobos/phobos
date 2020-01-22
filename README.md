@@ -197,8 +197,6 @@ class MyHandler
 end
 ```
 
-Note: Previous versions used a `before_consume` method to pre-process the payload. This is still supported, but deprecated. Going forward, `around_consume` should yield the payload and metadata back to the calling code, allowing it to act as a pre-processor, e.g. by decoding Avro messages into Ruby hashes.
-
 Take a look at the examples folder for some ideas.
 
 The hander life cycle can be illustrated as:
@@ -286,8 +284,6 @@ When publishing a message with headers, the `headers` argument must be a hash:
 my = MyProducer.new
 my.producer.publish(topic: 'topic', payload: 'message-payload', key: 'partition and message key', headers: { header_1: 'value 1' })
 ```
-
-Older versions of Phobos provided a `publish` method that accepted positional arguments. That version is still supported but it's soon to be deprecated in favour of the keyword arguments version.
 
 It is also possible to publish several messages at once:
 
