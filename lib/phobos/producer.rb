@@ -11,12 +11,6 @@ module Phobos
     end
 
     class PublicAPI
-      MissingRequiredArgumentsError = Class.new(StandardError) do
-        def initialize
-          super('You need to provide a topic name and a payload')
-        end
-      end
-
       def initialize(host_obj)
         @host_obj = host_obj
       end
