@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Phobos::Actions::ProcessBatch do
-  class TestHandler < Phobos::EchoHandler
+  class TestProcessBatchHandler < Phobos::EchoHandler
     include Phobos::Handler
   end
 
@@ -11,7 +11,7 @@ RSpec.describe Phobos::Actions::ProcessBatch do
   let(:topic) { 'test-topic' }
   let(:listener) do
     Phobos::Listener.new(
-      handler: TestHandler,
+      handler: TestProcessBatchHandler,
       group_id: 'test-group',
       topic: topic
     )
