@@ -68,6 +68,7 @@ RSpec.describe Phobos::Actions::ProcessMessage do
   end
 
   it 'processes the message by calling around consume, before consume and consume of the handler' do
+    expect(Phobos).not_to receive(:deprecate)
     expect_any_instance_of(TestHandler).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
     expect_any_instance_of(TestHandler).to receive(:consume).with(payload, subject.metadata).once.and_call_original
 
@@ -93,6 +94,18 @@ RSpec.describe Phobos::Actions::ProcessMessage do
       expect(Phobos).to receive(:deprecate).twice # before_consume and around_consume as class method
       expect_any_instance_of(TestHandler2).to receive(:before_consume).with(payload, subject.metadata).once.and_call_original
       expect_any_instance_of(TestHandler2).to receive(:consume).with(payload, subject.metadata).once.and_call_original
+
+      subject.execute
+    end
+  end
+
+  context '#around_consume with nil message' do
+    let(:payload) { nil }
+
+    it 'should not deprecate with nil payload' do
+      expect(Phobos).not_to receive(:deprecate)
+      expect_any_instance_of(TestHandler).to receive(:around_consume).with(nil, subject.metadata).once.and_call_original
+      expect_any_instance_of(TestHandler).to receive(:consume).with(nil, subject.metadata).once.and_call_original
 
       subject.execute
     end

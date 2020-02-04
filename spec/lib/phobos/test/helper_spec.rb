@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'phobos/test/helper'
 
 RSpec.describe Phobos::Test::Helper do
-  class TestHandler < Phobos::EchoHandler
+  class TestHelperHandler < Phobos::EchoHandler
     include Phobos::Handler
     CONSUME_VISITED = 'consume was visited'
 
@@ -33,22 +33,22 @@ RSpec.describe Phobos::Test::Helper do
         .to receive(:instrument)
         .with('listener.process_message', Hash)
 
-      process_message(handler: TestHandler, payload: payload)
+      process_message(handler: TestHelperHandler, payload: payload)
     end
 
     it 'invokes handler before_consume with payload' do
-      expect_any_instance_of(TestHandler).to receive(:before_consume).with(payload, listener_metadata)
-      process_message(handler: TestHandler, payload: payload)
+      expect_any_instance_of(TestHelperHandler).to receive(:before_consume).with(payload, listener_metadata)
+      process_message(handler: TestHelperHandler, payload: payload)
     end
 
     it 'invokes handler consume with payload and metadata' do
-      expect_any_instance_of(TestHandler).to receive(:consume).with(payload, hash_including(metadata))
-      process_message(handler: TestHandler, payload: payload, metadata: metadata)
+      expect_any_instance_of(TestHelperHandler).to receive(:consume).with(payload, hash_including(metadata))
+      process_message(handler: TestHelperHandler, payload: payload, metadata: metadata)
     end
 
     it 'returns the result of the handler consume method' do
-      expect(process_message(handler: TestHandler, payload: payload))
-        .to eq TestHandler::CONSUME_VISITED
+      expect(process_message(handler: TestHelperHandler, payload: payload))
+        .to eq TestHelperHandler::CONSUME_VISITED
     end
   end
 end

@@ -51,7 +51,7 @@ module Phobos
 
       def consume_block(payload, handler)
         proc { |around_payload, around_metadata|
-          if around_payload
+          if around_metadata
             handler.consume(around_payload, around_metadata)
           else
             Phobos.deprecate('Calling around_consume without yielding payload and metadata \
