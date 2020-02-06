@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+## [1.9.0-beta3] - 2020-02-05
+- Fix bug where deprecation errors would be shown when receiving nil payloads
+  even if `around_consume` was updated to yield them.
+
 ## [1.9.0-beta2] - 2020-01-09
 
 - Allow `around_consume` to yield payload and metadata, and deprecate
