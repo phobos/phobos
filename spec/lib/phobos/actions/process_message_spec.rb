@@ -11,10 +11,6 @@ RSpec.describe Phobos::Actions::ProcessMessage do
   class TestHandler2 < Phobos::EchoHandler
     include Phobos::Handler
 
-    def before_consume(payload, _metadata)
-      payload
-    end
-
     def self.around_consume(payload, metadata)
       yield payload, metadata
     end
@@ -22,10 +18,6 @@ RSpec.describe Phobos::Actions::ProcessMessage do
 
   class TestHandler3 < Phobos::EchoHandler
     include Phobos::Handler
-
-    def before_consume(payload)
-      payload
-    end
   end
 
   class TestHandler4 < Phobos::EchoHandler
@@ -67,8 +59,7 @@ RSpec.describe Phobos::Actions::ProcessMessage do
     allow(subject).to receive(:sleep) # Prevent sleeping in tests
   end
 
-  it 'processes the message by calling around consume, before consume and consume of the handler' do
-    expect(Phobos).not_to receive(:deprecate)
+  it 'processes the message by calling around consume and consume of the handler' do
     expect_any_instance_of(TestHandler).to receive(:around_consume).with(payload, subject.metadata).once.and_call_original
     expect_any_instance_of(TestHandler).to receive(:consume).with(payload, subject.metadata).once.and_call_original
 
@@ -80,18 +71,17 @@ RSpec.describe Phobos::Actions::ProcessMessage do
     subject.execute
   end
 
-
-      subject.execute
+  context '.around_consumed defined' do
+    let(:listener) do
+      Phobos::Listener.new(
+        handler: TestHandler2,
+        group_id: 'test-group',
+        topic: topic
+      )
     end
+
   end
 
-  context '#around_consume with nil message' do
-    let(:payload) { nil }
-
-    it 'should not deprecate with nil payload' do
-      expect(Phobos).not_to receive(:deprecate)
-      expect_any_instance_of(TestHandler).to receive(:around_consume).with(nil, subject.metadata).once.and_call_original
-      expect_any_instance_of(TestHandler).to receive(:consume).with(nil, subject.metadata).once.and_call_original
   context 'with encoding' do
     let(:handler) { TestHandler.new }
     let(:force_encoding) { 'UTF-8' }
