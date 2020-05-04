@@ -21,7 +21,6 @@ With Phobos by your side, all this becomes smooth sailing.
 ## Table of Contents
 
 1. [Installation](#installation)
-  1. [Upgrade Notes](#upgrade-notes)
 1. [Usage](#usage)
   1. [Standalone apps](#usage-standalone-apps)
   1. [Consuming messages from Kafka](#usage-consuming-messages-from-kafka)
@@ -32,6 +31,7 @@ With Phobos by your side, all this becomes smooth sailing.
 1. [Plugins](#plugins)
 1. [Development](#development)
 1. [Test](#test)
+1. [Upgrade Notes](#upgrade-notes)
 
 ## <a name="installation"></a> Installation
 
@@ -52,10 +52,6 @@ Or install it yourself as:
 ```sh
 $ gem install phobos
 ```
-
-### <a name="upgrade-notes"></a> Upgrade Notes
-
-Version 1.8.2 introduced a new `persistent_connections` setting for regular producers. This reduces the number of connections used to produce messages and you should consider setting it to true. This does require a manual shutdown call -  please see [Producers with persistent connections](#persistent-connection).
 
 ## <a name="usage"></a> Usage
 
@@ -197,8 +193,6 @@ class MyHandler
 end
 ```
 
-Note: Previous versions used a `before_consume` method to pre-process the payload. This is still supported, but deprecated. Going forward, `around_consume` should yield the payload and metadata back to the calling code, allowing it to act as a pre-processor, e.g. by decoding Avro messages into Ruby hashes.
-
 Take a look at the examples folder for some ideas.
 
 The hander life cycle can be illustrated as:
@@ -286,8 +280,6 @@ When publishing a message with headers, the `headers` argument must be a hash:
 my = MyProducer.new
 my.producer.publish(topic: 'topic', payload: 'message-payload', key: 'partition and message key', headers: { header_1: 'value 1' })
 ```
-
-Older versions of Phobos provided a `publish` method that accepted positional arguments. That version is still supported but it's soon to be deprecated in favour of the keyword arguments version.
 
 It is also possible to publish several messages at once:
 
@@ -618,6 +610,57 @@ describe MyConsumer do
   end
 end
 ```
+
+## <a name="upgrade-notes"></a> Upgrade Notes
+
+Version 2.0 removes deprecated ways of defining producers and consumers:
+* The `before_consume` method has been removed. You can have this behavior in the first part of an `around_consume` method.
+* `around_consume` is now only available as an instance method, and it must yield the values to pass to the `consume` method.
+* `publish` and `async_publish` now only accept keyword arguments, not positional arguments.
+
+Example pre-2.0:
+```ruby
+class MyHandler
+  include Phobos::Handler
+
+  def before_consume(payload, metadata)
+    payload[:id] = 1
+  end
+
+  def self.around_consume(payload, metadata)
+    metadata[:key] = 5
+    yield
+  end
+end
+```
+
+In 2.0:
+```ruby
+class MyHandler
+  include Phobos::Handler
+
+  def around_consume(payload, metadata)
+    new_payload = payload.dup
+    new_metadata = metadata.dup
+    new_payload[:id] = 1
+    new_metadata[:key] = 5
+    yield new_payload, new_metadata
+  end
+end
+```
+
+Producer, 1.9:
+```ruby
+  producer.publish('my-topic', { payload_value: 1}, 5, 3, {header_val: 5})
+```
+
+Producer 2.0:
+```ruby
+  producer.publish(topic: 'my-topic', payload: { payload_value: 1}, key: 5, 
+     partition_key: 3, headers: { header_val: 5})
+```
+
+Version 1.8.2 introduced a new `persistent_connections` setting for regular producers. This reduces the number of connections used to produce messages and you should consider setting it to true. This does require a manual shutdown call -  please see [Producers with persistent connections](#persistent-connection).
 
 ## Contributing
 

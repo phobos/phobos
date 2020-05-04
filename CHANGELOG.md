@@ -6,12 +6,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+- Remove deprecated patterns:
+-- `before_consume` method
+-- `around_consume` as a class method or without yielding values
+-- `publish` and `async_publish` with positional arguments
+
 ## [1.9.0] - 2020-03-05
 - Bumped version to 1.9.0.
 
 ## [1.9.0-beta3] - 2020-02-05
+
 - Fix bug where deprecation errors would be shown when receiving nil payloads
   even if `around_consume` was updated to yield them.
+
 
 ## [1.9.0-beta2] - 2020-01-09
 
