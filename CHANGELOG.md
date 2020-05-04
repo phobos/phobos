@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+## [2.0.0-beta1] - 2020-5-04
+
 - Remove deprecated patterns:
 -- `before_consume` method
 -- `around_consume` as a class method or without yielding values
