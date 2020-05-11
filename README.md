@@ -596,8 +596,13 @@ Phobos exports a spec helper that can help you test your consumer. The Phobos li
 * `process_message(handler:, payload:, metadata: {}, encoding: nil)` - Invokes your handler with payload and metadata, using a dummy listener (encoding and metadata are optional).
 
 ```ruby
-require 'spec_helper'
+### spec_helper.rb
+require 'phobos/test/helper'
+RSpec.configure do |config|
+  config.include Phobos::Test::Helper
+end 
 
+### Spec file
 describe MyConsumer do
   let(:payload) { 'foo' }
   let(:metadata) { Hash(foo: 'bar') }
