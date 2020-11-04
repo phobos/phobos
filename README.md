@@ -600,6 +600,9 @@ Phobos exports a spec helper that can help you test your consumer. The Phobos li
 require 'phobos/test/helper'
 RSpec.configure do |config|
   config.include Phobos::Test::Helper
+  config.before(:each) do
+    Phobos.configure(path_to_my_config_file)
+  end
 end 
 
 ### Spec file
