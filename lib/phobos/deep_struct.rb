@@ -8,7 +8,7 @@ module Phobos
     # Based on
     # https://docs.omniref.com/ruby/2.3.0/files/lib/ostruct.rb#line=88
     def initialize(hash = nil)
-      @table = {}
+      super
       @hash_table = {}
 
       hash&.each_pair do |key, value|

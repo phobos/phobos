@@ -6,7 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
-## [2.0.0-beta1] - 2020-5-04
+# [2.0.1] - 2021-01-14
+- Fix bug with Ruby 3.0 around OpenStruct
+
+## [2.0.0-beta1] - 2020-05-04
 
 - Remove deprecated patterns:
 -- `before_consume` method
