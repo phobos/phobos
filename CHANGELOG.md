@@ -6,7 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
-# [2.0.1] - 2021-01-14
+## [2.0.2] - 2021-01-28
+- Additional fixes for Ruby 3.0
+
+## [2.0.1] - 2021-01-14
 - Fix bug with Ruby 3.0 around OpenStruct
 
 ## [2.0.0-beta1] - 2020-05-04

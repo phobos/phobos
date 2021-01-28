@@ -78,7 +78,7 @@ module Phobos
 
         def create_sync_producer
           client = kafka_client || configure_kafka_client(Phobos.create_kafka_client)
-          sync_producer = client.producer(regular_configs)
+          sync_producer = client.producer(**regular_configs)
           if Phobos.config.producer_hash[:persistent_connections]
             producer_store[:sync_producer] = sync_producer
           end
@@ -109,7 +109,7 @@ module Phobos
 
         def create_async_producer
           client = kafka_client || configure_kafka_client(Phobos.create_kafka_client)
-          async_producer = client.async_producer(async_configs)
+          async_producer = client.async_producer(**async_configs)
           producer_store[:async_producer] = async_producer
         end
 

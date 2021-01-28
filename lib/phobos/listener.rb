@@ -93,7 +93,7 @@ module Phobos
     def start_listener
       instrument('listener.start', listener_metadata) do
         @consumer = create_kafka_consumer
-        @consumer.subscribe(topic, @subscribe_opts)
+        @consumer.subscribe(topic, **@subscribe_opts)
 
         # This is done here because the producer client is bound to the current thread and
         # since "start" blocks a thread might be used to call it
@@ -135,7 +135,7 @@ module Phobos
     end
 
     def consume_each_batch
-      @consumer.each_batch(@message_processing_opts) do |batch|
+      @consumer.each_batch(**@message_processing_opts) do |batch|
         batch_processor = Phobos::Actions::ProcessBatch.new(
           listener: self,
           batch: batch,
@@ -149,7 +149,7 @@ module Phobos
     end
 
     def consume_each_batch_inline
-      @consumer.each_batch(@message_processing_opts) do |batch|
+      @consumer.each_batch(**@message_processing_opts) do |batch|
         batch_processor = Phobos::Actions::ProcessBatchInline.new(
           listener: self,
           batch: batch,
@@ -163,7 +163,7 @@ module Phobos
     end
 
     def consume_each_message
-      @consumer.each_message(@message_processing_opts) do |message|
+      @consumer.each_message(**@message_processing_opts) do |message|
         message_processor = Phobos::Actions::ProcessMessage.new(
           listener: self,
           message: message,
@@ -181,7 +181,7 @@ module Phobos
         Constants::KAFKA_CONSUMER_OPTS.include?(k)
       end
       configs.merge!(@kafka_consumer_opts)
-      @kafka_client.consumer({ group_id: group_id }.merge(configs))
+      @kafka_client.consumer(**{ group_id: group_id }.merge(configs))
     end
 
     def compact(hash)

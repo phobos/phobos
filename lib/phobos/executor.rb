@@ -13,7 +13,7 @@ module Phobos
         max_concurrency = listener_configs[:max_concurrency] || 1
         Array.new(max_concurrency).map do
           configs = listener_configs.select { |k| Constants::LISTENER_OPTS.include?(k) }
-          Phobos::Listener.new(configs.merge(handler: handler_class))
+          Phobos::Listener.new(**configs.merge(handler: handler_class))
         end
       end
     end
