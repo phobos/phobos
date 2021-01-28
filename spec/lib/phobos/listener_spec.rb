@@ -54,7 +54,7 @@ RSpec.describe Phobos::Listener do
       delivery: delivery
     }
   end
-  let(:listener) { Phobos::Listener.new(handler_config) }
+  let(:listener) { Phobos::Listener.new(**handler_config) }
   let(:thread) do
     Thread.new { listener.start }.tap { |t| t.abort_on_exception = true }
   end
