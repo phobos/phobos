@@ -79,6 +79,8 @@ consumer:
   offset_retention_time:
   # interval between heartbeats; must be less than the session window
   heartbeat_interval: 10
+  # max number of items in the fetch queue that
+  fetcher_max_queue_size: 100
 
 backoff:
   min_ms: 1000

@@ -9,7 +9,8 @@ module Phobos
       :offset_commit_interval,
       :offset_commit_threshold,
       :heartbeat_interval,
-      :offset_retention_time
+      :offset_retention_time,
+      :fetcher_max_queue_size
     ].freeze
 
     LISTENER_OPTS = [
