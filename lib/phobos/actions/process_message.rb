@@ -16,6 +16,7 @@ module Phobos
           key: message.key,
           partition: message.partition,
           offset: message.offset,
+          topic: message.topic,
           retry_count: 0,
           headers: message.headers
         )
