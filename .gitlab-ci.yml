@@ -1,0 +1,8 @@
+release:
+  stage: deploy
+  only:
+    - /^v[0-9.].*$/
+  script:
+    - gem build phobos.gemspec
+    - curl -F package=@phobos-${CI_COMMIT_TAG}.gem https://${GEM_FURY_PUSH_TOKEN}@push.fury.io/checkr
+  when: always

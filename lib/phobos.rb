@@ -66,8 +66,14 @@ module Phobos
       @config.listeners += listeners_config.listeners
     end
 
-    def create_kafka_client
-      Kafka.new(**config.kafka.to_hash.merge(logger: @ruby_kafka_logger))
+    def create_kafka_client(config_key = nil)
+      kafka_config = config.kafka.to_hash.merge(logger: @ruby_kafka_logger)
+
+      if config_key
+        kafka_config = kafka_config.merge(**config.send(config_key)&.kafka&.to_hash || {})
+      end
+
+      Kafka.new(**kafka_config)
     end
 
     def create_exponential_backoff(backoff_config = nil)
