@@ -404,9 +404,12 @@ All [options supported by  `ruby-kafka`][ruby-kafka-client] can be provided.
 __producer__ provides configurations for all producers created over the application,
 the options are the same for regular and async producers.
 All [options supported by  `ruby-kafka`][ruby-kafka-producer] can be provided.
+If the __kafka__ key is present under __producer__, it is merged into the top-level __kafka__, allowing different connection configuration for producers.
 
 __consumer__ provides configurations for all consumer groups created over the application.
 All [options supported by  `ruby-kafka`][ruby-kafka-consumer] can be provided.
+If the __kafka__ key is present under __consumer__, it is merged into the top-level __kafka__, allowing different connection configuration for consumers.
+
 
 __backoff__ Phobos provides automatic retries for your handlers. If an exception
 is raised, the listener will retry following the back off configured here.
