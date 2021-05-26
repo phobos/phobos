@@ -5,8 +5,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
-
-## [2.0.3] - 2021-05-25
 - Modify config to allow specifying kafka connection information separately for consumers and producers
 
 ## [2.0.2] - 2021-01-28
