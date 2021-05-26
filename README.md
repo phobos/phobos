@@ -585,8 +585,11 @@ After checking out the repo:
 * make sure `docker` is installed and running (for windows and mac this also includes `docker-compose`).
 * Linux: make sure `docker-compose` is installed and running.
 * run `bin/setup` to install dependencies
-* run `docker-compose up` to start the required kafka containers in a window
-* run `rspec` to run the tests in another window
+* run `docker-compose up -d --force-recreate kafka zookeeper` to start the required kafka containers
+* run tests to confirm no environmental issues
+  * wait a few seconds for kafka broker to get set up - `sleep 30`
+  * run `docker-compose run --rm test`
+  * make sure it reports `X examples, 0 failures`
 
 You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
