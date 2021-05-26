@@ -55,8 +55,12 @@ module Phobos
 
     def configure(configuration)
       @config = fetch_configuration(configuration)
-      @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash }
-      @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
+      @config.class.send(:define_method, :producer_hash) do
+        Phobos.config.producer&.to_hash&.except(:kafka)
+      end
+      @config.class.send(:define_method, :consumer_hash) do
+        Phobos.config.consumer&.to_hash&.except(:kafka)
+      end
       @config.listeners ||= []
       configure_logger
     end
