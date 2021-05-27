@@ -35,7 +35,7 @@ module Phobos
       )
       @encoding = Encoding.const_get(force_encoding.to_sym) if force_encoding
       @message_processing_opts = compact(min_bytes: min_bytes, max_wait_time: max_wait_time)
-      @kafka_client = Phobos.create_kafka_client
+      @kafka_client = Phobos.create_kafka_client(:consumer)
       @producer_enabled = @handler_class.ancestors.include?(Phobos::Producer)
     end
     # rubocop:enable Metrics/MethodLength

@@ -59,6 +59,33 @@ RSpec.describe Phobos do
         )
         Phobos.create_kafka_client
       end
+
+      context 'when providing config key' do
+        it 'merges config from custom config key' do
+          logger = Logger.new(STDOUT)
+          kafka_logger = Logger.new(STDOUT)
+          configuration_settings = {
+            kafka: { client_id: 'client_id' },
+            foo: { kafka: { client_id: 'client_id2' } },
+            logger: { file: 'log/phobos.log' },
+            custom_logger: logger,
+            custom_kafka_logger: kafka_logger
+          }
+
+          Phobos.instance_variable_set(:@config, nil)
+          Phobos.configure(configuration_settings)
+
+          expect(Phobos.config).to_not be_nil
+          expect(Phobos.config.kafka.client_id).to eq('client_id')
+          expect(Phobos.logger).to eq(logger)
+
+          expect(Kafka).to receive(:new).with(
+            client_id: 'client_id2',
+            logger: kafka_logger
+          )
+          Phobos.create_kafka_client(:foo)
+        end
+      end
     end
   end
 

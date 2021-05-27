@@ -65,6 +65,10 @@ producer:
   # that you need to manually call sync_producer_shutdown before exiting,
   # similar to async_producer_shutdown.
   persistent_connections: false
+  # kafka here supports the same parameters as the top-level, allowing custom connection
+  # configuration details for producers
+  kafka:
+    connect_timeout: 120
 
 consumer:
   # number of seconds after which, if a client hasn't contacted the Kafka cluster,
@@ -79,6 +83,10 @@ consumer:
   offset_retention_time:
   # interval between heartbeats; must be less than the session window
   heartbeat_interval: 10
+  # kafka here supports the same parameters as the top-level, allowing custom connection
+  # configuration details for consumers
+  kafka:
+    connect_timeout: 130
 
 backoff:
   min_ms: 1000

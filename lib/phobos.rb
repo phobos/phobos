@@ -55,8 +55,12 @@ module Phobos
 
     def configure(configuration)
       @config = fetch_configuration(configuration)
-      @config.class.send(:define_method, :producer_hash) { Phobos.config.producer&.to_hash }
-      @config.class.send(:define_method, :consumer_hash) { Phobos.config.consumer&.to_hash }
+      @config.class.send(:define_method, :producer_hash) do
+        Phobos.config.producer&.to_hash&.except(:kafka)
+      end
+      @config.class.send(:define_method, :consumer_hash) do
+        Phobos.config.consumer&.to_hash&.except(:kafka)
+      end
       @config.listeners ||= []
       configure_logger
     end
@@ -66,8 +70,14 @@ module Phobos
       @config.listeners += listeners_config.listeners
     end
 
-    def create_kafka_client
-      Kafka.new(**config.kafka.to_hash.merge(logger: @ruby_kafka_logger))
+    def create_kafka_client(config_key = nil)
+      kafka_config = config.kafka.to_hash.merge(logger: @ruby_kafka_logger)
+
+      if config_key
+        kafka_config = kafka_config.merge(**config.send(config_key)&.kafka&.to_hash || {})
+      end
+
+      Kafka.new(**kafka_config)
     end
 
     def create_exponential_backoff(backoff_config = nil)

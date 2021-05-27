@@ -13,3 +13,4 @@ config/*.yml
 log/*.log
 .byebug_history
 .idea
+*.gem
