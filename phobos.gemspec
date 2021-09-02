@@ -65,6 +65,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'concurrent-ruby-ext', '>= 1.0.2'
   spec.add_dependency 'exponential-backoff'
   spec.add_dependency 'logging'
-  spec.add_dependency 'ruby-kafka'
+  spec.add_dependency 'ruby-kafka', '>= 1.4'
   spec.add_dependency 'thor'
 end

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+## [2.2.0-beta1] - 2021-09-01
+- Bump ruby-kafka version to allow different topic subscriptions within the same consumer group
+
 ## [2.1.0] - 2021-05-27
 
 - Modify config to allow specifying kafka connection information separately for consumers and producers
