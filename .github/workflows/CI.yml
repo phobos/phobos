@@ -24,7 +24,7 @@ jobs:
       - name: Start Bitnami Kafka
         uses: bbcCorp/kafka-actions@v1
       - name: Wait for Kafka
-      - uses: ifaxity/wait-on-action
+        uses: ifaxity/wait-on-action
         with:
           resource: http://localhost:9092
       - name: Bundle install
