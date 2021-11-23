@@ -1,0 +1,47 @@
+on:
+  push:
+    branches:
+      - master
+      - gha
+  pull_request:
+
+env:
+  DEFAULT_TIMEOUT: 20
+  CC_TEST_REPORTER_ID: a990fd40ff4421e8b28167232242a1d6c6638f9907fc0b80eb90f82f88fcfd81
+
+jobs:
+  runs-on: ubuntu-latest
+  test:
+    strategy:
+      matrix:
+        ruby: [2.5.8, 2.6.8, 2.7.4, 3.0.2]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Print DC version
+        run: docker-compose --version
+      - name: Print Docker version
+        run: docker --version
+      - name: Print config file
+        run: docker-compose config
+      - name: Bring up Docker Compose
+        run: docker-compose up -d --force-recreate kafka zookeeper
+      - name: Build images
+        run: docker-compose build test
+      - name: Prepare Code Climate
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build || echo "Skipping CC coverage before-build"
+          mkdir coverage/
+          touch ./coverage/.resultset.json
+      - name: Run tests
+        run: docker-compose run --rm test && echo "TEST_RESULT_CODE=$?" >> $GITHUB_ENV
+      - name: Register coverage
+        run: |
+          cat ./coverage/.resultset.json | sed "s|/opt/phobos|$PWD|" > ./coverage/.newresultset.json
+          cp ./coverage/.newresultset.json ./coverage/.resultset.json
+          ./cc-test-reporter after-build --exit-code $TEST_RESULT_CODE
