@@ -10,8 +10,8 @@ env:
   CC_TEST_REPORTER_ID: a990fd40ff4421e8b28167232242a1d6c6638f9907fc0b80eb90f82f88fcfd81
 
 jobs:
-  runs-on: ubuntu-latest
   test:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         ruby: [2.5.8, 2.6.8, 2.7.4, 3.0.2]
