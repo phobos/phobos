@@ -21,16 +21,10 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-      - name: Print DC version
-        run: docker-compose --version
-      - name: Print Docker version
-        run: docker --version
-      - name: Print config file
-        run: docker-compose config
-      - name: Bring up Docker Compose
-        run: docker-compose up -d --force-recreate kafka zookeeper
-      - name: Build images
-        run: docker-compose build test
+      - name: Start Bitname Kafka
+        uses: bbcCorp/kafka-actions@v1
+      - name: Bundle install
+        run: bundle install
       - name: Prepare Code Climate
         run: |
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -39,7 +33,7 @@ jobs:
           mkdir coverage/
           touch ./coverage/.resultset.json
       - name: Run tests
-        run: docker-compose run --rm test && echo "TEST_RESULT_CODE=$?" >> $GITHUB_ENV
+        run: bundle exec rspec && echo "TEST_RESULT_CODE=$?" >> $GITHUB_ENV
       - name: Register coverage
         run: |
           cat ./coverage/.resultset.json | sed "s|/opt/phobos|$PWD|" > ./coverage/.newresultset.json
