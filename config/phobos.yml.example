@@ -26,7 +26,7 @@ kafka:
   ssl_client_cert_key:
   # list of brokers used to initialize the client ("port:protocol")
   seed_brokers:
-    - localhost:9092
+    - 127.0.0.1:9092
 
 producer:
   # number of seconds a broker can wait for replicas to acknowledge
