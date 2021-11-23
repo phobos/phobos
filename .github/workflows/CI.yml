@@ -21,8 +21,12 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-      - name: Start Bitname Kafka
+      - name: Start Bitnami Kafka
         uses: bbcCorp/kafka-actions@v1
+      - name: Wait for Kafka
+      - uses: ifaxity/wait-on-action
+        with:
+          resource: http://localhost:9092
       - name: Bundle install
         run: bundle install
       - name: Prepare Code Climate
