@@ -18,6 +18,7 @@ module Phobos
       :topic,
       :min_bytes,
       :max_wait_time,
+      :max_retries,
       :force_encoding,
       :start_from_beginning,
       :max_bytes_per_partition,

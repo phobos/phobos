@@ -9,7 +9,7 @@ module Phobos
     DEFAULT_MAX_BYTES_PER_PARTITION = 1_048_576 # 1 MB
     DELIVERY_OPTS = %w[batch message inline_batch].freeze
 
-    attr_reader :group_id, :topic, :id
+    attr_reader :group_id, :topic, :id, :max_retries
     attr_reader :handler_class, :encoding, :consumer
 
     # rubocop:disable Metrics/MethodLength
@@ -18,13 +18,14 @@ module Phobos
                    delivery: 'batch', max_bytes_per_partition: DEFAULT_MAX_BYTES_PER_PARTITION,
                    session_timeout: nil, offset_commit_interval: nil,
                    heartbeat_interval: nil, offset_commit_threshold: nil,
-                   offset_retention_time: nil)
+                   offset_retention_time: nil, max_retries: -1)
       @id = SecureRandom.hex[0...6]
       @handler_class = handler
       @group_id = group_id
       @topic = topic
       @backoff = backoff
       @delivery = delivery.to_s
+      @max_retries = max_retries.to_i
       @subscribe_opts = {
         start_from_beginning: start_from_beginning, max_bytes_per_partition: max_bytes_per_partition
       }
