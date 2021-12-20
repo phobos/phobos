@@ -177,6 +177,10 @@ module Phobos
       end
     end
 
+    def create_kafka_client
+      @kafka_client = Phobos.create_kafka_client(:consumer)
+    end
+
     def create_kafka_consumer
       configs = Phobos.config.consumer_hash.select do |k|
         Constants::KAFKA_CONSUMER_OPTS.include?(k)

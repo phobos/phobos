@@ -74,11 +74,12 @@ module Phobos
         if retry_count < listener.max_retries || listener.max_retries.negative?
           handle_crashed_listener(listener, e, retry_count)
           retry_count += 1
-          retry unless @signal_to_stop
         else
-          log_error("Reached maximum retries #{listener.max_retries}")
-          raise e
+          log_info("Reached maximum retries #{listener.max_retries}, recreating listener")
+          listener.create_kafka_client
+          retry_count = 0
         end
+        retry unless @signal_to_stop
       end
     rescue Exception => e
       log_error("Failed to run listener (#{e.message})", error_metadata(e))
