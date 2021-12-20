@@ -73,6 +73,8 @@ module Phobos
       rescue Exception => e
         handle_crashed_listener(listener, e, retry_count)
         retry_count += 1
+        # if failed too many times, try to recreate the listener
+        listener.recreate_listener if retry_count > 42
         retry unless @signal_to_stop
       end
     rescue Exception => e
