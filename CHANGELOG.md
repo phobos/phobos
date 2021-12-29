@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
+## [3.0.0] - 2021-12-29
+
+- First version of chowbus. Added multiple clusters support for producers.
 
 - Support configurable producer config key for producers
 

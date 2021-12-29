@@ -1,30 +1,15 @@
 name: Chowbus Phobos
-on: [ push, pull_request ]
+on: [ pull_request ]
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Build docker image
-        run: docker-compose build test
   test:
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - uses: actions/checkout@v2
       - name: Start Testing Kafka
         run: docker-compose up -d --force-recreate kafka zookeeper
+      - name: Build docker image
+        run: docker-compose build test
+      - name: wait for kafka
+        run: sleep 6
       - name: Run Tests
         run: docker-compose run --rm test
-  publish:
-    runs-on: ubuntu-latest
-    needs: test
-    env:
-      PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
-    steps:
-      - uses: actions/checkout@v2
-      - name: Build Gem Publisher
-        run: docker build -f Dockerfile_gem -t publisher --build-arg PACKAGECLOUD_TOKEN=$PACKAGECLOUD_TOKEN
-# TODO: add publish approval
-#      - name: Run Tests
-#        run: docker run --rm publisher
