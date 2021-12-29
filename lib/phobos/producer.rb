@@ -62,8 +62,8 @@ module Phobos
         class_variable_get :@@producer_config
       end
 
-      def config_producer_config(config)
-        class_variable_set :@@producer_config, config
+      def configure_producer(producer)
+        class_variable_set :@@producer_config, producer
       end
 
       class PublicAPI
