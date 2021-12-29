@@ -10,6 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Start Testing Kafka
         run: docker-compose up -d --force-recreate kafka zookeeper
       - name: Run Tests
