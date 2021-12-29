@@ -44,7 +44,7 @@ Gem::Specification.new do |spec|
   spec.metadata['allowed_push_host'] = 'https://rubygems.org'
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(test|spec|features)/})
+    f.match(%r{^(test|spec|features)/}) || f.match(%r{^(\..+|Dockerfile|docker-compose\.yml|logo\.png)})
   end
   spec.bindir        = 'bin'
   spec.executables   = spec.files.grep(%r{^bin/phobos}) { |f| File.basename(f) }

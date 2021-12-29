@@ -1,0 +1,13 @@
+FROM ruby:2.5.1
+
+ARG PACKAGECLOUD_TOKEN
+RUN mkdir ~/.gem
+RUN echo "---" > ~/.gem/credentials
+RUN echo ":github: Bearer $PACKAGECLOUD_TOKEN" >> ~/.gem/credentials
+RUN chmod 0600 ~/.gem/credentials
+RUN mkdir /app
+WORKDIR /app
+COPY . /app/
+RUN gem build phobos.gemspec
+RUN gem install bundle
+CMD gem push --key github --host https://rubygems.pkg.github.com/FanTuanEats phobos-*.gem
