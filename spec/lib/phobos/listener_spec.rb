@@ -430,7 +430,7 @@ RSpec.describe Phobos::Listener do
 
   describe 'when the handler includes the producer module' do
     let(:handler_class) { TestListenerHandlerWithProducer }
-    let(:producer_api) { Phobos::Producer::ClassMethods::PublicAPI.new }
+    let(:producer_api) { Phobos::Producer::ClassMethods::PublicAPI.new(handler_class) }
 
     before do
       allow(TestListenerHandlerWithProducer)

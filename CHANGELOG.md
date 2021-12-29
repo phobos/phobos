@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+- Support configurable producer config key for producers
+
 ## [2.1.0] - 2021-05-27
 
 - Modify config to allow specifying kafka connection information separately for consumers and producers
@@ -47,7 +49,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   messages and batches.
 
 ## [1.8.3-beta1] - 2019-11-11
-- Automatically heartbeat after every message if necessary in batch 
+- Automatically heartbeat after every message if necessary in batch
   mode.
 
 ## [1.8.2] - 2019-11-11

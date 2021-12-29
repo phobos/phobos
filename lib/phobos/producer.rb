@@ -4,6 +4,7 @@ module Phobos
   module Producer
     def self.included(base)
       base.extend(Phobos::Producer::ClassMethods)
+      base.class_variable_set(:@@producer_config, :producer)
     end
 
     def producer
@@ -54,13 +55,25 @@ module Phobos
 
     module ClassMethods
       def producer
-        Phobos::Producer::ClassMethods::PublicAPI.new
+        Phobos::Producer::ClassMethods::PublicAPI.new(self)
+      end
+
+      def producer_config
+        class_variable_get :@@producer_config
+      end
+
+      def configure_producer(producer)
+        class_variable_set :@@producer_config, producer
       end
 
       class PublicAPI
         NAMESPACE = :phobos_producer_store
         ASYNC_PRODUCER_PARAMS = [:max_queue_size, :delivery_threshold, :delivery_interval].freeze
         INTERNAL_PRODUCER_PARAMS = [:persistent_connections].freeze
+
+        def initialize(host_class)
+          @host_class = host_class
+        end
 
         # This method configures the kafka client used with publish operations
         # performed by the host class
@@ -77,7 +90,7 @@ module Phobos
         end
 
         def create_sync_producer
-          client = kafka_client || configure_kafka_client(Phobos.create_kafka_client(:producer))
+          client = kafka_client || configure_kafka_client(create_kafka_client)
           sync_producer = client.producer(**regular_configs)
           if Phobos.config.producer_hash[:persistent_connections]
             producer_store[:sync_producer] = sync_producer
@@ -108,7 +121,7 @@ module Phobos
         end
 
         def create_async_producer
-          client = kafka_client || configure_kafka_client(Phobos.create_kafka_client(:producer))
+          client = kafka_client || configure_kafka_client(create_kafka_client)
           async_producer = client.async_producer(**async_configs)
           producer_store[:async_producer] = async_producer
         end
@@ -147,6 +160,10 @@ module Phobos
 
         private
 
+        def create_kafka_client
+          Phobos.create_kafka_client(@host_class.producer_config)
+        end
+
         def produce_messages(producer, messages)
           messages.each do |message|
             partition_key = message[:partition_key] || message[:key]
@@ -164,6 +181,11 @@ module Phobos
 
         def producer_store
           Thread.current[NAMESPACE] ||= {}
+          if @host_class.producer_config
+            Thread.current[NAMESPACE][@host_class.producer_config] ||= {}
+          else
+            Thread.current[NAMESPACE]
+          end
         end
       end
     end
