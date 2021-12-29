@@ -15,7 +15,7 @@ RSpec.describe Phobos::Producer do
   after { TestProducer1.producer.configure_kafka_client(nil) }
   subject { TestProducer1.new }
   let(:internal_params) { Phobos::Producer::ClassMethods::PublicAPI::INTERNAL_PRODUCER_PARAMS }
-  let(:public_api) { Phobos::Producer::ClassMethods::PublicAPI.new }
+  let(:public_api) { Phobos::Producer::ClassMethods::PublicAPI.new(TestProducer1) }
 
   describe '#publish' do
     it 'publishes a single message using "publish_list"' do

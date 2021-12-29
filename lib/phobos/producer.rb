@@ -59,11 +59,11 @@ module Phobos
       end
 
       def producer_config
-        self.class_variable_get :@@producer_config
+        class_variable_get :@@producer_config
       end
 
       def config_producer_config(config)
-        self.class_variable_set :@@producer_config, config
+        class_variable_set :@@producer_config, config
       end
 
       class PublicAPI
@@ -71,8 +71,8 @@ module Phobos
         ASYNC_PRODUCER_PARAMS = [:max_queue_size, :delivery_threshold, :delivery_interval].freeze
         INTERNAL_PRODUCER_PARAMS = [:persistent_connections].freeze
 
-        def initialize(host_obj = nil)
-          @host_obj = host_obj
+        def initialize(host_class)
+          @host_class = host_class
         end
 
         # This method configures the kafka client used with publish operations
@@ -161,7 +161,7 @@ module Phobos
         private
 
         def create_kafka_client
-          Phobos.create_kafka_client(@host_obj.producer_config)
+          Phobos.create_kafka_client(@host_class.producer_config)
         end
 
         def produce_messages(producer, messages)
@@ -181,8 +181,10 @@ module Phobos
 
         def producer_store
           Thread.current[NAMESPACE] ||= {}
-          if @host_obj.producer_config
-            Thread.current[NAMESPACE][@host_obj.producer_config] ||= {}
+          if @host_class.producer_config
+            Thread.current[NAMESPACE][@host_class.producer_config] ||= {}
+          else
+            Thread.current[NAMESPACE]
           end
         end
       end
