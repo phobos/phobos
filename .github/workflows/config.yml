@@ -1,0 +1,16 @@
+name: Chowbus Phobos
+on: [ push, pull_request ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build docker image
+        run: docker-compose build test
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start Testing Kafka
+        run: docker-compose up -d --force-recreate kafka zookeeper
+      - name: Run Tests
+        run: docker-compose run --rm test
