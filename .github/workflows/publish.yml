@@ -18,10 +18,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Ruby 2.5.1 # phobos build with this version in their travis
+    - name: Set up Ruby 2.7.3 # to match monolith
       uses: actions/setup-ruby@v1
       with:
-        ruby-version: 2.5.x
+        ruby-version: 2.7.3
 
     - name: Publish to RubyGems
       run: |
