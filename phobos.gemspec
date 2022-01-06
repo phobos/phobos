@@ -41,7 +41,7 @@ Gem::Specification.new do |spec|
     raise('RubyGems 2.0 or newer is required to protect against public gem pushes.')
   end
 
-  spec.metadata['allowed_push_host'] = 'https://rubygems.org'
+  spec.metadata['allowed_push_host'] = 'https://rubygems.pkg.github.com/chowbus'
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})

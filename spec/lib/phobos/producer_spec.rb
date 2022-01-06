@@ -375,3 +375,23 @@ RSpec.describe Phobos::Producer do
     end
   end
 end
+
+RSpec.describe Phobos::Producer do
+  describe 'a 2nd producer' do
+    class TestProducer2
+      include Phobos::Producer
+      configure_producer :another_producer
+    end
+  
+    describe '#create_kafka_client' do
+      it 'returns a deep merged 2nd producer' do
+        client = TestProducer2.producer.send(:create_kafka_client)
+        expect(client).not_to eq nil
+        expect(client.as_json["seed_brokers"]).to eq ["kafka://localhost:9093"]
+        expect(client.as_json["connection_builder"]["client_id"]).to eq 'phobos_2'
+        # FIXME: in regular_configs, producer not merged for now
+        # expect(client.producer.as_json["ack_timeout"]).to eq 666
+      end
+    end
+  end
+end

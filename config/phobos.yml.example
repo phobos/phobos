@@ -28,6 +28,14 @@ kafka:
   seed_brokers:
     - localhost:9092
 
+another_producer:
+  producer:
+    ack_timeout: 666
+  kafka:
+    client_id: phobos_2
+    seed_brokers:
+      - localhost:9093
+
 producer:
   # number of seconds a broker can wait for replicas to acknowledge
   # a write before responding with a timeout
