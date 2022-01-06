@@ -20,7 +20,7 @@ jobs:
     - name: Set up Ruby 2.7.3 # to match monolith
       uses: actions/setup-ruby@v1
       with:
-        ruby-version: 2.7.3
+        ruby-version: 2.7.x
 
     - name: Publish to RubyGems
       run: |
