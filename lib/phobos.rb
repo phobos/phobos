@@ -114,14 +114,25 @@ module Phobos
     def read_configuration(configuration)
       return configuration.to_h if configuration.respond_to?(:to_h)
 
-      YAML.safe_load(
-        ERB.new(
-          File.read(File.expand_path(configuration))
-        ).result,
-        [Symbol],
-        [],
-        true
-      )
+      if Gem::Version.new(Psych::VERSION) >= Gem::Version.new('3.1.0.pre1')
+        YAML.safe_load(
+          ERB.new(
+            File.read(File.expand_path(configuration))
+          ).result,
+          permitted_classes: [Symbol],
+          permitted_symbols: [],
+          aliases: true
+        )
+      else
+        YAML.safe_load(
+          ERB.new(
+            File.read(File.expand_path(configuration))
+          ).result,
+          [Symbol],
+          [],
+          true
+        )
+      end
     end
 
     def configure_phobos_logger
