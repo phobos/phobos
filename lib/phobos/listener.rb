@@ -84,6 +84,12 @@ module Phobos
       @consumer&.send_heartbeat_if_necessary
     end
 
+    def recreate_listener
+      instrument('listener.recreate', listener_metadata) do
+        @kafka_client = Phobos.create_kafka_client(:consumer)
+      end
+    end
+
     private
 
     def listener_metadata

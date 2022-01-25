@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
+
+## [3.0.1] - 2022-01-25
+
+- fix consumer crash problems
+
 ## [3.0.0] - 2021-12-29
 
 - Added multiple clusters support for producers.
