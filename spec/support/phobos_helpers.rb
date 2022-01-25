@@ -13,6 +13,7 @@ module PhobosHelpers
     listener.stop_handler
     listener.start
     listener.start_handler
+    listener.recreate
   ].freeze
 
   EXECUTOR_EVENTS = %w[

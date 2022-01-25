@@ -85,7 +85,9 @@ module Phobos
     end
 
     def recreate_listener
-      @kafka_client = Phobos.create_kafka_client(:consumer)
+      instrument('listener.recreate', listener_metadata) do
+        @kafka_client = Phobos.create_kafka_client(:consumer)
+      end
     end
 
     private

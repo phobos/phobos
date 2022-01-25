@@ -71,6 +71,7 @@ RSpec.describe Phobos::Executor do
 
     wait_for_event('listener.process_message')
     wait_for_event('listener.start', amount_gte: 3)
+    wait_for_event('listener.recreate', amount_gte: 3)
 
     executor.stop
     wait_for_event('listener.stop', amount_gte: 2)
