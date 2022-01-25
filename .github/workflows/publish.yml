@@ -2,8 +2,6 @@ name: Ruby Gem Publish
 
 on:
   push:
-    branches:
-      - master
     tags:
       - v3.**
 
