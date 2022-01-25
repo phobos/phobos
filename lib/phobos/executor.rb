@@ -85,7 +85,9 @@ module Phobos
     # and the kafka client were properly stopped, it's safe to call start
     # again
     def handle_crashed_listener(listener, error, retry_count)
-      listener.recreate_listener
+      if ENV['RECREATE_LISTENER_IF_CRASH'] == 'true'
+        listener.recreate_listener
+      end
       backoff = listener.create_exponential_backoff
       interval = backoff.interval_at(retry_count).round(2)
 

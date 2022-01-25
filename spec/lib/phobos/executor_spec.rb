@@ -55,6 +55,7 @@ RSpec.describe Phobos::Executor do
   end
 
   it 'reconnects crashed listeners' do
+    ENV['RECREATE_LISTENER_IF_CRASH'] = 'true'
     subscribe_to(*EXECUTOR_EVENTS)
     subscribe_to(*LISTENER_EVENTS) { executor.start }
     wait_for_event('listener.start', amount: 2)
