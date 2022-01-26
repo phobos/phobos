@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+## [3.0.2] - 2022-01-26
+
+- fix consumer crash problems
+
 ## [3.0.1] - 2022-01-25
 
 - fix consumer crash problems
