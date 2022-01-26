@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+## [2.1.1] - 2022-01-26
+
+- Fix crash on Ruby 3.1 involving a change to the Psych gem.
+
 ## [2.1.0] - 2021-05-27
 
 - Modify config to allow specifying kafka connection information separately for consumers and producers
