@@ -87,6 +87,7 @@ module Phobos
     def handle_crashed_listener(listener, error, retry_count)
       if ENV['RECREATE_LISTENER_IF_CRASH'] == 'true'
         listener.recreate_listener
+        log_info("Listener recreated, #{listener.id}, #{retry_count}", error_metadata(error))
       end
       backoff = listener.create_exponential_backoff
       interval = backoff.interval_at(retry_count).round(2)
