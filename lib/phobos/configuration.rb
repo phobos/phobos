@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'phobos/deep_struct'
 
 module Phobos
@@ -53,7 +55,6 @@ module Phobos
         [],
         true
       )
-
     end
 
     def configure_phobos_logger

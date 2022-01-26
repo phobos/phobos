@@ -80,6 +80,5 @@ module Phobos
       location = caller.find { |line| line !~ %r{/phobos/} }
       warn "DEPRECATION WARNING: #{message}: #{location}"
     end
-
   end
 end
