@@ -38,23 +38,16 @@ module Phobos
     def read_configuration(configuration)
       return configuration.to_h if configuration.respond_to?(:to_h)
 
+      config_erb = ERB.new(File.read(File.expand_path(configuration))).result
+
       YAML.safe_load(
-        ERB.new(
-          File.read(File.expand_path(configuration))
-        ).result,
+        config_erb,
         permitted_classes: [Symbol],
         permitted_symbols: [],
         aliases: true
       )
     rescue ArgumentError
-      YAML.safe_load(
-        ERB.new(
-          File.read(File.expand_path(configuration))
-        ).result,
-        [Symbol],
-        [],
-        true
-      )
+      YAML.safe_load(config_erb, [Symbol], [], true)
     end
 
     def configure_phobos_logger
