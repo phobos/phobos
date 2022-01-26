@@ -1,3 +1,19 @@
+# Publish chowbus phobos Gem.
+
+After you merge your PR, tag this repo. the github action will publish the gem. automatically, e.g.
+
+```
+➜  phobos git:(master) git tag v3.0.2
+➜  phobos git:(master) git push --tags
+Total 0 (delta 0), reused 0 (delta 0), pack-reused 0
+To github.com:chowbus/phobos.git
+ * [new tag]         v3.0.2 -> v3.0.2
+➜  phobos git:(master) 
+```
+
+
+
+
 ![Phobos](https://raw.githubusercontent.com/klarna/phobos/master/logo.png)
 
 [![Build Status](https://travis-ci.com/phobos/phobos.svg?branch=master)](https://travis-ci.com/phobos/phobos)
