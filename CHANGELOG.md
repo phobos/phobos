@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+## [2.1.2] - 2022-01-27
+
+- Fix packaging error.
+
 ## [2.1.1] - 2022-01-26
 
 - Fix crash on Ruby 3.1 involving a change to the Psych gem.
