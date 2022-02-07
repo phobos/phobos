@@ -127,6 +127,8 @@ module Phobos
         @kafka_client.close
         log_info('Listener stopped', listener_metadata) if should_stop?
       end
+    rescue NoMethodError
+      log_error('Listener stopped failed', listener_metadata)
     end
 
     def start_consumer_loop
