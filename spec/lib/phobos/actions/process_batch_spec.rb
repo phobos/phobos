@@ -59,4 +59,13 @@ RSpec.describe Phobos::Actions::ProcessBatch do
 
     subject.execute
   end
+
+  it 'is expected to catch HeartbeatError from trigger_heartbeat' do
+    consumer = listener.send(:create_kafka_consumer)
+    allow(listener).to receive(:consumer).and_return(consumer)
+    allow(listener.consumer).to receive(:trigger_heartbeat).and_raise(Kafka::HeartbeatError, 'Kafka::RebalanceInProgress')
+
+    expect{ subject.execute }.to_not raise_error
+  end
+
 end

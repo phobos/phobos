@@ -4,6 +4,7 @@ module Phobos
   module Actions
     class ProcessBatch
       include Phobos::Instrumentation
+      include Phobos::Log
 
       attr_reader :metadata
 
@@ -26,7 +27,11 @@ module Phobos
               message: message,
               listener_metadata: @listener_metadata
             ).execute
-            @listener.consumer.trigger_heartbeat
+            begin
+              @listener.consumer.trigger_heartbeat
+            rescue Kafka::HeartbeatError => e
+              log_warn("Error sending Heartbeat #{e.class.name}-#{e}")
+            end
           end
         end
       end

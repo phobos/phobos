@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+- Rescue and log Kafka::HeartbeatError in batch processing
+
 ## [2.1.2] - 2022-01-27
 
 - Fix packaging error.
