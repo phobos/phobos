@@ -42,12 +42,12 @@ module Phobos
 
       YAML.safe_load(
         config_erb,
-        permitted_classes: [Symbol],
+        permitted_classes: [Symbol, Regexp],
         permitted_symbols: [],
         aliases: true
       )
     rescue ArgumentError
-      YAML.safe_load(config_erb, [Symbol], [], true)
+      YAML.safe_load(config_erb, [Symbol, Regexp], [], true)
     end
 
     def configure_phobos_logger

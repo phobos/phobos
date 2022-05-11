@@ -94,6 +94,8 @@ backoff:
 
 listeners:
   - handler: Phobos::EchoHandler
+    # Name of the topic. You can also specify a Regexp to listen to mulitple topics
+    # topic: !ruby/regexp /^some-prefix\./
     topic: test
     # id of the group that the consumer should join
     group_id: test-1

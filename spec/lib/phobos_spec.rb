@@ -21,6 +21,16 @@ RSpec.describe Phobos do
       end
     end
 
+    context 'when using a Regexp topic name in the configuration file' do
+      it 'parses it correctly' do
+        Phobos.instance_variable_set(:@config, nil)
+        Phobos.configure('spec/fixtures/regexp_topic_name.yml')
+
+        expect(Phobos.config).to_not be_nil
+        expect(Phobos.config.listeners[0].topic).to eq(/test/)
+      end
+    end
+
     context 'when providing hash with configuration settings' do
       it 'parses it correctly' do
         configuration_settings = {
