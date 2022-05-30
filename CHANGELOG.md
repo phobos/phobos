@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+## [3.0.4] - 2022-05-30
+
+- catch no method exception thrown from ruby-kafka with hash message
+
 ## [3.0.3] - 2022-02-07
 
 - catch no method exception thrown from ruby-kafka
