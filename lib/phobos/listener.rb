@@ -49,7 +49,7 @@ module Phobos
       begin
         start_consumer_loop
       rescue Kafka::ProcessingError, Phobos::AbortError => e
-        error = e
+        error = e if e.is_a?(Kafka::ProcessingError)
         # Abort is an exception to prevent the consumer from committing the offset.
         # Since "listener" had a message being retried while "stop" was called
         # it's wise to not commit the batch offset to avoid data loss. This will
