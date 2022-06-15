@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+## [2.1.4] - 2022-06-15
+
+- Re-raise consuming errors so that threads don't die forever and are retried
+
 ## [2.1.3] - 2022-05-13
 
 - Rescue and log Kafka::HeartbeatError in batch processing
