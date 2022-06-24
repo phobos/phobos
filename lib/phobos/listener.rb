@@ -9,7 +9,7 @@ module Phobos
     DEFAULT_MAX_BYTES_PER_PARTITION = 1_048_576 # 1 MB
     DELIVERY_OPTS = %w[batch message inline_batch].freeze
 
-    attr_reader :group_id, :topic, :id
+    attr_reader :group_id, :topics, :id
     attr_reader :handler_class, :encoding, :consumer
 
     # rubocop:disable Metrics/MethodLength
@@ -22,7 +22,7 @@ module Phobos
       @id = SecureRandom.hex[0...6]
       @handler_class = handler
       @group_id = group_id
-      @topic = topic
+      @topics = Array(topic) # backwards compatibility
       @backoff = backoff
       @delivery = delivery.to_s
       @subscribe_opts = {
@@ -87,13 +87,17 @@ module Phobos
     private
 
     def listener_metadata
-      { listener_id: id, group_id: group_id, topic: topic, handler: handler_class.to_s }
+      { listener_id: id, group_id: group_id, topic: topics, handler: handler_class.to_s }
     end
 
     def start_listener
       instrument('listener.start', listener_metadata) do
         @consumer = create_kafka_consumer
-        @consumer.subscribe(topic, **@subscribe_opts)
+
+        # ruby-kafka does not provide an api to subscribe a group of particular topics
+        @topics.each do |topic|
+          @consumer.subscribe(topic, **@subscribe_opts)
+        end
 
         # This is done here because the producer client is bound to the current thread and
         # since "start" blocks a thread might be used to call it
