@@ -34,6 +34,7 @@ Thread.abort_on_exception = true
 Logging.init :debug, :info, :warn, :error, :fatal
 
 # Monkey patch to fix this issue: https://github.com/zendesk/ruby-kafka/pull/732
+# @!visibility private
 module Logging
   # :nodoc:
   class Logger
@@ -51,14 +52,21 @@ end
 module Phobos
   extend Configuration
   class << self
-    attr_reader :config, :logger
+    # @return [Phobos::DeepStruct]
+    attr_reader :config
+    # @return [Logger]
+    attr_reader :logger
+    # @return [Boolean]
     attr_accessor :silence_log
 
+    # @param configuration [Hash<String, Object>]
+    # @return [void]
     def add_listeners(configuration)
       listeners_config = fetch_configuration(configuration)
       @config.listeners += listeners_config.listeners
     end
 
+    # @param config_key [String]
     def create_kafka_client(config_key = nil)
       kafka_config = config.kafka.to_hash.merge(logger: @ruby_kafka_logger)
 
@@ -69,6 +77,7 @@ module Phobos
       Kafka.new(**kafka_config)
     end
 
+    # @param backoff_config [Hash<Symbol, Integer>]
     def create_exponential_backoff(backoff_config = nil)
       backoff_config ||= Phobos.config.backoff.to_hash
       min = backoff_config[:min_ms] / 1000.0
@@ -76,6 +85,8 @@ module Phobos
       ExponentialBackoff.new(min, max).tap { |backoff| backoff.randomize_factor = rand }
     end
 
+    # @param message [String]
+    # @return [void]
     def deprecate(message)
       location = caller.find { |line| line !~ %r{/phobos/} }
       warn "DEPRECATION WARNING: #{message}: #{location}"

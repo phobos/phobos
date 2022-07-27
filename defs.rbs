@@ -1,0 +1,459 @@
+# Please use this with at least the same consideration as you would when using OpenStruct.
+# Right now we only use this to parse our internal configuration files. It is not meant to
+# be used on incoming data.
+module Phobos
+  extend Phobos::Configuration
+  VERSION: String
+
+  # _@param_ `configuration`
+  def self.add_listeners: (::Hash[String, Object] configuration) -> void
+
+  # _@param_ `config_key`
+  def self.create_kafka_client: (?String? config_key) -> untyped
+
+  # _@param_ `backoff_config`
+  def self.create_exponential_backoff: (?::Hash[Symbol, Integer]? backoff_config) -> untyped
+
+  # _@param_ `message`
+  def self.deprecate: (String message) -> void
+
+  # _@param_ `configuration`
+  def self.configure: (untyped configuration) -> void
+
+  def self.configure_logger: () -> void
+
+  def self.config: () -> Phobos::DeepStruct
+
+  def self.logger: () -> Logger
+
+  def self.silence_log: () -> bool
+
+  def self.silence_log=: (bool value) -> bool
+
+  module Log
+    def log_info: (untyped msg, ?untyped metadata) -> untyped
+
+    def log_debug: (untyped msg, ?untyped metadata) -> untyped
+
+    def log_error: (untyped msg, untyped metadata) -> untyped
+
+    def log_warn: (untyped msg, ?untyped metadata) -> untyped
+  end
+
+  module LoggerHelper
+    def self.log: (untyped method, untyped msg, untyped metadata) -> untyped
+  end
+
+  class Error < StandardError
+  end
+
+  class AbortError < Phobos::Error
+  end
+
+  module Handler
+    def consume: (untyped _payload, untyped _metadata) -> untyped
+
+    def around_consume: (untyped payload, untyped metadata) -> untyped
+
+    module ClassMethods
+      def start: (untyped kafka_client) -> untyped
+
+      def stop: () -> untyped
+    end
+  end
+
+  class Executor
+    include Phobos::Instrumentation
+    include Phobos::Log
+
+    def initialize: () -> void
+
+    def start: () -> untyped
+
+    def stop: () -> untyped
+
+    def log_info: (untyped msg, ?untyped metadata) -> untyped
+
+    def log_debug: (untyped msg, ?untyped metadata) -> untyped
+
+    def log_error: (untyped msg, untyped metadata) -> untyped
+
+    def log_warn: (untyped msg, ?untyped metadata) -> untyped
+
+    def instrument: (untyped event, ?untyped extra) -> untyped
+  end
+
+  # rubocop:disable Metrics/ParameterLists, Metrics/ClassLength
+  class Listener
+    include Phobos::Instrumentation
+    include Phobos::Log
+    DEFAULT_MAX_BYTES_PER_PARTITION: untyped
+    DELIVERY_OPTS: untyped
+
+    # rubocop:disable Metrics/MethodLength
+    # 
+    # _@param_ `handler`
+    # 
+    # _@param_ `group_id`
+    # 
+    # _@param_ `topic`
+    # 
+    # _@param_ `min_bytes`
+    # 
+    # _@param_ `max_wait_time`
+    # 
+    # _@param_ `start_from_beginning`
+    # 
+    # _@param_ `delivery`
+    # 
+    # _@param_ `max_bytes_per_partition`
+    # 
+    # _@param_ `session_timeout`
+    # 
+    # _@param_ `offset_commit_interval`
+    # 
+    # _@param_ `heartbeat_interval`
+    # 
+    # _@param_ `offset_commit_threshold`
+    # 
+    # _@param_ `offset_retention_time`
+    def initialize: (
+                      handler: Class,
+                      group_id: String,
+                      topic: String,
+                      ?min_bytes: Integer?,
+                      ?max_wait_time: Integer?,
+                      ?force_encoding: untyped,
+                      ?start_from_beginning: bool,
+                      ?backoff: untyped,
+                      ?delivery: String,
+                      ?max_bytes_per_partition: Integer,
+                      ?session_timeout: Integer?,
+                      ?offset_commit_interval: Integer?,
+                      ?heartbeat_interval: Integer?,
+                      ?offset_commit_threshold: Integer?,
+                      ?offset_retention_time: Integer?
+                    ) -> void
+
+    def start: () -> void
+
+    def stop: () -> void
+
+    def create_exponential_backoff: () -> untyped
+
+    def should_stop?: () -> bool
+
+    def send_heartbeat_if_necessary: () -> untyped
+
+    def log_info: (untyped msg, ?untyped metadata) -> untyped
+
+    def log_debug: (untyped msg, ?untyped metadata) -> untyped
+
+    def log_error: (untyped msg, untyped metadata) -> untyped
+
+    def log_warn: (untyped msg, ?untyped metadata) -> untyped
+
+    def instrument: (untyped event, ?untyped extra) -> untyped
+
+    attr_reader group_id: String
+
+    attr_reader topic: String
+
+    # Returns the value of attribute id.
+    attr_reader id: untyped
+
+    attr_reader handler_class: Class
+
+    # Returns the value of attribute encoding.
+    attr_reader encoding: untyped
+
+    # Returns the value of attribute consumer.
+    attr_reader consumer: untyped
+  end
+
+  module Producer
+    def producer: () -> Phobos::Producer::PublicAPI
+
+    class PublicAPI
+      def initialize: (untyped host_obj) -> void
+
+      # _@param_ `topic`
+      # 
+      # _@param_ `payload`
+      # 
+      # _@param_ `key`
+      # 
+      # _@param_ `partition_key`
+      # 
+      # _@param_ `headers`
+      def publish: (
+                     topic: String,
+                     payload: String,
+                     ?key: String?,
+                     ?partition_key: Integer?,
+                     ?headers: ::Hash[untyped, untyped]?
+                   ) -> void
+
+      # _@param_ `topic`
+      # 
+      # _@param_ `payload`
+      # 
+      # _@param_ `key`
+      # 
+      # _@param_ `partition_key`
+      # 
+      # _@param_ `headers`
+      def async_publish: (
+                           topic: String,
+                           payload: String,
+                           ?key: String?,
+                           ?partition_key: Integer?,
+                           ?headers: ::Hash[untyped, untyped]?
+                         ) -> void
+
+      # _@param_ `messages` — e.g.: [   { topic: 'A', payload: 'message-1', key: '1', headers: { foo: 'bar' } },   { topic: 'B', payload: 'message-2', key: '2', headers: { foo: 'bar' } } ]
+      def publish_list: (::Array[::Hash[untyped, untyped]] messages) -> untyped
+
+      # _@param_ `messages`
+      def async_publish_list: (::Array[::Hash[untyped, untyped]] messages) -> untyped
+    end
+
+    module ClassMethods
+      def producer: () -> Phobos::Producer::ClassMethods::PublicAPI
+
+      class PublicAPI
+        NAMESPACE: Symbol
+        ASYNC_PRODUCER_PARAMS: ::Array[Symbol]
+        INTERNAL_PRODUCER_PARAMS: ::Array[Symbol]
+
+        # This method configures the kafka client used with publish operations
+        # performed by the host class
+        # 
+        # _@param_ `kafka_client`
+        def configure_kafka_client: (Kafka::Client kafka_client) -> void
+
+        def kafka_client: () -> Kafka::Client
+
+        def create_sync_producer: () -> Kafka::Producer
+
+        def sync_producer: () -> Kafka::Producer
+
+        def sync_producer_shutdown: () -> void
+
+        # _@param_ `topic`
+        # 
+        # _@param_ `payload`
+        # 
+        # _@param_ `partition_key`
+        # 
+        # _@param_ `headers`
+        def publish: (
+                       topic: String,
+                       payload: String,
+                       ?key: untyped,
+                       ?partition_key: Integer?,
+                       ?headers: ::Hash[untyped, untyped]?
+                     ) -> void
+
+        # _@param_ `messages`
+        def publish_list: (::Array[::Hash[untyped, untyped]] messages) -> void
+
+        def create_async_producer: () -> Kafka::AsyncProducer
+
+        def async_producer: () -> Kafka::AsyncProducer
+
+        # _@param_ `topic`
+        # 
+        # _@param_ `payload`
+        # 
+        # _@param_ `partition_key`
+        # 
+        # _@param_ `headers`
+        def async_publish: (
+                             topic: String,
+                             payload: String,
+                             ?key: untyped,
+                             ?partition_key: Integer?,
+                             ?headers: ::Hash[untyped, untyped]?
+                           ) -> void
+
+        # _@param_ `messages`
+        def async_publish_list: (::Array[::Hash[untyped, untyped]] messages) -> void
+
+        def async_producer_shutdown: () -> void
+
+        def regular_configs: () -> ::Hash[untyped, untyped]
+
+        def async_configs: () -> ::Hash[untyped, untyped]
+      end
+    end
+  end
+
+  module Constants
+    LOG_DATE_PATTERN: untyped
+    KAFKA_CONSUMER_OPTS: untyped
+    LISTENER_OPTS: untyped
+  end
+
+  module Processor
+    include Phobos::Instrumentation
+    extend ActiveSupport::Concern
+    MAX_SLEEP_INTERVAL: untyped
+
+    def snooze: (untyped interval) -> untyped
+
+    def instrument: (untyped event, ?untyped extra) -> untyped
+  end
+
+  class DeepStruct < OpenStruct
+    # Based on
+    # https://docs.omniref.com/ruby/2.3.0/files/lib/ostruct.rb#line=88
+    def initialize: (?untyped hash) -> void
+
+    def to_h: () -> untyped
+  end
+
+  module Test
+    module Helper
+      TOPIC: untyped
+      GROUP: untyped
+
+      def process_message: (
+                             handler: untyped,
+                             payload: untyped,
+                             ?metadata: untyped,
+                             ?force_encoding: untyped
+                           ) -> untyped
+    end
+  end
+
+  class EchoHandler
+    include Phobos::Handler
+
+    def consume: (untyped message, untyped metadata) -> untyped
+
+    def around_consume: (untyped payload, untyped metadata) -> untyped
+  end
+
+  module BatchHandler
+    # _@param_ `_payloads`
+    # 
+    # _@param_ `_metadata`
+    def consume_batch: (::Array[untyped] _payloads, ::Hash[String, Object] _metadata) -> void
+
+    # _@param_ `payloads`
+    # 
+    # _@param_ `metadata`
+    def around_consume_batch: (::Array[untyped] payloads, ::Hash[String, Object] metadata) -> void
+
+    module ClassMethods
+      # _@param_ `kafka_client`
+      def start: (untyped kafka_client) -> void
+
+      def stop: () -> void
+    end
+  end
+
+  class BatchMessage
+    # _@param_ `key`
+    # 
+    # _@param_ `partition`
+    # 
+    # _@param_ `offset`
+    # 
+    # _@param_ `payload`
+    # 
+    # _@param_ `headers`
+    def initialize: (
+                      key: untyped,
+                      partition: Integer,
+                      offset: Integer,
+                      payload: untyped,
+                      headers: untyped
+                    ) -> void
+
+    # _@param_ `other`
+    def ==: (Phobos::BatchMessage other) -> bool
+
+    attr_accessor key: untyped
+
+    attr_accessor partition: Integer
+
+    attr_accessor offset: Integer
+
+    attr_accessor payload: untyped
+
+    attr_accessor headers: untyped
+  end
+
+  module Configuration
+    # _@param_ `configuration`
+    def configure: (untyped configuration) -> void
+
+    def configure_logger: () -> void
+  end
+
+  module Instrumentation
+    NAMESPACE: untyped
+
+    def self.subscribe: (untyped event) -> untyped
+
+    def self.unsubscribe: (untyped subscriber) -> untyped
+
+    def instrument: (untyped event, ?untyped extra) -> untyped
+  end
+
+  module Actions
+    class ProcessBatch
+      include Phobos::Instrumentation
+      include Phobos::Log
+
+      def initialize: (listener: untyped, batch: untyped, listener_metadata: untyped) -> void
+
+      def execute: () -> untyped
+
+      def log_info: (untyped msg, ?untyped metadata) -> untyped
+
+      def log_debug: (untyped msg, ?untyped metadata) -> untyped
+
+      def log_error: (untyped msg, untyped metadata) -> untyped
+
+      def log_warn: (untyped msg, ?untyped metadata) -> untyped
+
+      def instrument: (untyped event, ?untyped extra) -> untyped
+
+      # Returns the value of attribute metadata.
+      attr_reader metadata: untyped
+    end
+
+    class ProcessMessage
+      include Phobos::Processor
+
+      def initialize: (listener: untyped, message: untyped, listener_metadata: untyped) -> void
+
+      def execute: () -> untyped
+
+      def snooze: (untyped interval) -> untyped
+
+      def instrument: (untyped event, ?untyped extra) -> untyped
+
+      # Returns the value of attribute metadata.
+      attr_reader metadata: untyped
+    end
+
+    class ProcessBatchInline
+      include Phobos::Processor
+
+      def initialize: (listener: untyped, batch: untyped, metadata: untyped) -> void
+
+      def execute: () -> untyped
+
+      def snooze: (untyped interval) -> untyped
+
+      def instrument: (untyped event, ?untyped extra) -> untyped
+
+      # Returns the value of attribute metadata.
+      attr_reader metadata: untyped
+    end
+  end
+end

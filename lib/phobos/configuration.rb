@@ -4,6 +4,8 @@ require 'phobos/deep_struct'
 
 module Phobos
   module Configuration
+    # @param configuration
+    # @return [void]
     def configure(configuration)
       @config = fetch_configuration(configuration)
       @config.class.send(:define_method, :producer_hash) do
@@ -16,7 +18,7 @@ module Phobos
       configure_logger
     end
 
-    # :nodoc:
+    # @return [void]
     def configure_logger
       Logging.backtrace(true)
       Logging.logger.root.level = silence_log ? :fatal : config.logger.level

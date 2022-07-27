@@ -9,9 +9,28 @@ module Phobos
     DEFAULT_MAX_BYTES_PER_PARTITION = 1_048_576 # 1 MB
     DELIVERY_OPTS = %w[batch message inline_batch].freeze
 
-    attr_reader :group_id, :topic, :id
-    attr_reader :handler_class, :encoding, :consumer
+    # @return [String]
+    attr_reader :group_id
+    # @return [String]
+    attr_reader :topic
+    attr_reader :id
+    # @return [Class]
+    attr_reader :handler_class
+    attr_reader :encoding, :consumer
 
+    # @param handler [Class]
+    # @param group_id [String]
+    # @param topic [String]
+    # @param min_bytes [Integer]
+    # @param max_wait_time [Integer]
+    # @param start_from_beginning [Boolean]
+    # @param delivery [String]
+    # @param max_bytes_per_partition [Integer]
+    # @param session_timeout [Integer]
+    # @param offset_commit_interval [Integer]
+    # @param heartbeat_interval [Integer]
+    # @param offset_commit_threshold [Integer]
+    # @param offset_retention_time [Integer]
     # rubocop:disable Metrics/MethodLength
     def initialize(handler:, group_id:, topic:, min_bytes: nil, max_wait_time: nil,
                    force_encoding: nil, start_from_beginning: true, backoff: nil,
@@ -40,6 +59,7 @@ module Phobos
     end
     # rubocop:enable Metrics/MethodLength
 
+    # @return [void]
     def start
       @signal_to_stop = false
       start_listener
@@ -60,6 +80,7 @@ module Phobos
       stop_listener
     end
 
+    # @return [void]
     def stop
       return if should_stop?
 
