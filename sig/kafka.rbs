@@ -1,0 +1,12 @@
+# Ruby-Kafka definitions
+
+module Kafka
+  class Client
+  end
+
+  class Producer
+  end
+
+  class AsyncProducer
+  end
+end

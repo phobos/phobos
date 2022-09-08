@@ -58,7 +58,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop', '0.62.0'
   spec.add_development_dependency 'rubocop_rules'
   spec.add_development_dependency 'simplecov'
+  spec.add_development_dependency 'sord'
   spec.add_development_dependency 'timecop'
+  spec.add_development_dependency 'yard'
 
   spec.add_dependency 'activesupport', '>= 3.0.0'
   spec.add_dependency 'concurrent-ruby', '>= 1.0.2'
