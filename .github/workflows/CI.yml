@@ -23,10 +23,10 @@ jobs:
           bundler-cache: true
       - name: Start Bitnami Kafka
         uses: bbcCorp/kafka-actions@v1
-#      - name: Wait for Kafka
-#        uses: ifaxity/wait-on-action@v1
-#        with:
-#          resource: tcp://localhost:9092
+      - name: Wait for Kafka
+        uses: ifaxity/wait-on-action@v1
+        with:
+          resource: localhost:9092
       - name: Bundle install
         run: bundle install
       - name: Prepare Code Climate
