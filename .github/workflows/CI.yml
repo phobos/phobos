@@ -26,7 +26,7 @@ jobs:
       - name: Wait for Kafka
         uses: ifaxity/wait-on-action@v1
         with:
-          resource: localhost:9092
+          resource: tcp:127.0.0.1:9092
       - name: Bundle install
         run: bundle install
       - name: Prepare Code Climate
