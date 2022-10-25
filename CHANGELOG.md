@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+## [3.1.0] - 2022-10-25
+
+- merged all upstream changes from the community repo.
+
 ## [3.0.4] - 2022-05-30
 
 - catch no method exception thrown from ruby-kafka with hash message
@@ -27,6 +31,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added multiple clusters support for producers.
 
 - Support configurable producer config key for producers
+## [2.1.4] - 2022-06-15
+
+- Re-raise consuming errors so that threads don't die forever and are retried
+
+## [2.1.3] - 2022-05-13
+
+- Rescue and log Kafka::HeartbeatError in batch processing
+
+## [2.1.2] - 2022-01-27
+
+- Fix packaging error.
+
+## [2.1.1] - 2022-01-26
+
+- Fix crash on Ruby 3.1 involving a change to the Psych gem.
 
 ## [2.1.0] - 2021-05-27
 

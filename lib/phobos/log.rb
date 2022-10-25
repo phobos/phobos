@@ -13,6 +13,10 @@ module Phobos
     def log_error(msg, metadata)
       LoggerHelper.log(:error, msg, metadata)
     end
+
+    def log_warn(msg, metadata = {})
+      LoggerHelper.log(:warn, msg, metadata)
+    end
   end
 
   module LoggerHelper

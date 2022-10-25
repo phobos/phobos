@@ -2,6 +2,7 @@
 
 module Phobos
   module Handler
+    # @!visibility private
     def self.included(base)
       base.extend(ClassMethods)
     end
