@@ -1,4 +1,4 @@
-FROM ruby:2.5.1-alpine
+FROM ruby:3.0.0-alpine
 
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh build-base

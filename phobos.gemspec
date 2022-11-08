@@ -59,6 +59,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop_rules'
   spec.add_development_dependency 'simplecov'
   spec.add_development_dependency 'sord'
+  spec.add_development_dependency 'simplecov_json_formatter'
   spec.add_development_dependency 'timecop'
   spec.add_development_dependency 'yard'
 

@@ -1,0 +1,54 @@
+on:
+  push:
+    branches:
+      - master
+      - ci-update
+  pull_request:
+
+env:
+  DEFAULT_TIMEOUT: 20
+  CC_TEST_REPORTER_ID: a990fd40ff4421e8b28167232242a1d6c6638f9907fc0b80eb90f82f88fcfd81
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      zookeeper:
+        image: 'bitnami/zookeeper:latest'
+        ports:
+          - '2181:2181'
+        env:
+          ALLOW_ANONYMOUS_LOGIN: yes
+      kafka:
+        image: 'bitnami/kafka:latest'
+        ports:
+          - '9092:9092'
+        env:
+          KAFKA_BROKER_ID: 1
+          KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
+          KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
+          KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+          ALLOW_PLAINTEXT_LISTENER: yes
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [2.5.8, 2.6.8, 2.7.4, 3.0.2]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Bundle install
+        run: bundle install
+      - name: Prepare Code Climate
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build || echo "Skipping CC coverage before-build"
+          mkdir coverage/
+          touch ./coverage/.resultset.json
+      - name: Run tests
+        run: bundle exec rspec && echo "TEST_RESULT_CODE=$?" >> $GITHUB_ENV
+      - name: Register coverage
+        run: ./cc-test-reporter after-build --exit-code $TEST_RESULT_CODE
