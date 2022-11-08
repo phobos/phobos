@@ -5,7 +5,7 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/e3814d747c91247b24c6/test_coverage)](https://codeclimate.com/github/phobos/phobos/test_coverage)
 
 # Phobos
-
+ 
 Simplifying Kafka for Ruby apps!
 
 Phobos is a micro framework and library for applications dealing with [Apache Kafka](http://kafka.apache.org/).
