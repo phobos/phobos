@@ -38,12 +38,6 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-#      - name: Start Bitnami Kafka
-#        uses: bbcCorp/kafka-actions@v1
-#      - name: Wait for Kafka
-#        uses: ifaxity/wait-on-action@v1
-#        with:
-#          resource: tcp:127.0.0.1:9092
       - name: Bundle install
         run: bundle install
       - name: Prepare Code Climate
@@ -57,6 +51,7 @@ jobs:
         run: bundle exec rspec && echo "TEST_RESULT_CODE=$?" >> $GITHUB_ENV
       - name: Register coverage
         run: |
+          set;
           cat ./coverage/.resultset.json | sed "s|/opt/phobos|$PWD|" > ./coverage/.newresultset.json
           cp ./coverage/.newresultset.json ./coverage/.resultset.json
-          ./cc-test-reporter after-build --exit-code $TEST_RESULT_CODE
+          ./cc-test-reporter after-build --debug
