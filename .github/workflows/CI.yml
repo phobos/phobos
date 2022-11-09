@@ -52,7 +52,6 @@ jobs:
         run: bundle exec rspec --seed=29232 && echo "TEST_RESULT_CODE=$?" >> $GITHUB_ENV
       - name: Register coverage
         run: |
-          set;
           cat ./coverage/.resultset.json | sed "s|/opt/phobos|$PWD|" > ./coverage/.newresultset.json
           cp ./coverage/.newresultset.json ./coverage/.resultset.json
           ./cc-test-reporter after-build --debug --exit-code $TEST_RESULT_CODE
