@@ -30,6 +30,7 @@ jobs:
           KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
           ALLOW_PLAINTEXT_LISTENER: yes
     strategy:
+      fail-fast: false
       matrix:
         ruby: [2.5.8, 2.6.8, 2.7.4, 3.0.2]
     steps:
@@ -48,10 +49,10 @@ jobs:
           mkdir coverage/
           touch ./coverage/.resultset.json
       - name: Run tests
-        run: bundle exec rspec && echo "TEST_RESULT_CODE=$?" >> $GITHUB_ENV
+        run: bundle exec rspec --seed=29232 && echo "TEST_RESULT_CODE=$?" >> $GITHUB_ENV
       - name: Register coverage
         run: |
           set;
           cat ./coverage/.resultset.json | sed "s|/opt/phobos|$PWD|" > ./coverage/.newresultset.json
           cp ./coverage/.newresultset.json ./coverage/.resultset.json
-          ./cc-test-reporter after-build --debug
+          ./cc-test-reporter after-build --debug --exitcode $TEST_RESULT_CODE
