@@ -4,6 +4,7 @@ $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 Thread.abort_on_exception = true
 
 require 'simplecov'
+require 'simplecov_json_formatter'
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
                                                                  SimpleCov::Formatter::HTMLFormatter
