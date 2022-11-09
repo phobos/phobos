@@ -49,7 +49,7 @@ jobs:
           mkdir coverage/
           touch ./coverage/.resultset.json
       - name: Run tests
-        run: bundle exec rspec --seed=29232 && echo "TEST_RESULT_CODE=$?" >> $GITHUB_ENV
+        run: bundle exec rspec --seed=51397 && echo "TEST_RESULT_CODE=$?" >> $GITHUB_ENV
       - name: Register coverage
         run: |
           cat ./coverage/.resultset.json | sed "s|/opt/phobos|$PWD|" > ./coverage/.newresultset.json
