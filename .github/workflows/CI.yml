@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  DEFAULT_TIMEOUT: 20
+  DEFAULT_TIMEOUT: 60
   CC_TEST_REPORTER_ID: a990fd40ff4421e8b28167232242a1d6c6638f9907fc0b80eb90f82f88fcfd81
 
 jobs:
@@ -52,6 +52,5 @@ jobs:
         run: bundle exec rspec --seed=51397 && echo "TEST_RESULT_CODE=$?" >> $GITHUB_ENV | exit 0
       - name: Register coverage
         run: |
-          cat ./coverage/.resultset.json | sed "s|/opt/phobos|$PWD|" > ./coverage/.newresultset.json
-          cp ./coverage/.newresultset.json ./coverage/.resultset.json
+          set;
           ./cc-test-reporter after-build --debug --exit-code $TEST_RESULT_CODE
