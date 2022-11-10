@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - master
-      - ci-update
   pull_request:
 
 env:
@@ -14,15 +13,15 @@ jobs:
     runs-on: ubuntu-latest
     services:
       zookeeper:
-        image: 'bitnami/zookeeper:latest'
+        image: bitnami/zookeeper:latest
         ports:
-          - '2181:2181'
+          - 2181:2181
         env:
           ALLOW_ANONYMOUS_LOGIN: yes
       kafka:
-        image: 'bitnami/kafka:latest'
+        image: bitnami/kafka:latest
         ports:
-          - '9092:9092'
+          - 9092:9092
         env:
           KAFKA_BROKER_ID: 1
           KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
