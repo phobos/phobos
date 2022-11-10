@@ -38,6 +38,8 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+      - name: Sleep 100
+        run: sleep 100
       - name: Bundle install
         run: bundle install
       - name: Prepare Code Climate
