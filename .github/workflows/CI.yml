@@ -50,6 +50,6 @@ jobs:
           mkdir coverage/
           touch ./coverage/.resultset.json
       - name: Run tests
-        run: bundle exec rspec && echo "TEST_RESULT_CODE=$?" >> $GITHUB_ENV
+        run: bundle exec rspec --seed 13330 && echo "TEST_RESULT_CODE=$?" >> $GITHUB_ENV
       - name: Register coverage
         run: ./cc-test-reporter after-build --exit-code $TEST_RESULT_CODE
