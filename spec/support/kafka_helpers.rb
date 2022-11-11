@@ -39,7 +39,7 @@ module KafkaHelpers
 
   def subscribe_to(*names)
     names.each do |name|
-      # unsubscribe(name)
+      unsubscribe(name)
       @@subscription_events[name] = Concurrent::Array.new
       @@subscriptions[name] = Phobos::Instrumentation.subscribe(name) do |event|
         @@subscription_events[name] << event
