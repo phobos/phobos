@@ -8,7 +8,7 @@ services:
     network_mode: service:kafka
     environment:
       - "DEFAULT_TIMEOUT=${DEFAULT_TIMEOUT}"
-    command: rspec
+    command: bundle exec rspec spec/lib/phobos/{listener,executor}_spec.rb --seed 13330
     volumes:
       - ./coverage:/opt/phobos/coverage
 
