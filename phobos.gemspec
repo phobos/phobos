@@ -44,7 +44,7 @@ Gem::Specification.new do |spec|
   spec.metadata['allowed_push_host'] = 'https://rubygems.org'
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(test|spec|features)/})
+    f.match(%r{^(test|spec|features|sorbet)/})
   end
   spec.bindir        = 'bin'
   spec.executables   = spec.files.grep(%r{^bin/phobos}) { |f| File.basename(f) }
@@ -59,6 +59,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop_rules'
   spec.add_development_dependency 'simplecov'
   spec.add_development_dependency 'sord'
+  spec.add_development_dependency 'sorbet'
+  spec.add_development_dependency 'tapioca'
   spec.add_development_dependency 'timecop'
   spec.add_development_dependency 'yard'
 

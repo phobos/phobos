@@ -13,7 +13,7 @@ module Phobos
     end
 
     # @!visibility private
-    class Commands < Thor
+    class Commands < ::Thor
       include Thor::Actions
 
       map '-v' => :version
