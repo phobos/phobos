@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ``
 ## UNRELEASED
 
+## [2.1.6] - 2023-08-31
+
+- Generate Sorbet RBI files.
+
 ## [2.1.4] - 2022-06-15
 
 - Re-raise consuming errors so that threads don't die forever and are retried
