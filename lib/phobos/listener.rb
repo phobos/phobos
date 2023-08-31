@@ -14,11 +14,11 @@ module Phobos
     # @return [String]
     attr_reader :topic
     attr_reader :id
-    # @return [Class]
+    # @return [Class<BasicObject>]
     attr_reader :handler_class
     attr_reader :encoding, :consumer
 
-    # @param handler [Class]
+    # @param handler [Class<BasicObject>]
     # @param group_id [String]
     # @param topic [String]
     # @param min_bytes [Integer]
