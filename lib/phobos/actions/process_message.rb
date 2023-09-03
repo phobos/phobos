@@ -13,6 +13,7 @@ module Phobos
         @listener = listener
         @message = message
         @metadata = listener_metadata.merge(
+          topic: message.topic,
           key: message.key,
           partition: message.partition,
           offset: message.offset,
