@@ -32,9 +32,9 @@ producer:
   # number of seconds a broker can wait for replicas to acknowledge
   # a write before responding with a timeout
   ack_timeout: 5
-  # number of replicas that must acknowledge a write, or `:all`
+  # number of replicas that must acknowledge a write, or `all`
   # if all in-sync replicas must acknowledge
-  required_acks: :all
+  required_acks: all
   # number of retries that should be attempted before giving up sending
   # messages to the cluster. Does not include the original attempt
   max_retries: 2
