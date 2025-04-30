@@ -4,6 +4,10 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/e3814d747c91247b24c6/maintainability)](https://codeclimate.com/github/phobos/phobos/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/e3814d747c91247b24c6/test_coverage)](https://codeclimate.com/github/phobos/phobos/test_coverage)
 
+# Deprecation Notice
+
+As the underlying library for Phobos, [RubyKafka](https://github.com/zendesk/ruby-kafka?tab=readme-ov-file#deprecation-notice) has itself been deprecated, Phobos will no longer be receiving updates or fixes. We recommend you look at the [Karafka](https://karafka.io/) family of gems for high-level Kafka processing in Ruby.
+
 # Phobos
 
 Simplifying Kafka for Ruby apps!
